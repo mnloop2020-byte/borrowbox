@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bgCamp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2F5F0" />
+      <stop offset="100%" stop-color="#D7E4DA" />
+    </linearGradient>
+    <filter id="shadowC" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#454F49" flood-opacity="0.12" />
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgCamp)" />
+  <ellipse cx="400" cy="510" rx="340" ry="40" fill="#D2DDD5" opacity="0.6" />
+  <!-- Camping Tent & Lantern Illustration -->
+  <g filter="url(#shadowC)" transform="translate(130, 90)">
+    <!-- Modern Geodesic Tent -->
+    <path d="M100 400 L320 120 L540 400 Z" fill="#425048" />
+    <!-- Vestibule / Door flap -->
+    <path d="M320 120 L320 400 L440 400 Z" fill="#5A6D63" />
+    <!-- Tent Highlights -->
+    <path d="M320 120 L240 400 L320 400 Z" fill="#758B7F" />
+    <!-- Guylines & Pegs -->
+    <line x1="100" y1="400" x2="60" y2="430" stroke="#A8BDAE" stroke-width="3" />
+    <line x1="540" y1="400" x2="580" y2="430" stroke="#A8BDAE" stroke-width="3" />
+    <!-- Camping Lantern -->
+    <g transform="translate(40, 260)">
+      <rect x="25" y="100" width="60" height="20" rx="6" fill="#3D4540" />
+      <rect x="30" y="40" width="50" height="60" rx="8" fill="#FFF9E6" opacity="0.9" />
+      <!-- Glow center -->
+      <circle cx="55" cy="70" r="16" fill="#FFE599" opacity="0.8" />
+      <!-- Cage wire -->
+      <rect x="32" y="42" width="46" height="56" rx="6" fill="none" stroke="#454F49" stroke-width="3" />
+      <!-- Cap & handle -->
+      <path d="M20 40 Q55 20 90 40 Z" fill="#3D4540" />
+      <path d="M30 25 C30 0, 80 0, 80 25" fill="none" stroke="#68766F" stroke-width="4" />
+    </g>
+  </g>
+</svg>
+

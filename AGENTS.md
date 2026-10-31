@@ -1,10 +1,12 @@
-# Project Rules — ShopBoard
+# Project Rules —BorrowBox
 
 ## 1. Technology Stack
 
 - Use Vite with vanilla JavaScript, HTML, and CSS.
 - Do not use React, Vue, TypeScript, or other frameworks unless explicitly requested.
 - Use native browser APIs whenever practical.
+
+## Architecture - data.js: product data only - logic.js: pure functions,   no DOM, no localStorage - state.js: the cart and saving 4 Swap with the next team. Do their rules make sense?- ui.js: the only file that   touches the DOM - main.js: connects them
 
 ## 2. HTML
 

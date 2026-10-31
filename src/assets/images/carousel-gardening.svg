@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bgGarden" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EFF5F1" />
+      <stop offset="100%" stop-color="#DCE8DF" />
+    </linearGradient>
+    <filter id="shadowG" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#454F49" flood-opacity="0.12" />
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGarden)" />
+  <ellipse cx="400" cy="510" rx="340" ry="40" fill="#D2DDD5" opacity="0.6" />
+  <!-- Gardening Tools Illustration -->
+  <g filter="url(#shadowG)" transform="translate(160, 110)">
+    <!-- Garden Trowel -->
+    <g transform="rotate(25, 200, 250)">
+      <!-- Blade -->
+      <path d="M180 80 Q210 160 210 240 Q180 270 150 240 Q150 160 180 80 Z" fill="#6C7D73" />
+      <path d="M180 80 L180 260" stroke="#505D56" stroke-width="2" />
+      <!-- Neck -->
+      <rect x="174" y="260" width="12" height="35" rx="3" fill="#88998F" />
+      <!-- Wooden Handle -->
+      <path d="M172 295 L188 295 L192 410 L168 410 Z" fill="#C2AB8A" />
+      <circle cx="180" cy="400" r="4" fill="#3D4540" />
+    </g>
+    <!-- Pruning Shears -->
+    <g transform="translate(240, 140) rotate(-15)">
+      <!-- Blades -->
+      <path d="M70 40 C75 90, 60 140, 40 170 L80 170 C85 130, 95 80, 70 40 Z" fill="#99A8A0" />
+      <path d="M90 60 C85 100, 95 140, 110 170 L70 170 C65 130, 60 90, 90 60 Z" fill="#75857D" />
+      <circle cx="75" cy="170" r="7" fill="#343C37" />
+      <!-- Handles -->
+      <rect x="35" y="180" width="22" height="130" rx="10" fill="#A8BDAE" />
+      <rect x="92" y="180" width="22" height="130" rx="10" fill="#A8BDAE" />
+    </g>
+  </g>
+</svg>
+
