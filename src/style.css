@@ -1896,3 +1896,14 @@ h3 {
   padding-block: var(--space-xs);
   cursor: pointer;
 }
+
+/* Hidden on screen but still read by screen readers, e.g. a <label> whose
+   input already shows its purpose with a placeholder and an icon */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

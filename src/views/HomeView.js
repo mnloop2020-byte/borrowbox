@@ -37,13 +37,14 @@ function renderHero() {
         </ul>
         <form id="hero-search-form" class="hero-search-form" role="search" aria-label="${tx("home.hero.searchLabel")}">
           <div class="search-input-group">
+            <!-- A real <label for> (hidden visually; the placeholder and icon show the purpose) -->
+            <label for="hero-search-input" class="visually-hidden">${tx("home.hero.searchInputLabel")}</label>
             <span class="search-icon" aria-hidden="true">${SEARCH_ICON}</span>
             <input
               type="search"
               id="hero-search-input"
               class="hero-search-input"
               placeholder="${tx("home.hero.searchPlaceholder")}"
-              aria-label="${tx("home.hero.searchInputLabel")}"
             />
             <button type="submit" class="search-submit-btn">${tx("home.hero.searchButton")}</button>
           </div>
