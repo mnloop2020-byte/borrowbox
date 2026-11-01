@@ -6,7 +6,15 @@
 - Do not use React, Vue, TypeScript, or other frameworks unless explicitly requested.
 - Use native browser APIs whenever practical.
 
-## Architecture - data.js: product data only - logic.js: pure functions,   no DOM, no localStorage - state.js: the cart and saving 4 Swap with the next team. Do their rules make sense?- ui.js: the only file that   touches the DOM - main.js: connects them
+## Architecture
+
+- `src/main.js`: app shell and hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`).
+- `src/views/`: one module per route. Each exports `mountXView(container, ...)` and returns a cleanup function.
+- `src/components/`: reusable UI. Functions return HTML strings, plus `bindX()` functions for events.
+- `src/store/`: data and `localStorage` persistence (seed data, demo users, item and request stores).
+- `src/logic/`: pure functions only (filtering, availability, date rules). No DOM and no `localStorage`, so they can be tested with Node.
+- `src/style.css`: all styles, organized in commented sections.
+- `docs/superpowers/specs/` holds the approved design spec. `docs/superpowers/plans/` holds implementation plans.
 
 ## 2. HTML
 
@@ -32,12 +40,20 @@
 - Validate user input where appropriate.
 - Keep functions small and focused.
 
+## 4a. Security
+
+- Treat URL parameters, `localStorage` data and form input as untrusted.
+- Never put untrusted text into `innerHTML` without escaping it. Use `textContent` for single values and `escapeHtml()` inside HTML templates.
+- Validate URL parameters against an allowlist (known categories and statuses, a pattern for item IDs).
+- Only allow image URLs that are relative or use `https:`.
+
 ## 5. Code Quality
 
 - Follow ESLint rules.
 - Use Prettier to format code.
 - Avoid unnecessary packages and configuration changes.
 - Keep the project compatible with the existing Vite setup.
+- Pure logic in `src/logic/` has tests run with `npm test` (Node's built-in `node:test`; no test packages).
 
 ## 6. Development Workflow
 
@@ -49,11 +65,7 @@
 
 ## 7. Project Goal
 
-Build ShopBoard, a small and accessible shop website with:
-
-- A header containing navigation.
-- A hero section.
-- A products section using article cards.
-- A registration form with labels and native HTML validation.
+Build BorrowBox, an accessible peer-to-peer tool-sharing web app, as defined in
+`docs/superpowers/specs/2026-10-30-borrowbox-design.md`.
 
 Implement only the features explicitly requested. Keep the solution simple and suitable for a beginner-level university assignment.

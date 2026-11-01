@@ -4,79 +4,114 @@
 
 **Goal:** Replace the `#/catalog` placeholder with a working catalog. Users can search items by keyword and filter them by category and availability status.
 
-**Architecture:** Pure filtering functions live in their own file with no DOM access, so Node can test them directly. A `FilterBar` component renders the form, and a `CatalogView` connects the URL, the filters, and the item grid. Filter state lives in the hash query string (`#/catalog?q=&category=&status=`). The links that already exist on the home page and in the hero search keep working unchanged.
+**Architecture:** Pure filtering functions live in `src/logic/`, with no DOM access, so Node can test them directly. A `FilterBar` component renders the form, and a `CatalogView` connects the URL, the filters, and the item grid. Filter state lives in the hash query string (`#/catalog?q=&category=&status=`). The existing home page links and hero search keep working unchanged.
 
 **Tech Stack:** Vite 8, vanilla ES modules, CSS in `src/style.css`, Node 22's built-in `node:test` (no new dependencies).
 
-**Spec:** `docs/superpowers/specs/2026-10-30-borrowbox-design.md`, §1 item 1 ("Filter and search items by category, keyword, and availability status") and the `#/catalog` route row.
+**Spec:** `docs/superpowers/specs/2026-10-30-borrowbox-design.md` v1.4.0: §1.2 item 1 (catalog and the six categories), §5.2 (derived item status), §8.3 (security rules).
+
+## Prerequisite
+
+The **XSS fix** (`fix/xss-escaping`) must be merged first. This plan relies on what it adds:
+
+- `npm test` script (`node --test`)
+- `src/logic/html.js`: `escapeHtml(value: unknown) -> string` and `isSafeImageUrl(url: string) -> boolean`
+- `src/logic/constants.js`: `CATEGORIES` (the six category names from spec §1.2, in that order) and `STATUSES = ["Available", "Reserved", "Unavailable"]`
+- an escaped `renderItemCard`
 
 ## Relationship to the existing plan
 
-`docs/superpowers/plans/2026-10-30-catalog-itemdetail.md`, Phase 2 (Tasks 2.1–2.4), covers the same page, but it depends on Phase 1 stores that don't exist yet (`itemStore.getItemsByFilter`, `availability.js`). This plan is a smaller, standalone version that works on `SEED_ITEMS` as they are today. **If this plan is executed, Phase 2 of the older plan is replaced by it.** Phase 1 can later swap `SEED_ITEMS` for `itemStore.getAllItems()` without changing `filterItems`.
+`docs/superpowers/plans/2026-10-30-catalog-itemdetail.md`, Phase 2 (Tasks 2.1–2.4), covers the same page. **This plan replaces that Phase 2.** It works on `SEED_ITEMS` as they are today. When Phase 1 builds `itemStore` and `availability.js`:
 
-## Assumptions (please check)
+- `itemStore` reuses `filterItems` instead of adding its own `getItemsByFilter`.
+- `CatalogView` passes `deriveItemStatus` in place of this plan's interim `getItemStatus`.
 
-1. **Filters match the spec only:** keyword, category, and status. The older plan's extra filters (condition, deposit range, sort) are left out because the spec doesn't ask for them.
-2. **Status values** are `Available`, `Reserved`, `Unavailable`, taken from the spec. All seed items are currently `Available`.
-3. **The keyword search** matches `title`, `description`, and `category`, ignoring case. Every word must match, in any order: `"drill bosch"` matches "Bosch Professional Hammer Drill".
-4. **Category options** come from the items themselves, so no third copy of the category list is created. A category in the URL that has no items, such as "Home Improvement" from the home page, still filters and shows the empty state.
-5. **Testing:** the project has no test runner. The plan adds only a `"test": "node --test"` script (Node 22 is installed), because AGENTS.md says to avoid new packages. UI tasks are checked by hand in the browser.
+## Decisions taken from the spec
+
+1. **Filters:** keyword, category, and status only (spec §1.2). No condition, deposit or sort filters.
+2. **Keyword search** matches `title`, `description`, and `category`, ignoring case. Every word must match, in any order: `"drill bosch"` matches "Bosch Professional Hammer Drill".
+3. **Categories** come from the shared `CATEGORIES` list. A category in the URL that is not in the list is ignored, so all items show.
+4. **Status is derived, not stored** (spec §5.2). Until Phase 1 exists, `getItemStatus(item)` returns `"Unavailable"` when `item.isManuallyPaused` is true and `"Available"` otherwise. `filterItems` takes the status function as a parameter, so Phase 1 can swap it without changing the filter.
 
 ## Global Constraints
 
 - Vanilla JavaScript only. No new npm packages (AGENTS.md §1, §5).
 - Every form control has an associated `<label>`, and the result count is announced with `aria-live="polite"` (AGENTS.md §2).
 - CSS is mobile-first, uses `min-width` media queries, has no `!important`, and is appended to `src/style.css` using the existing custom properties.
-- **Any text from the URL must be HTML-escaped before it is inserted into `innerHTML`.**
-- Filter changes update the URL with `history.replaceState`, not `location.hash =`. Setting the hash fires `hashchange`, which makes `main.js` remount the view, and the search box would lose focus while the user is typing.
-- `npm run lint` and `npm run format:check` pass after every task.
+- Text from the URL is validated against allowlists and escaped or set with `textContent` (spec §8.3).
+- Filter changes update the URL with `history.replaceState`, not `location.hash =`. Setting the hash fires `hashchange`, which makes `main.js` remount the view, and the search box would lose focus while typing.
+- `npm test`, `npm run lint` and `npm run format:check` pass after every task.
 
 ## Review Focus
 
-1. **XSS through the URL:** `#/catalog?q=<img src=x onerror=alert(1)>` must show as plain text. Today's placeholder in `main.js` (around lines 51–63) inserts `query` and `category` without escaping. That is an existing bug this plan fixes (Tasks 1 and 3).
-2. **Focus while typing:** typing "dri" must keep focus in the search box and keep the cursor where it was (Task 3, manual check).
-3. **An unknown `status` in the URL:** `?status=bogus` is treated as "any status", not as a filter that returns no items (Task 1).
-4. **A whitespace-only keyword:** `?q=%20%20` returns all items (Task 1).
-5. **Back-button behavior:** typing must not fill the browser history with one entry per letter. `replaceState` handles this (Task 3, manual check).
+1. **XSS through the URL:** `#/catalog?q=<img src=x onerror=alert(1)>` shows as plain text in the search box and the page (Tasks 2 and 4).
+2. **Focus while typing:** typing "dri" keeps focus in the search box and keeps the cursor where it was (Task 4, manual check).
+3. **Unknown `status` or `category` in the URL:** `?status=bogus` and `?category=Home%20Improvement` are ignored, and all items show (Task 2).
+4. **A whitespace-only keyword:** `?q=%20%20` returns all items (Task 2).
+5. **Back-button behavior:** typing must not add one history entry per letter. `replaceState` prevents this (Task 4, manual check).
 
 ---
 
-### Task 1: Pure filter logic + test script
+### Task 1: Shared categories in the home page and seed data
+
+**Files:**
+
+- Modify: `src/views/HomeView.js`: the `CATEGORIES` constant
+- Modify: `src/store/seedData.js`: add 2 items
+- Create: `src/assets/images/item-hand-tools.svg`, `src/assets/images/item-outdoor.svg`
+
+**Interfaces:**
+
+- Consumes: `CATEGORIES` from `src/logic/constants.js`.
+
+- [ ] **Step 1: Update the home page categories.** Replace the local name list with the six shared names, keeping one icon per name. Replace "Home Improvement" with "Hand Tools" and keep "Outdoor Equipment". Look up icons by name so the names come only from `CATEGORIES`.
+- [ ] **Step 2: Add two seed items** following the spec §5.2 item model:
+  - `item-105`, category `Hand Tools`, owner `user-1`
+  - `item-106`, category `Outdoor Equipment`, owner `user-2`
+  - Each uses one of the new local SVG images, `isManuallyPaused: false`, and a stored `status: "Available"`. The stored field stays for now because `ItemCard` reads it; Phase 1 removes it.
+- [ ] **Step 3: Run** `npm test`, `npm run lint`, `npm run format:check`, and `npm run build`. Expected: all pass.
+- [ ] **Step 4: Manual check** with `npm run dev`:
+  - The home page shows six category cards.
+  - The featured grid shows six items.
+- [ ] **Step 5: Commit:** `feat: align categories with spec and add seed items`
+
+### Task 2: Pure filter logic
 
 **Files:**
 
 - Create: `src/logic/catalogFilter.js`
 - Create: `tests/catalogFilter.test.js`
-- Modify: `package.json`: add `"test": "node --test"` to `scripts`
 
 **Interfaces:**
 
+- Consumes: `CATEGORIES` and `STATUSES` from `src/logic/constants.js`.
 - Produces:
-  - `STATUSES = ["Available", "Reserved", "Unavailable"]`
-  - `parseCatalogParams(queryString: string) -> { q: string, category: string, status: string }`: trims `q`. Unknown `status` values become `""`.
+  - `parseCatalogParams(queryString: string) -> { q: string, category: string, status: string }`: trims `q` and cuts it to 100 characters. A `category` not in `CATEGORIES` or a `status` not in `STATUSES` becomes `""`.
   - `buildCatalogQuery(filters) -> string`: for example `"q=drill&status=Available"`, with empty fields left out.
-  - `filterItems(items: Item[], filters) -> Item[]`: keeps the input order and never changes `items`.
-  - `escapeHtml(text: string) -> string`: escapes `& < > " '`.
+  - `getItemStatus(item) -> "Available" | "Unavailable"`: the interim status rule.
+  - `filterItems(items, filters, statusOf = getItemStatus) -> Item[]`: keeps the input order and never changes `items`.
 - This file must not import `seedData.js`, because its SVG imports fail in Node. Tests use small item objects written inline.
 
 - [ ] **Step 1: Write the tests** in `tests/catalogFilter.test.js` using `node:test` and `node:assert/strict`:
   - `parseCatalogParams("q=%20Drill%20&category=Gardening")` → `{ q: "Drill", category: "Gardening", status: "" }`
   - `parseCatalogParams("status=bogus").status === ""`
-  - `parseCatalogParams("").q === ""`
+  - `parseCatalogParams("category=Home%20Improvement").category === ""`
+  - `parseCatalogParams("q=" + "a".repeat(150)).q.length === 100`
+  - `parseCatalogParams("q=%20%20").q === ""`
   - `filterItems(items, { q: "", category: "", status: "" })` returns every item.
   - `q: "DRILL"` matches the title "Bosch Professional Hammer Drill".
-  - `q: "drill bosch"` matches it (words in any order). `q: "drill tent"` does not.
+  - `q: "drill bosch"` matches it. `q: "drill tent"` does not.
   - `q: "stainless"` matches through `description`.
-  - `category: "Gardening"` combined with `status: "Available"` combines with AND.
-  - `category: "Home Improvement"` returns `[]`.
+  - `category: "Gardening"` with `status: "Available"` combines with AND.
+  - `getItemStatus({ isManuallyPaused: true }) === "Unavailable"`
+  - A custom `statusOf` that returns `"Reserved"` makes `status: "Reserved"` match every item.
   - `buildCatalogQuery({ q: "a b", category: "", status: "Available" }) === "q=a+b&status=Available"`
-  - `escapeHtml('<img src="x">') === "&lt;img src=&quot;x&quot;&gt;"`
-- [ ] **Step 2: Run** `npm test`. Expected: FAIL with `Cannot find module .../catalogFilter.js`.
-- [ ] **Step 3: Implement** the five exports. Use `URLSearchParams` for parsing and building. For the keyword, lowercase it, split on `/\s+/`, and require every word to appear in the joined `title description category` text.
+- [ ] **Step 2: Run** `npm test`. Expected: the new tests FAIL with `Cannot find module .../catalogFilter.js`.
+- [ ] **Step 3: Implement** the four exports. Use `URLSearchParams` for parsing and building. For the keyword, lowercase it, split on `/\s+/`, and require every word to appear in the joined `title description category` text.
 - [ ] **Step 4: Run** `npm test`. Expected: all tests pass. Then run `npm run lint`. Expected: no errors.
 - [ ] **Step 5: Commit:** `feat: add catalog filter logic with node tests`
 
-### Task 2: FilterBar component
+### Task 3: FilterBar component
 
 **Files:**
 
@@ -84,61 +119,63 @@
 
 **Interfaces:**
 
-- Consumes: `STATUSES` and `escapeHtml` from Task 1.
+- Consumes: `CATEGORIES`, `STATUSES` (constants) and `escapeHtml` (`src/logic/html.js`).
 - Produces:
-  - `renderFilterBar(filters, categories: string[]) -> string`: a `<form class="filter-bar" role="search">` with:
-    - `<input type="search" id="filter-q">`
+  - `renderFilterBar(filters) -> string`: a `<form class="filter-bar" role="search">` with:
+    - `<input type="search" id="filter-q" maxlength="100">`
     - `<select id="filter-category">`, whose first option is "All categories" with value `""`
     - `<select id="filter-status">`, whose first option is "Any status"
     - a "Clear filters" `<button type="reset">`
-    - one `<label>` for each control. The current values are pre-selected and escaped.
+    - one `<label>` for each control. Current values are pre-selected and every value is escaped.
   - `bindFilterBar(form: HTMLFormElement, onChange: (filters) => void) -> cleanup()`:
     - Typing in the search box calls `onChange` 250 ms after the last keystroke.
     - Changing a select calls it right away.
     - Reset calls `onChange({ q: "", category: "", status: "" })`.
-    - Submit is cancelled with `preventDefault` so the page doesn't reload.
+    - Submit is cancelled with `preventDefault`.
     - `cleanup` clears the pending timer.
 
-- [ ] **Step 1: Implement** both functions.
-- [ ] **Step 2: Run** `npm run lint` and `npm run format:check`. Expected: no errors.
-- [ ] **Step 3: Commit:** `feat: add accessible FilterBar component`
+- [ ] **Step 1: Write a test** in `tests/filterBar.test.js` for `renderFilterBar` (it returns a string, so Node can test it):
+  - `renderFilterBar({ q: '"><img src=x onerror=alert(1)>', category: "", status: "" })` contains no `<img` and contains `&quot;&gt;&lt;img`.
+  - The output has exactly three `<label for=` entries.
+  - `category: "Camping"` produces `value="Camping" selected`.
+- [ ] **Step 2: Run** `npm test`. Expected: the new test FAILS.
+- [ ] **Step 3: Implement** both functions. `bindFilterBar` uses the DOM, so it is checked by hand in Task 4.
+- [ ] **Step 4: Run** `npm test`, `npm run lint` and `npm run format:check`. Expected: all pass.
+- [ ] **Step 5: Commit:** `feat: add accessible FilterBar component`
 
-(This task has no automated test: the project has no DOM test environment, and adding jsdom would break the no-new-packages rule. Task 3's manual checks cover it.)
-
-### Task 3: CatalogView + route wiring
+### Task 4: CatalogView + route wiring
 
 **Files:**
 
 - Create: `src/views/CatalogView.js`
-- Modify: `src/main.js`: replace the inline catalog placeholder (around lines 46–67) with a call to `mountCatalogView`
+- Modify: `src/main.js`: replace the catalog route branch (the `if (hash.startsWith("#/catalog"))` block) with a call to `mountCatalogView`
 
 **Interfaces:**
 
-- Consumes: Task 1 functions, `renderFilterBar` and `bindFilterBar` (Task 2), `renderItemCard` (`src/components/ItemCard.js`), and `SEED_ITEMS`.
+- Consumes: Task 2 functions, `renderFilterBar` and `bindFilterBar` (Task 3), `renderItemCard` (`src/components/ItemCard.js`), and `SEED_ITEMS`.
 - Produces: `mountCatalogView(container: HTMLElement, queryString: string) -> cleanup()`
 
 - [ ] **Step 1: Implement** `mountCatalogView`. It renders:
   - `<h1 id="page-title">Explore Catalog</h1>`
   - the filter bar
   - `<p class="catalog-count" aria-live="polite">` showing "N items" or "1 item"
-  - `<div class="catalog-grid">`
+  - `<div class="catalog-grid">`, rendering each item as `renderItemCard({ ...item, status: getItemStatus(item) })`
 
-  On `onChange`, it calls `history.replaceState(null, "", "#/catalog?" + buildCatalogQuery(f))` (just `#/catalog` when the query is empty) and re-renders only the count and the grid. When there are zero results, it shows "No items match your search." with a "Clear filters" link to `#/catalog`. It returns the FilterBar cleanup.
+  On `onChange`, it calls `history.replaceState(null, "", "#/catalog?" + buildCatalogQuery(f))` (just `#/catalog` when the query is empty) and re-renders only the count and the grid. With zero results, it shows "No items match your search." and a "Clear filters" link to `#/catalog`. It returns the FilterBar cleanup.
 
-- [ ] **Step 2: Modify `main.js`.** The catalog branch becomes `activeViewCleanup = mountCatalogView(viewContainer, hash.split("?")[1] || "")`. Keep the `document.title` line. The unescaped HTML is removed with it.
+- [ ] **Step 2: Modify `main.js`.** The catalog branch becomes `activeViewCleanup = mountCatalogView(viewContainer, hash.split("?")[1] || "")`. Keep the `document.title` line.
 - [ ] **Step 3: Run** `npm test`, `npm run lint`, `npm run format:check`, and `npm run build`. Expected: all succeed.
 - [ ] **Step 4: Manual check** with `npm run dev`:
   - The hero search for "drill" lands on the catalog with 1 item.
-  - The home category card "Camping" pre-selects Camping and shows 1 item.
+  - Each of the six home category cards pre-selects its category and shows at least 1 item.
   - Typing "tent" keeps focus in the input, and the URL updates.
-  - The Back button goes back to the page before the catalog, not through each typed letter.
-  - `#/catalog?q=<b>x</b>` shows the text `<b>x</b>` as it is, not bold.
-  - `#/catalog?status=bogus` shows all 4 items.
-  - "Home Improvement" shows the empty state.
-  - Clear filters shows all 4 items again.
+  - The Back button goes to the page before the catalog, not through each typed letter.
+  - `#/catalog?q=<img src=x onerror=alert(1)>` shows the text in the search box, and no alert appears.
+  - `#/catalog?status=bogus` and `#/catalog?category=Home%20Improvement` show all 6 items.
+  - `#/catalog?q=zzz` shows the empty state, and Clear filters shows all 6 items again.
 - [ ] **Step 5: Commit:** `feat: implement searchable catalog view`
 
-### Task 4: Catalog styles
+### Task 5: Catalog styles
 
 **Files:**
 
@@ -162,4 +199,4 @@
 ## Final verification
 
 - `npm test`, `npm run lint`, `npm run format:check`, and `npm run build` all pass.
-- Repeat the Task 3 Step 4 checklist once on the production build with `npm run preview`.
+- Repeat the Task 4 Step 4 checklist once on the production build with `npm run preview`.
