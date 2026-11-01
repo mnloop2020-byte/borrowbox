@@ -12,14 +12,14 @@
 
 ## Global Constraints
 
-- No new npm packages (AGENTS.md §1, §5). No frameworks.
+- No new npm packages (CLAUDE.md §1, §5). No frameworks.
 - Colour values exactly as spec §3.1. `--color-accent-fill` (`#B8F35C`) is never a text colour on cream.
 - Lime buttons on cream: `border: 1px solid var(--color-accent-text)`.
 - Focus ring: `outline: 3px solid var(--color-accent-text); outline-offset: 2px` on `:focus-visible`.
 - Every `:hover` rule inside `@media (hover: hover)`; transitions name properties, never `all`.
 - All movement off under `@media (prefers-reduced-motion: reduce)`.
 - Mobile-first CSS with `min-width` queries at `768px` and `1024px`; logical properties (`margin-inline-*`, `padding-inline-*`) for anything that mirrors.
-- Untrusted text never goes into `innerHTML` unescaped (AGENTS.md §4a). Home copy is static and trusted.
+- Untrusted text never goes into `innerHTML` unescaped (CLAUDE.md §4a). Home copy is static and trusted.
 - `npm run lint`, `npm run format:check` and `npm run build` pass after every task.
 - **Commits:** the user has deferred committing. Each task ends with a "Commit" step listing the files that belong together; run it only after the user says to commit.
 

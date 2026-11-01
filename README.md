@@ -78,7 +78,7 @@ To change wording, edit the dictionary only. Category names, statuses and other 
 ## Documentation
 
 - [Product design specification](docs/superpowers/specs/2026-10-30-borrowbox-design.md): the approved product rules, data models, borrowing lifecycle, security and language support.
-- [Project rules](AGENTS.md): conventions for contributors and coding agents.
+- [Project rules](CLAUDE.md): conventions for contributors and AI coding tools.
 - `docs/superpowers/plans/`: implementation plans for each feature.
 
 ## Status
