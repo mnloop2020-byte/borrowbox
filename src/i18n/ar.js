@@ -127,7 +127,6 @@ export default {
     "أدوات على بُعد شوارع قليلة، لا في الطرف الآخر من المدينة.",
 
   // بطاقة الأداة
-  "card.ariaLabel": "{title}، التأمين {deposit}، الحالة {condition}",
   "card.ratingLabel": "التقييم {rating} من 5",
   "card.conditionLabel": "الحالة:",
   "card.owner": "المالك: {name}",

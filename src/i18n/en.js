@@ -131,7 +131,6 @@ export default {
   "home.why.item5.text": "Find tools a few streets away, not across the city.",
 
   // Item card
-  "card.ariaLabel": "{title}, deposit {deposit}, condition {condition}",
   "card.ratingLabel": "Rating {rating} out of 5",
   "card.conditionLabel": "Condition:",
   "card.owner": "by {name}",

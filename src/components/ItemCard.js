@@ -29,7 +29,8 @@ export function renderItemCard(item) {
 
   return `
     <article class="item-card"${isValidItemId(item.id) ? ` data-item-id="${item.id}"` : ""}>
-      <a href="${href}" class="item-card-link" aria-label="${escapeHtml(t("card.ariaLabel", { title: item.title, deposit: formatMoney(deposit), condition: tValue("condition", item.condition) }))}">
+      <!-- No aria-label: the link's name is its visible text, so the two always match (WCAG 2.5.3) -->
+      <a href="${href}" class="item-card-link">
         <div class="item-card-image-wrap">
           ${
             isSafeImageUrl(item.imageUrl)
