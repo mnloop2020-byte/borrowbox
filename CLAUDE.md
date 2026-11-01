@@ -69,3 +69,11 @@ Build BorrowBox, an accessible peer-to-peer tool-sharing web app, as defined in
 `docs/superpowers/specs/2026-10-30-borrowbox-design.md`.
 
 Implement only the features explicitly requested. Keep the solution simple and suitable for a beginner-level university assignment.
+
+## 8. Rules From Mistakes
+
+### Check text color where the text actually sits
+
+**The mistake:** The footer logo "BorrowBox" was dark text on the dark navy footer (contrast 1.3:1). The footer changed its color variable, but the logo had no color of its own, so it kept the dark color from `body`. The tests passed and the code looked right. Only Lighthouse found it.
+
+**The rule:** After any color change, check the contrast of every text element against the background it sits on, including inside the dark header, hero and footer. Text must reach 4.5:1 (3:1 for large text). Run Lighthouse accessibility before saying a page is done.
