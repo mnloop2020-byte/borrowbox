@@ -1,37 +1,181 @@
-import { createCarousel } from "../components/Carousel.js";
+import { createHeroBackground } from "../components/Carousel.js";
 import { renderItemCard } from "../components/ItemCard.js";
+import { categoryHref, categoryLabel } from "../content/categories.js";
+import {
+  CATEGORY_GROUPS,
+  HERO_BULLET_KEYS,
+  HERO_SLIDES,
+  HOW_IMAGE,
+  HOW_STEP_KEYS,
+  IDLE_IMAGE,
+  IDLE_POINT_KEYS,
+  WHY_ITEMS,
+} from "../content/homeContent.js";
+import { t } from "../i18n/i18n.js";
+import { escapeHtml } from "../logic/html.js";
 import { SEED_ITEMS } from "../store/seedData.js";
 
-const CATEGORIES = [
-  {
-    name: "Power Tools",
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2l4 4L7 17H3v-4L14 2z"></path><path d="M3 21h18"></path></svg>`,
-  },
-  {
-    name: "Gardening",
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a9 9 0 0 1 9 9c0 4.97-4.03 9-9 9s-9-4.03-9-9a9 9 0 0 1 9-9z"></path><path d="M12 8v8"></path><path d="M8 12h8"></path></svg>`,
-  },
-  {
-    name: "Cleaning",
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg>`,
-  },
-  {
-    name: "Camping",
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 20L12 4 5 20h14z"></path><path d="M12 4v16"></path></svg>`,
-  },
-  {
-    name: "Home Improvement",
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
-  },
-  {
-    name: "Outdoor Equipment",
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>`,
-  },
-];
+/** Translated text, escaped for use inside these HTML templates */
+const tx = (key, values) => escapeHtml(t(key, values));
+
+// The arrow points along the reading direction, so it flips in RTL (.icon-directional)
+const ARROW_ICON = `<svg class="icon-directional" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg>`;
+const CHECK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>`;
+const SEARCH_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>`;
+
+function renderHero() {
+  return `
+    <section class="hero" aria-labelledby="hero-heading">
+      <div id="hero-bg-mount" class="hero-bg-mount"></div>
+      <div class="hero-content">
+        <span class="hero-eyebrow">${tx("home.hero.eyebrow")}</span>
+        <h1 id="hero-heading" class="hero-title">
+          ${tx("home.hero.title")} <span class="hero-title-accent">${tx("home.hero.titleAccent")}</span>
+        </h1>
+        <ul class="hero-bullets">
+          ${HERO_BULLET_KEYS.map((key) => `<li>${tx(key)}</li>`).join("")}
+        </ul>
+        <form id="hero-search-form" class="hero-search-form" role="search" aria-label="${tx("home.hero.searchLabel")}">
+          <div class="search-input-group">
+            <span class="search-icon" aria-hidden="true">${SEARCH_ICON}</span>
+            <input
+              type="search"
+              id="hero-search-input"
+              class="hero-search-input"
+              placeholder="${tx("home.hero.searchPlaceholder")}"
+              aria-label="${tx("home.hero.searchInputLabel")}"
+            />
+            <button type="submit" class="search-submit-btn">${tx("home.hero.searchButton")}</button>
+          </div>
+        </form>
+        <div class="hero-actions">
+          <a href="#/catalog" class="btn btn-accent btn-lg">${tx("home.hero.exploreAll")}</a>
+          <a href="#/list-item" class="btn btn-outline btn-lg">${tx("nav.listItem")}</a>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderAbout() {
+  return `
+    <section class="home-section about-section" aria-labelledby="about-heading">
+      <div class="about-heading-col">
+        <span class="section-eyebrow">${tx("home.about.eyebrow")}</span>
+        <h2 id="about-heading" class="section-title">${tx("home.about.title")}</h2>
+      </div>
+      <div class="about-body-col">
+        <p class="about-text">${tx("home.about.text")}</p>
+        <a href="#/" class="text-link" data-scroll-target="how-it-works">${tx("home.about.link")} ${ARROW_ICON}</a>
+      </div>
+    </section>
+  `;
+}
+
+function renderCategoryGroup(group) {
+  // href keeps the English category name; only the label is translated
+  const links = group.categories
+    .map(
+      (name) =>
+        `<li><a href="${categoryHref(name)}" class="tool-link">${escapeHtml(categoryLabel(name))} ${ARROW_ICON}</a></li>`,
+    )
+    .join("");
+
+  return `
+    <article class="category-group" aria-labelledby="group-${group.id}">
+      <img src="${group.image}" alt="${tx(group.imageAltKey)}" class="category-group-img" loading="lazy" />
+      <div class="category-group-body">
+        <h3 id="group-${group.id}" class="category-group-title">${tx(group.titleKey)}</h3>
+        <p class="category-group-text">${tx(group.descriptionKey)}</p>
+        <ul class="tool-links">${links}</ul>
+      </div>
+    </article>
+  `;
+}
+
+function renderCategories() {
+  return `
+    <section id="categories" class="home-section categories-section" aria-labelledby="categories-heading">
+      <h2 id="categories-heading" class="section-title">${tx("home.categories.title")}</h2>
+      <div class="category-groups">
+        ${CATEGORY_GROUPS.map(renderCategoryGroup).join("")}
+      </div>
+      <a href="#/catalog" class="btn btn-outline btn-lg section-cta">${tx("home.categories.viewAll")}</a>
+    </section>
+  `;
+}
+
+function renderFeatured() {
+  return `
+    <section class="home-section featured-section" aria-labelledby="featured-heading">
+      <div class="featured-header">
+        <h2 id="featured-heading" class="section-title">${tx("home.featured.title")}</h2>
+        <a href="#/catalog" class="text-link">${tx("home.featured.viewAll")} ${ARROW_ICON}</a>
+      </div>
+      <div class="featured-grid">
+        ${SEED_ITEMS.map((item) => renderItemCard(item)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderHowItWorks() {
+  return `
+    <section id="how-it-works" class="home-section split-section" aria-labelledby="how-heading">
+      <div class="split-text">
+        <h2 id="how-heading" class="section-title" tabindex="-1">${tx("home.how.title")}</h2>
+        <p class="section-lead">${tx("home.how.lead")}</p>
+        <ol class="how-steps">
+          ${HOW_STEP_KEYS.map(
+            (key, i) =>
+              `<li><span class="step-number" aria-hidden="true">${i + 1}</span>${tx(key)}</li>`,
+          ).join("")}
+        </ol>
+      </div>
+      <img src="${HOW_IMAGE.image}" alt="${tx(HOW_IMAGE.altKey)}" class="split-img" loading="lazy" />
+    </section>
+  `;
+}
+
+function renderIdleTools() {
+  return `
+    <section class="home-section split-section split-section--reverse" aria-labelledby="idle-heading">
+      <div class="split-text">
+        <h2 id="idle-heading" class="section-title">${tx("home.idle.title")}</h2>
+        <p class="section-lead">${tx("home.idle.lead")}</p>
+        <ul class="check-list">
+          ${IDLE_POINT_KEYS.map((key) => `<li>${CHECK_ICON}${tx(key)}</li>`).join("")}
+        </ul>
+        <a href="#/list-item" class="btn btn-accent btn-lg">${tx("nav.listItem")}</a>
+      </div>
+      <img src="${IDLE_IMAGE.image}" alt="${tx(IDLE_IMAGE.altKey)}" class="split-img" loading="lazy" />
+    </section>
+  `;
+}
+
+function renderWhy() {
+  return `
+    <section class="home-section" aria-labelledby="why-heading">
+      <div class="why-panel">
+        <h2 id="why-heading" class="section-title">${tx("home.why.title")}</h2>
+        <ul class="why-grid">
+          ${WHY_ITEMS.map(
+            (item, i) => `
+              <li class="why-card">
+                <span class="why-number" aria-hidden="true">${i + 1}</span>
+                <h3 class="why-title">${tx(item.titleKey)}</h3>
+                <p class="why-text">${tx(item.descriptionKey)}</p>
+              </li>`,
+          ).join("")}
+        </ul>
+      </div>
+    </section>
+  `;
+}
 
 /**
- * Mounts the complete BorrowBox Home Page into the specified container.
- * Returns an unmount/cleanup function to stop timers and free listeners.
+ * Mounts the home page into the container (redesign spec §4).
+ * Returns a cleanup function that stops the hero background timer.
  *
  * @param {HTMLElement} container
  * @returns {Function} cleanup
@@ -39,181 +183,32 @@ const CATEGORIES = [
 export function mountHomeView(container) {
   container.innerHTML = `
     <div class="home-view">
-      <!-- Section 1: Hero Section (Split Layout) -->
-      <section class="hero-section" aria-labelledby="hero-heading">
-        <div class="hero-left">
-          <span class="hero-badge">Community Tool Sharing</span>
-          <h1 id="hero-heading" class="hero-title">
-            Borrow What You Need.<br />
-            Share What You Have.
-          </h1>
-          <p class="hero-description">
-            Connect with neighbors to access high-quality power tools, garden gear, and equipment without the cost and clutter of buying. Backed by simulated refundable security deposits.
-          </p>
-
-          <!-- Search Form -->
-          <form id="hero-search-form" class="hero-search-form" role="search" aria-label="Search tools and equipment">
-            <div class="search-input-group">
-              <span class="search-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </span>
-              <input
-                type="search"
-                id="hero-search-input"
-                class="hero-search-input"
-                placeholder="Search drills, lawn mowers, tents..."
-                aria-label="Search equipment by keyword"
-              />
-              <button type="submit" class="search-submit-btn">Search</button>
-            </div>
-          </form>
-
-          <div class="hero-actions">
-            <a href="#/catalog" class="btn btn-primary">Explore All Items</a>
-            <span class="hero-note">✓ 100% Free Borrowing · Refundable Deposits</span>
-          </div>
-        </div>
-
-        <!-- Hero Right: Carousel mount -->
-        <div class="hero-right">
-          <div id="carousel-mount" class="carousel-mount"></div>
-        </div>
-      </section>
-
-      <!-- Section 2: Popular Categories -->
-      <section class="categories-section" aria-labelledby="categories-heading">
-        <div class="section-header">
-          <h2 id="categories-heading" class="section-title">Popular Categories</h2>
-          <p class="section-subtitle">Browse frequently borrowed equipment across your community</p>
-        </div>
-
-        <div class="categories-carousel-track" role="list">
-          ${CATEGORIES.map(
-            (cat) => `
-            <div role="listitem">
-              <a href="#/catalog?category=${encodeURIComponent(cat.name)}" class="category-card" aria-label="Explore ${cat.name}">
-                <div class="category-icon-circle" aria-hidden="true">
-                  ${cat.icon}
-                </div>
-                <span class="category-name">${cat.name}</span>
-              </a>
-            </div>
-          `,
-          ).join("")}
-        </div>
-      </section>
-
-      <!-- Section 3: Featured Items Grid -->
-      <section class="featured-section" aria-labelledby="featured-heading">
-        <div class="section-header">
-          <div class="section-title-wrap">
-            <h2 id="featured-heading" class="section-title">Featured Items in Your Area</h2>
-            <p class="section-subtitle">Verified equipment available to borrow today</p>
-          </div>
-          <a href="#/catalog" class="view-all-link">
-            View full catalog
-            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-          </a>
-        </div>
-
-        <div class="featured-grid">
-          ${SEED_ITEMS.map((item) => renderItemCard(item)).join("")}
-        </div>
-      </section>
-
-      <!-- Section 4: How BorrowBox Works -->
-      <section class="how-it-works-section" aria-labelledby="how-heading">
-        <div class="section-header text-center">
-          <h2 id="how-heading" class="section-title">How BorrowBox Works</h2>
-          <p class="section-subtitle">Simple, safe, and transparent community sharing</p>
-        </div>
-
-        <div class="steps-grid">
-          <div class="step-card">
-            <div class="step-number" aria-hidden="true">1</div>
-            <div class="step-icon-wrap" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </div>
-            <h3 class="step-title">Discover</h3>
-            <p class="step-text">Find the exact tool or outdoor equipment you need from neighbors nearby.</p>
-          </div>
-
-          <div class="step-card">
-            <div class="step-number" aria-hidden="true">2</div>
-            <div class="step-icon-wrap" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </div>
-            <h3 class="step-title">Borrow</h3>
-            <p class="step-text">Request your dates. Once approved by the owner, your refundable deposit is safely held.</p>
-          </div>
-
-          <div class="step-card">
-            <div class="step-number" aria-hidden="true">3</div>
-            <div class="step-icon-wrap" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
-            <h3 class="step-title">Return</h3>
-            <p class="step-text">Return the tool after use. The owner inspects condition and releases your full deposit.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Section 5: Community Call to Action -->
-      <section class="cta-section" aria-labelledby="cta-heading">
-        <div class="cta-container">
-          <div class="cta-content">
-            <h2 id="cta-heading" class="cta-title">Have Tools You Rarely Use?</h2>
-            <p class="cta-description">
-              Share them with your community, help others get projects done, and build local trust—all protected by verified members and security deposits.
-            </p>
-            <a href="#/list-item" class="btn btn-primary cta-btn">List an Item</a>
-          </div>
-        </div>
-      </section>
+      ${renderHero()}
+      ${renderAbout()}
+      ${renderCategories()}
+      ${renderFeatured()}
+      ${renderHowItWorks()}
+      ${renderIdleTools()}
+      ${renderWhy()}
     </div>
   `;
 
-  // Mount Carousel component
-  const carouselMount = container.querySelector("#carousel-mount");
-  let carouselInstance = null;
-  if (carouselMount) {
-    carouselInstance = createCarousel(carouselMount);
-  }
+  const heroBackground = createHeroBackground(
+    container.querySelector("#hero-bg-mount"),
+    HERO_SLIDES,
+  );
 
-  // Bind Search Form submission
   const searchForm = container.querySelector("#hero-search-form");
   const searchInput = container.querySelector("#hero-search-input");
-  if (searchForm && searchInput) {
-    searchForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const term = searchInput.value.trim();
-      if (term) {
-        window.location.hash = `#/catalog?q=${encodeURIComponent(term)}`;
-      } else {
-        window.location.hash = "#/catalog";
-      }
-    });
-  }
+  searchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const term = searchInput.value.trim();
+    window.location.hash = term
+      ? `#/catalog?q=${encodeURIComponent(term)}`
+      : "#/catalog";
+  });
 
-  // Return comprehensive unmount cleanup
   return function cleanup() {
-    if (carouselInstance && typeof carouselInstance.cleanup === "function") {
-      carouselInstance.cleanup();
-    }
+    heroBackground.cleanup();
   };
 }

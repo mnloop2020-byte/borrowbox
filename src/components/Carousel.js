@@ -1,161 +1,63 @@
-import drillImg from "../assets/images/carousel-drill.svg";
-import gardenImg from "../assets/images/carousel-gardening.svg";
-import campImg from "../assets/images/carousel-camping.svg";
-import cleanImg from "../assets/images/carousel-cleaning.svg";
+import { t } from "../i18n/i18n.js";
+import { escapeHtml } from "../logic/html.js";
 
-export const CAROUSEL_SLIDES = [
-  {
-    image: drillImg,
-    alt: "Cordless power drill and woodworking tools in workshop",
-    title: "Power Tools & DIY Gear",
-    tagline: "High-grade drills, saws, and sanders ready for home projects",
-  },
-  {
-    image: gardenImg,
-    alt: "Stainless steel gardening hand trowel and pruning shears",
-    title: "Garden & Lawn Equipment",
-    tagline:
-      "Eco-friendly landscaping tools shared by local garden enthusiasts",
-  },
-  {
-    image: campImg,
-    alt: "Camping dome tent and warm lantern ready for outdoor adventure",
-    title: "Camping & Outdoor Kits",
-    tagline:
-      "Weekend getaways made easy without buying costly outdoor supplies",
-  },
-  {
-    image: cleanImg,
-    alt: "High-pressure washer and domestic cleaning machine",
-    title: "Pressure Washers & Cleaning",
-    tagline: "Deep cleaning machines for seasonal home and patio restoration",
-  },
-];
+const PAUSE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>`;
+const PLAY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>`;
+
+const SLIDE_DURATION_MS = 6000;
+
+// Kept outside the component so a language re-render does not restart a
+// slideshow the user paused (product spec §10.7)
+let rememberedUserPause = false;
 
 /**
- * Creates and mounts an accessible, self-rotating Carousel component.
+ * Mounts the Hero's rotating photo background (redesign spec §4.2).
+ *
+ * The photos are decorative: the heading and search sit on top of them,
+ * so they are hidden from screen readers and have empty alt text.
+ * A visible Pause/Play button satisfies WCAG 2.2.2 (anything that moves
+ * for more than 5 seconds needs a way to stop it).
  *
  * @param {HTMLElement} mountElement
- * @returns {Object} { cleanup: Function }
+ * @param {{ image: string }[]} slides
+ * @returns {{ cleanup: () => void }}
  */
-export function createCarousel(mountElement) {
+export function createHeroBackground(mountElement, slides) {
   let currentIndex = 0;
   let timerId = null;
-  const slideDuration = 5000;
+  // True after the user presses Pause; hover and focus must not restart rotation then.
+  let isUserPaused = rememberedUserPause;
 
-  // Check user motion preference
   const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   let prefersReducedMotion = mediaQuery.matches;
 
-  function handleMotionChange(e) {
-    prefersReducedMotion = e.matches;
-    if (prefersReducedMotion) {
-      stopAutoRotate();
-    } else {
-      startAutoRotate();
-    }
-  }
-
-  if (typeof mediaQuery.addEventListener === "function") {
-    mediaQuery.addEventListener("change", handleMotionChange);
-  }
-
   mountElement.innerHTML = `
-    <div class="carousel-container" role="region" aria-roledescription="carousel" aria-label="Featured Community Equipment">
-      <div class="carousel-track" aria-live="polite">
-        ${CAROUSEL_SLIDES.map(
-          (slide, index) => `
-          <div
-            class="carousel-slide ${index === 0 ? "is-active" : ""}"
-            role="group"
-            aria-roledescription="slide"
-            aria-label="Slide ${index + 1} of ${CAROUSEL_SLIDES.length}: ${slide.title}"
-            aria-hidden="${index === 0 ? "false" : "true"}"
-            data-index="${index}"
-          >
-            <div class="carousel-image-wrapper">
-              <img src="${slide.image}" alt="${slide.alt}" class="carousel-img" />
-              <div class="carousel-caption">
-                <span class="carousel-caption-title">${slide.title}</span>
-                <span class="carousel-caption-tagline">${slide.tagline}</span>
-              </div>
-            </div>
-          </div>
-        `,
-        ).join("")}
-      </div>
-
-      <!-- Navigation Arrows -->
-      <div class="carousel-controls">
-        <button
-          type="button"
-          class="carousel-control-btn prev-btn"
-          aria-label="Previous slide"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="carousel-control-btn next-btn"
-          aria-label="Next slide"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Pagination Dot Indicators -->
-      <div class="carousel-indicators" role="tablist" aria-label="Choose slide">
-        ${CAROUSEL_SLIDES.map(
-          (_, index) => `
-          <button
-            type="button"
-            class="carousel-dot ${index === 0 ? "is-active" : ""}"
-            role="tab"
-            aria-label="Go to slide ${index + 1}"
-            aria-selected="${index === 0 ? "true" : "false"}"
-            data-slide-to="${index}"
-          ></button>
-        `,
-        ).join("")}
-      </div>
+    <div class="hero-bg" aria-hidden="true">
+      ${slides
+        .map(
+          (slide, index) =>
+            `<img src="${slide.image}" alt="" class="hero-bg-slide ${index === 0 ? "is-active" : ""}" />`,
+        )
+        .join("")}
     </div>
+    <button type="button" class="hero-pause-btn" aria-label="${escapeHtml(t("home.hero.pause"))}">
+      ${isUserPaused ? PLAY_ICON : PAUSE_ICON}
+    </button>
   `;
 
-  const slides = mountElement.querySelectorAll(".carousel-slide");
-  const dots = mountElement.querySelectorAll(".carousel-dot");
-  const prevBtn = mountElement.querySelector(".prev-btn");
-  const nextBtn = mountElement.querySelector(".next-btn");
-  const container = mountElement.querySelector(".carousel-container");
+  const slideEls = mountElement.querySelectorAll(".hero-bg-slide");
+  const pauseBtn = mountElement.querySelector(".hero-pause-btn");
 
-  function goToSlide(newIndex) {
-    slides[currentIndex].classList.remove("is-active");
-    slides[currentIndex].setAttribute("aria-hidden", "true");
-    dots[currentIndex].classList.remove("is-active");
-    dots[currentIndex].setAttribute("aria-selected", "false");
-
-    currentIndex = (newIndex + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length;
-
-    slides[currentIndex].classList.add("is-active");
-    slides[currentIndex].setAttribute("aria-hidden", "false");
-    dots[currentIndex].classList.add("is-active");
-    dots[currentIndex].setAttribute("aria-selected", "true");
-  }
-
-  function nextSlide() {
-    goToSlide(currentIndex + 1);
-  }
-
-  function prevSlide() {
-    goToSlide(currentIndex - 1);
+  function showSlide(newIndex) {
+    slideEls[currentIndex].classList.remove("is-active");
+    currentIndex = (newIndex + slideEls.length) % slideEls.length;
+    slideEls[currentIndex].classList.add("is-active");
   }
 
   function startAutoRotate() {
-    if (prefersReducedMotion || timerId) return;
-    timerId = setInterval(nextSlide, slideDuration);
+    if (prefersReducedMotion || isUserPaused || timerId || slideEls.length < 2)
+      return;
+    timerId = setInterval(() => showSlide(currentIndex + 1), SLIDE_DURATION_MS);
   }
 
   function stopAutoRotate() {
@@ -165,49 +67,48 @@ export function createCarousel(mountElement) {
     }
   }
 
-  // Event Listeners
-  if (prevBtn) {
-    prevBtn.addEventListener("click", () => {
-      stopAutoRotate();
-      prevSlide();
-      startAutoRotate();
-    });
+  // Keep the button's icon and label in sync with the rotation state.
+  // Hidden under reduced motion, because nothing rotates there.
+  function updatePauseButton() {
+    pauseBtn.hidden = prefersReducedMotion || slideEls.length < 2;
+    pauseBtn.setAttribute(
+      "aria-label",
+      t(isUserPaused ? "home.hero.play" : "home.hero.pause"),
+    );
+    pauseBtn.innerHTML = isUserPaused ? PLAY_ICON : PAUSE_ICON;
   }
 
-  if (nextBtn) {
-    nextBtn.addEventListener("click", () => {
+  function handleMotionChange(e) {
+    prefersReducedMotion = e.matches;
+    if (prefersReducedMotion) {
       stopAutoRotate();
-      nextSlide();
+      showSlide(0);
+    } else {
       startAutoRotate();
-    });
+    }
+    updatePauseButton();
   }
 
-  dots.forEach((dot) => {
-    dot.addEventListener("click", () => {
-      const targetIndex = parseInt(dot.getAttribute("data-slide-to"), 10);
+  pauseBtn.addEventListener("click", () => {
+    isUserPaused = !isUserPaused;
+    rememberedUserPause = isUserPaused;
+    if (isUserPaused) {
       stopAutoRotate();
-      goToSlide(targetIndex);
+    } else {
       startAutoRotate();
-    });
+    }
+    updatePauseButton();
   });
 
-  // Pause on hover or keyboard focus
-  if (container) {
-    container.addEventListener("mouseenter", stopAutoRotate);
-    container.addEventListener("mouseleave", startAutoRotate);
-    container.addEventListener("focusin", stopAutoRotate);
-    container.addEventListener("focusout", startAutoRotate);
-  }
+  mediaQuery.addEventListener("change", handleMotionChange);
 
+  updatePauseButton();
   startAutoRotate();
 
-  // Return unmount cleanup function
   return {
     cleanup() {
       stopAutoRotate();
-      if (typeof mediaQuery.removeEventListener === "function") {
-        mediaQuery.removeEventListener("change", handleMotionChange);
-      }
+      mediaQuery.removeEventListener("change", handleMotionChange);
     },
   };
 }

@@ -1,6 +1,7 @@
-import drillImg from "../assets/images/carousel-drill.svg";
-import gardenImg from "../assets/images/carousel-gardening.svg";
-import campImg from "../assets/images/carousel-camping.svg";
+import drillImg from "../assets/photos/01-power-tools.png";
+import gardenImg from "../assets/photos/02-gardening.png";
+import campImg from "../assets/photos/03-camping.png";
+// No pressure-washer photo yet; the cleaning photo shows a bucket, so the illustration stays
 import cleanImg from "../assets/images/carousel-cleaning.svg";
 
 /**

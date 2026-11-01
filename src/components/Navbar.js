@@ -1,3 +1,5 @@
+import { getLang, setLang, t } from "../i18n/i18n.js";
+import { escapeHtml } from "../logic/html.js";
 import { userStore } from "../store/userStore.js";
 
 // Keep active listeners stored to allow clean removal during re-renders
@@ -15,43 +17,52 @@ let activeDocumentKeydownHandler = null;
 export function renderNavbar(container) {
   const users = userStore.getUsers();
   const currentUser = userStore.getCurrentUser();
+  const otherLang = getLang() === "ar" ? "en" : "ar";
 
   // Clean up any existing global listeners before re-rendering
   cleanupGlobalNavbarEvents();
 
   container.innerHTML = `
     <header class="app-header" role="banner">
-      <a href="#main-content" class="skip-link">Skip to main content</a>
+      <a href="#main-content" class="skip-link">${escapeHtml(t("nav.skip"))}</a>
       <div class="nav-container">
         <!-- Brand Logo / Name -->
-        <a href="#/" class="nav-brand" aria-label="BorrowBox Home">
+        <a href="#/" class="nav-brand" aria-label="${escapeHtml(t("nav.homeLabel"))}">
           <span class="brand-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 8 12 3 3 8v8l9 5 9-5z"></path>
+              <path d="m3 8 9 5 9-5M12 13v8"></path>
             </svg>
           </span>
           <span class="brand-name">BorrowBox</span>
         </a>
 
         <!-- Main Navigation Links -->
-        <nav id="primary-navigation" class="nav-menu" aria-label="Main Navigation">
+        <nav id="primary-navigation" class="nav-menu" aria-label="${escapeHtml(t("nav.mainLabel"))}">
           <ul class="nav-links-list">
             <li>
-              <a href="#/catalog" class="nav-link" data-route="#/catalog">Explore</a>
+              <a href="#/catalog" class="nav-link" data-route="#/catalog">${escapeHtml(t("nav.explore"))}</a>
             </li>
             <li>
-              <a href="#/list-item" class="nav-link" data-route="#/list-item">List an Item</a>
+              <a href="#/" class="nav-link" data-scroll-target="how-it-works">${escapeHtml(t("nav.howItWorks"))}</a>
             </li>
             <li>
-              <a href="#/dashboard" class="nav-link" data-route="#/dashboard">My Activity</a>
+              <a href="#/dashboard" class="nav-link" data-route="#/dashboard">${escapeHtml(t("nav.myActivity"))}</a>
+            </li>
+            <!-- On small screens the lime button is hidden, so the link lives in the menu -->
+            <li class="nav-mobile-only">
+              <a href="#/list-item" class="nav-link" data-route="#/list-item">${escapeHtml(t("nav.listItem"))}</a>
             </li>
           </ul>
         </nav>
 
+        <a href="#/list-item" class="btn btn-accent nav-cta">${escapeHtml(t("nav.listItem"))}</a>
+
         <!-- Right Side Controls: Profile / Demo Switcher + Mobile Toggle -->
         <div class="nav-controls">
+          <!-- Language switch: labelled in the language it switches to, so lang is that language -->
+          <button type="button" class="lang-switch" lang="${otherLang}">${escapeHtml(t("lang.switchTo"))}</button>
+
           <div class="profile-menu-container">
             <button
               id="profile-menu-button"
@@ -60,10 +71,10 @@ export function renderNavbar(container) {
               aria-haspopup="true"
               aria-expanded="false"
               aria-controls="profile-dropdown-panel"
-              aria-label="Profile and Demo Switcher for ${currentUser.name}"
+              aria-label="${escapeHtml(t("nav.profileLabel", { name: currentUser.name }))}"
             >
-              <span class="profile-avatar" aria-hidden="true">${currentUser.avatarInitial}</span>
-              <span class="profile-name">${currentUser.name}</span>
+              <span class="profile-avatar" aria-hidden="true">${escapeHtml(currentUser.avatarInitial)}</span>
+              <span class="profile-name">${escapeHtml(currentUser.name)}</span>
               <svg class="profile-dropdown-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
@@ -71,7 +82,7 @@ export function renderNavbar(container) {
 
             <!-- Dropdown Panel with Semantic List -->
             <div id="profile-dropdown-panel" class="profile-dropdown">
-              <div class="dropdown-header">Switch Demo Persona</div>
+              <div class="dropdown-header">${escapeHtml(t("nav.switchPersona"))}</div>
               <ul class="dropdown-persona-list">
                 ${users
                   .map(
@@ -80,11 +91,11 @@ export function renderNavbar(container) {
                     <button
                       type="button"
                       class="persona-item-btn ${user.id === currentUser.id ? "is-selected" : ""}"
-                      data-user-id="${user.id}"
+                      data-user-id="${escapeHtml(user.id)}"
                       aria-current="${user.id === currentUser.id ? "true" : "false"}"
                     >
-                      <span>${user.name}</span>
-                      <span class="persona-role-tag">(${user.role})</span>
+                      <span>${escapeHtml(user.name)}</span>
+                      <span class="persona-role-tag">(${escapeHtml(t(`role.${user.role}`))})</span>
                     </button>
                   </li>
                 `,
@@ -101,7 +112,7 @@ export function renderNavbar(container) {
             type="button"
             aria-expanded="false"
             aria-controls="primary-navigation"
-            aria-label="Toggle navigation menu"
+            aria-label="${escapeHtml(t("nav.menuToggle"))}"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -128,10 +139,13 @@ export function updateActiveNavLink(container) {
 
   navLinks.forEach((link) => {
     const route = link.getAttribute("data-route");
-    if (
-      route === currentHash ||
-      (route === "#/catalog" && currentHash === "#/")
-    ) {
+    // Match the route itself plus its sub-paths and query strings,
+    // e.g. "#/catalog?q=drill" keeps "Explore" active. Home matches no link.
+    const isCurrent =
+      currentHash === route ||
+      currentHash.startsWith(`${route}?`) ||
+      currentHash.startsWith(`${route}/`);
+    if (isCurrent) {
       link.classList.add("is-active");
       link.setAttribute("aria-current", "page");
     } else {
@@ -263,6 +277,11 @@ function bindNavbarEvents(container) {
     }
   };
   document.addEventListener("keydown", activeDocumentKeydownHandler);
+
+  // Language switch: main.js re-renders the page on "borrowbox:langchange"
+  container.querySelector(".lang-switch")?.addEventListener("click", () => {
+    setLang(getLang() === "ar" ? "en" : "ar");
+  });
 
   // Switch persona click handler
   personaButtons.forEach((btn) => {
