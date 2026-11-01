@@ -71,10 +71,10 @@
 
 | Constraint                                                                              | Source             |
 | --------------------------------------------------------------------------------------- | ------------------ |
-| Vite with vanilla JavaScript, HTML, CSS only. No frameworks.                            | AGENTS.md §1       |
-| Mobile-first CSS. No `!important`.                                                      | AGENTS.md §3       |
-| Semantic HTML. All inputs have `<label>` with `for`. Native HTML validation attributes. | AGENTS.md §2       |
-| ESLint and Prettier must pass. No unnecessary packages.                                 | AGENTS.md §5       |
+| Vite with vanilla JavaScript, HTML, CSS only. No frameworks.                            | CLAUDE.md §1       |
+| Mobile-first CSS. No `!important`.                                                      | CLAUDE.md §3       |
+| Semantic HTML. All inputs have `<label>` with `for`. Native HTML validation attributes. | CLAUDE.md §2       |
+| ESLint and Prettier must pass. No unnecessary packages.                                 | CLAUDE.md §5       |
 | Hash-based routing via `window.location.hash`.                                          | Design spec §2.1   |
 | All state in localStorage. Seed data on first load.                                     | Design spec §4, §8 |
 | Preserve existing Home page and Navbar.                                                 | User instruction   |
@@ -136,7 +136,7 @@ Build a `DateRangePicker.js` component (~200 lines) that renders a monthly calen
 
 **Why not a third-party date picker library:**
 
-- AGENTS.md §1 prohibits adding frameworks or unnecessary dependencies.
+- CLAUDE.md §1 prohibits adding frameworks or unnecessary dependencies.
 - The custom component is ~200 lines, fully under our control, and fits the project's complexity level.
 
 ---
@@ -149,7 +149,7 @@ No test runner, no test framework, no test directories, no test scripts.
 
 ### Recommendation
 
-For this MVP (a beginner-level university assignment per AGENTS.md §7), verification will rely on:
+For this MVP (a beginner-level university assignment per CLAUDE.md §7), verification will rely on:
 
 1. **ESLint + Prettier** — `npm run lint` and `npm run format:check` after every phase.
 2. **Vite production build** — `npm run build` to catch import/syntax errors.

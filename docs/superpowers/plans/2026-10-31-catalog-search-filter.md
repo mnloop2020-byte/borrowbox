@@ -35,8 +35,8 @@ The **XSS fix** (`fix/xss-escaping`) must be merged first. This plan relies on w
 
 ## Global Constraints
 
-- Vanilla JavaScript only. No new npm packages (AGENTS.md §1, §5).
-- Every form control has an associated `<label>`, and the result count is announced with `aria-live="polite"` (AGENTS.md §2).
+- Vanilla JavaScript only. No new npm packages (CLAUDE.md §1, §5).
+- Every form control has an associated `<label>`, and the result count is announced with `aria-live="polite"` (CLAUDE.md §2).
 - CSS is mobile-first, uses `min-width` media queries, has no `!important`, and is appended to `src/style.css` using the existing custom properties.
 - Text from the URL is validated against allowlists and escaped or set with `textContent` (spec §8.3).
 - Filter changes update the URL with `history.replaceState`, not `location.hash =`. Setting the hash fires `hashchange`, which makes `main.js` remount the view, and the search box would lose focus while typing.
