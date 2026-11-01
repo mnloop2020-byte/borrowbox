@@ -1,6 +1,13 @@
+import { renderFooter } from "./components/Footer.js";
 import { renderNavbar, updateActiveNavLink } from "./components/Navbar.js";
+import { categoryLabel } from "./content/categories.js";
+import { t } from "./i18n/i18n.js";
+import { escapeHtml } from "./logic/html.js";
+import { isValidItemId, parseCatalogParams } from "./logic/validation.js";
 import { userStore } from "./store/userStore.js";
+import { scrollToSection } from "./utils/scrollToSection.js";
 import { mountHomeView } from "./views/HomeView.js";
+import { mountItemDetailView } from "./views/ItemDetailView.js";
 import "./style.css";
 
 // Application root setup
@@ -11,16 +18,28 @@ app.innerHTML = `
   <main id="main-content" class="main-content" tabindex="-1">
     <div id="view-container"></div>
   </main>
+  <div id="footer-mount"></div>
 `;
 
 const navMount = document.querySelector("#nav-mount");
 const viewContainer = document.querySelector("#view-container");
+const footerMount = document.querySelector("#footer-mount");
 
-// Render primary navigation
-renderNavbar(navMount);
+/** Header and footer depend on language and persona, so both can re-render */
+function renderChrome() {
+  renderNavbar(navMount);
+  footerMount.innerHTML = renderFooter();
+}
+
+renderChrome();
 
 // Track current active view cleanup handler
 let activeViewCleanup = null;
+
+/** "← Back to home" link used by the placeholder pages; the arrow flips in RTL */
+function backHomeLink() {
+  return `<p class="placeholder-actions"><a href="#/" class="btn btn-accent"><span class="icon-directional" aria-hidden="true">←</span> ${escapeHtml(t("page.backHome"))}</a></p>`;
+}
 
 /**
  * Hash-based View Dispatcher
@@ -40,30 +59,36 @@ function handleRoute() {
   // Route 1: Home View (#/ or empty)
   if (hash === "#/" || hash === "" || hash === "#") {
     activeViewCleanup = mountHomeView(viewContainer);
-    document.title = "BorrowBox — Peer-to-Peer Community Tool Sharing";
+    document.title = t("title.home");
     return;
   }
 
   // Route 2: Catalog View (#/catalog, supports ?q= and ?category= params)
   if (hash.startsWith("#/catalog")) {
-    const urlParams = new URLSearchParams(hash.split("?")[1] || "");
-    const query = urlParams.get("q") || "";
-    const category = urlParams.get("category") || "";
+    // Only allowed values survive; the text is then set with textContent,
+    // which never turns it into HTML (spec §8.3)
+    const { category, q: query } = parseCatalogParams(hash.split("?")[1] || "");
+    const label = category
+      ? t("page.catalog.filtering")
+      : t("page.catalog.searching");
 
     viewContainer.innerHTML = `
       <section class="placeholder-view" aria-labelledby="page-title">
-        <h1 id="page-title">Explore Catalog</h1>
+        <h1 id="page-title">${escapeHtml(t("page.catalog.title"))}</h1>
         ${
-          category
-            ? `<p>Filtering by category: <strong>${category}</strong></p>`
-            : query
-              ? `<p>Searching for: <strong>"${query}"</strong></p>`
-              : `<p>Discover power tools, garden gear, and household equipment available in your community.</p>`
+          category || query
+            ? `<p>${escapeHtml(label)} <strong data-slot="value"></strong></p>`
+            : `<p>${escapeHtml(t("page.catalog.intro"))}</p>`
         }
-        <p style="margin-top: 1rem;"><a href="#/" class="btn btn-primary" style="font-size: 0.875rem;">← Back to Home</a></p>
+        ${backHomeLink()}
       </section>
     `;
-    document.title = "Catalog — BorrowBox";
+    const valueSlot = viewContainer.querySelector('[data-slot="value"]');
+    if (valueSlot) {
+      // The URL keeps the English category; only its display is translated
+      valueSlot.textContent = category ? categoryLabel(category) : `“${query}”`;
+    }
+    document.title = t("title.catalog");
     return;
   }
 
@@ -71,12 +96,12 @@ function handleRoute() {
   if (hash.startsWith("#/list-item")) {
     viewContainer.innerHTML = `
       <section class="placeholder-view" aria-labelledby="page-title">
-        <h1 id="page-title">List an Item for Borrowing</h1>
-        <p>Share your equipment with trusted community neighbors and set refundable security deposits.</p>
-        <p style="margin-top: 1rem;"><a href="#/" class="btn btn-primary" style="font-size: 0.875rem;">← Back to Home</a></p>
+        <h1 id="page-title">${escapeHtml(t("page.listItem.title"))}</h1>
+        <p>${escapeHtml(t("page.listItem.intro"))}</p>
+        ${backHomeLink()}
       </section>
     `;
-    document.title = "List an Item — BorrowBox";
+    document.title = t("title.listItem");
     return;
   }
 
@@ -84,47 +109,126 @@ function handleRoute() {
   if (hash.startsWith("#/dashboard")) {
     viewContainer.innerHTML = `
       <section class="placeholder-view" aria-labelledby="page-title">
-        <h1 id="page-title">My Activity Dashboard</h1>
-        <p>Manage borrowed tools and inspect item returns as <strong>${currentUser.name}</strong> (${currentUser.role}).</p>
-        <p style="margin-top: 1rem;"><a href="#/" class="btn btn-primary" style="font-size: 0.875rem;">← Back to Home</a></p>
+        <h1 id="page-title">${escapeHtml(t("page.dashboard.title"))}</h1>
+        <p>${escapeHtml(
+          t("page.dashboard.intro", {
+            name: currentUser.name,
+            role: t(`role.${currentUser.role}`),
+          }),
+        )}</p>
+        ${backHomeLink()}
       </section>
     `;
-    document.title = "My Activity — BorrowBox";
+    document.title = t("title.dashboard");
     return;
   }
 
   // Route 5: Item Detail View (#/item/:id)
-  if (hash.startsWith("#/item/")) {
-    const itemId = hash.replace("#/item/", "").split("?")[0];
-    viewContainer.innerHTML = `
-      <section class="placeholder-view" aria-labelledby="page-title">
-        <h1 id="page-title">Item Details</h1>
-        <p>Viewing details for item ID: <code>${itemId}</code></p>
-        <p style="margin-top: 1rem;"><a href="#/" class="btn btn-primary" style="font-size: 0.875rem;">← Back to Home</a></p>
-      </section>
-    `;
-    document.title = `Item ${itemId} — BorrowBox`;
+  // An id that is not in the "item-123" format falls through to the 404 view
+  const itemId = hash.startsWith("#/item/")
+    ? hash.replace("#/item/", "").split("?")[0]
+    : "";
+  if (isValidItemId(itemId)) {
+    const view = mountItemDetailView(viewContainer, itemId);
+    activeViewCleanup = view.cleanup;
+    document.title = view.title;
     return;
   }
 
   // 404 Fallback
   viewContainer.innerHTML = `
     <section class="placeholder-view" aria-labelledby="page-title">
-      <h1 id="page-title">Page Not Found</h1>
-      <p>The requested page could not be located.</p>
-      <p style="margin-top: 1rem;"><a href="#/" class="btn btn-primary" style="font-size: 0.875rem;">Return Home</a></p>
+      <h1 id="page-title">${escapeHtml(t("page.notFound.title"))}</h1>
+      <p>${escapeHtml(t("page.notFound.text"))}</p>
+      ${backHomeLink()}
     </section>
   `;
-  document.title = "404 Not Found — BorrowBox";
+  document.title = t("title.notFound");
 }
 
-// Listen for hash navigation changes
-window.addEventListener("hashchange", handleRoute);
+// Listen for hash navigation changes.
+// After a route change, move focus to <main> so screen-reader and keyboard
+// users start at the new view's content (spec §8.2). Not done on first load,
+// where the browser's normal starting point is correct.
+window.addEventListener("hashchange", () => {
+  handleRoute();
+  document.querySelector("#main-content").focus();
+});
+
+// "How it works" style links: scroll to a section on the home page.
+// From another route, go home first, then scroll once the home view renders.
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("[data-scroll-target]");
+  if (!link) return;
+  event.preventDefault();
+
+  // Close the mobile menu if the link was inside it
+  if (document.querySelector(".nav-menu.is-open")) {
+    document.querySelector(".nav-toggle-btn")?.click();
+  }
+
+  const targetId = link.dataset.scrollTarget;
+  const isHome = ["", "#", "#/"].includes(window.location.hash);
+  if (isHome) {
+    scrollToSection(targetId);
+  } else {
+    // Registered after the router's listener, so it runs after the view renders.
+    // setTimeout (not requestAnimationFrame) so it never waits for a paint.
+    window.addEventListener(
+      "hashchange",
+      () => setTimeout(() => scrollToSection(targetId), 0),
+      { once: true },
+    );
+    window.location.hash = "#/";
+  }
+});
 
 // Listen for demo persona switch event
 window.addEventListener("borrowbox:userchange", () => {
   renderNavbar(navMount);
   handleRoute();
+});
+
+/**
+ * Values typed into the current view, keyed by element id, so a re-render
+ * (language change) can put them back. Passwords and files are never copied.
+ * @param {HTMLElement} root
+ * @returns {Map<string, string>}
+ */
+function snapshotFields(root) {
+  const values = new Map();
+  root.querySelectorAll("input[id], select[id], textarea[id]").forEach((el) => {
+    if (el.type === "password" || el.type === "file") return;
+    values.set(el.id, el.value);
+  });
+  return values;
+}
+
+/**
+ * @param {HTMLElement} root
+ * @param {Map<string, string>} values
+ */
+function restoreFields(root, values) {
+  values.forEach((value, id) => {
+    const el = root.querySelector(`#${CSS.escape(id)}`);
+    if (el) el.value = value;
+  });
+}
+
+// Language switch (spec §10.7): re-render everything in the new language
+// without a reload, keeping the route, persona, typed values, scroll and focus.
+// The hash is not touched, so no hashchange fires.
+window.addEventListener("borrowbox:langchange", () => {
+  const fields = snapshotFields(viewContainer);
+  const scrollY = window.scrollY;
+
+  renderChrome();
+  handleRoute();
+
+  restoreFields(viewContainer, fields);
+  // Focus first without scrolling, then put the page back where it was
+  navMount.querySelector(".lang-switch")?.focus({ preventScroll: true });
+  window.scrollTo(0, scrollY);
 });
 
 // Initial route execution
