@@ -13,6 +13,7 @@ export default {
   "title.listItem": "اعرض أداة — BorrowBox",
   "title.dashboard": "نشاطي — BorrowBox",
   "title.notFound": "الصفحة غير موجودة — BorrowBox",
+  "title.register": "إنشاء حساب — BorrowBox",
   "title.itemNotFound": "الأداة غير موجودة — BorrowBox",
   "title.item": "{title} — BorrowBox",
 
@@ -176,6 +177,19 @@ export default {
     "أدِر الأدوات المستعارة وافحص الأدوات المُعادة باسم {name} ({role}).",
   "page.notFound.title": "الصفحة غير موجودة",
   "page.notFound.text": "لم نعثر على الصفحة التي طلبتها.",
+
+  // التسجيل (مواصفات المنتج §1.2 البند 7: تحقق ثم تأكيد، بلا إنشاء مستخدم)
+  "register.title": "أنشئ حسابك",
+  "register.intro": "انضم إلى جيرانك لاستعارة الأدوات ومشاركتها.",
+  "register.name": "الاسم الكامل",
+  "register.email": "البريد الإلكتروني",
+  "register.password": "كلمة المرور",
+  "register.passwordHint": "8 أحرف على الأقل",
+  "register.agree": "أوافق على إرشادات المجتمع",
+  "register.submit": "إنشاء حساب",
+  "register.success":
+    "شكرًا يا {name}. هذه نسخة تجريبية، لذلك لم يُنشأ أي حساب.",
+  "footer.register": "إنشاء حساب",
 
   // التذييل
   "footer.tagline": "استعر ما تحتاجه، وشارك ما تملكه.",

@@ -13,6 +13,7 @@ export default {
   "title.listItem": "List an Item — BorrowBox",
   "title.dashboard": "My Activity — BorrowBox",
   "title.notFound": "Page Not Found — BorrowBox",
+  "title.register": "Create an account — BorrowBox",
   "title.itemNotFound": "Item Not Found — BorrowBox",
   "title.item": "{title} — BorrowBox",
 
@@ -182,6 +183,19 @@ export default {
     "Manage borrowed tools and inspect item returns as {name} ({role}).",
   "page.notFound.title": "Page not found",
   "page.notFound.text": "We couldn't find the page you asked for.",
+
+  // Registration (product spec §1.2 item 7: validates, confirms, creates no user)
+  "register.title": "Create your account",
+  "register.intro": "Join your neighbors to borrow and share tools.",
+  "register.name": "Full name",
+  "register.email": "Email",
+  "register.password": "Password",
+  "register.passwordHint": "At least 8 characters",
+  "register.agree": "I agree to the community guidelines",
+  "register.submit": "Create account",
+  "register.success":
+    "Thanks, {name}. This is a demo, so no account was created.",
+  "footer.register": "Create account",
 
   // Footer
   "footer.tagline": "Borrow what you need. Share what you have.",

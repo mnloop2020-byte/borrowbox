@@ -34,6 +34,7 @@ export function renderFooter() {
               <li><a href="#/catalog" class="footer-link">${escapeHtml(t("nav.explore"))}</a></li>
               <li><a href="#/" class="footer-link" data-scroll-target="how-it-works">${escapeHtml(t("nav.howItWorks"))}</a></li>
               <li><a href="#/dashboard" class="footer-link">${escapeHtml(t("nav.myActivity"))}</a></li>
+              <li><a href="#/register" class="footer-link">${escapeHtml(t("footer.register"))}</a></li>
             </ul>
           </nav>
 

@@ -8,6 +8,7 @@ import { userStore } from "./store/userStore.js";
 import { scrollToSection } from "./utils/scrollToSection.js";
 import { mountHomeView } from "./views/HomeView.js";
 import { mountItemDetailView } from "./views/ItemDetailView.js";
+import { mountRegisterView } from "./views/RegisterView.js";
 import "./style.css";
 
 // Application root setup
@@ -89,6 +90,14 @@ function handleRoute() {
       valueSlot.textContent = category ? categoryLabel(category) : `“${query}”`;
     }
     document.title = t("title.catalog");
+    return;
+  }
+
+  // Registration (#/register)
+  if (hash.startsWith("#/register")) {
+    const view = mountRegisterView(viewContainer);
+    activeViewCleanup = view.cleanup;
+    document.title = view.title;
     return;
   }
 

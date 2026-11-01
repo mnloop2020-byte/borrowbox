@@ -482,10 +482,6 @@ h3 {
     align-items: center;
     gap: var(--space-xs);
   }
-
-  .profile-name {
-    display: inline-block;
-  }
 }
 
 /* The lime "List an item" button needs room; below 1024px the same link sits in the menu */
@@ -502,6 +498,12 @@ h3 {
 
   .nav-mobile-only {
     display: none;
+  }
+
+  /* At 768px the header has no room for the name next to the avatar (it
+     overflowed by 7px); the button's aria-label still includes the name */
+  .profile-name {
+    display: inline-block;
   }
 }
 
@@ -1837,4 +1839,60 @@ h3 {
     clip-path: inset(50%);
     white-space: nowrap;
   }
+}
+
+/* ==========================================================================
+   Registration page (product spec §1.2 item 7)
+   ========================================================================== */
+
+.register-view {
+  width: calc(100% - 2 * var(--space-md)); /* keep a gutter on phones */
+  max-width: 520px;
+  margin: var(--space-xl) auto 0;
+  padding: var(--space-xl) var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.register-view h1 {
+  margin: 0 0 var(--space-xs);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.register-intro {
+  margin: 0 0 var(--space-lg);
+  color: var(--color-text-muted);
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.field-hint {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Checkbox and its label share one row; the label is part of the hit area */
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.form-check input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--color-accent-fill);
+}
+
+.form-check label {
+  padding-block: var(--space-xs);
+  cursor: pointer;
 }
