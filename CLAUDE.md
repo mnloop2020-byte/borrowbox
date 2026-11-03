@@ -16,7 +16,6 @@
 - `src/types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
 - `src/utils/dom.ts`: `getElement()` finds an element that must exist, with the right type.
 - `src/style.css`: all styles, organized in commented sections.
-- `docs/superpowers/specs/` holds the approved design spec. `docs/superpowers/plans/` holds implementation plans.
 
 ## 2. HTML
 
@@ -74,8 +73,7 @@
 
 ## 7. Project Goal
 
-Build BorrowBox, an accessible peer-to-peer tool-sharing web app, as defined in
-`docs/superpowers/specs/2026-10-30-borrowbox-design.md`.
+Build BorrowBox, an accessible peer-to-peer tool-sharing web app.
 
 Implement only the features explicitly requested. Keep the solution simple and suitable for a beginner-level university assignment.
 

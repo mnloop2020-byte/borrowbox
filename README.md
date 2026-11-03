@@ -66,7 +66,6 @@ src/
 ├── assets/            # Photos and illustrations
 └── style.css          # All styles, mobile-first, built on colour tokens
 tests/                 # node:test unit tests
-docs/superpowers/      # Design specifications and implementation plans
 ```
 
 Logic that can be tested without a browser lives in `src/logic/` and `src/i18n/`. Views only render and wire events.
@@ -79,9 +78,7 @@ To change wording, edit the dictionary only. Category names, statuses and other 
 
 ## Documentation
 
-- [Product design specification](docs/superpowers/specs/2026-10-30-borrowbox-design.md): the approved product rules, data models, borrowing lifecycle, security and language support.
 - [Project rules](CLAUDE.md): conventions for contributors and AI coding tools.
-- `docs/superpowers/plans/`: implementation plans for each feature.
 
 ## Status
 

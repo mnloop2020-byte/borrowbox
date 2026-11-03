@@ -26,6 +26,7 @@ dist-ssr
 # Local AI tool settings
 .claude/
 .agents/
+docs/superpowers/
 
 
 # Environment variables and secrets
