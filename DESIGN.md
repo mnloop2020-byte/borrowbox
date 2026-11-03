@@ -21,6 +21,7 @@ colors:
   border-strong: "#8a8c8e"
   focus: "#0f151d"
   dark: "#0f151d"
+  dark-raised: "#1a212b"
   on-dark: "#fff9f6"
   on-dark-muted: "#b9bcc0"
   on-dark-accent: "#ff7448"
@@ -57,7 +58,7 @@ typography:
     letterSpacing: -0.02em
   step-number:
     fontFamily: Inter
-    fontSize: 3.5rem
+    fontSize: 2.5rem
     fontWeight: 400
     lineHeight: 1
     letterSpacing: -0.05em
@@ -115,13 +116,6 @@ components:
     padding: 0 1.75rem
   button-primary-hover:
     backgroundColor: "{colors.primary-hover}"
-  button-dark:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.on-dark}"
-    typography: "{typography.label}"
-    rounded: "{rounded.full}"
-    height: 48px
-    padding: 0 1.75rem
   button-ghost:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
@@ -217,6 +211,23 @@ built on the design language of **Nomu** (en.nomu.store).
   the AI chat prompt, partner marquees, award badges, stat counters, the
   comparison table and the FAQ. BorrowBox has none of these features.
 
+### What changed while building it (BorrowBox)
+
+Applying the plan in the browser found problems that the plan did not
+predict. Each change below was measured, and this document now describes
+the result.
+
+| Planned                               | Built                                         | Why                                                                                  |
+| ------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Glass nav at 80% cream                | 90% cream                                     | Muted nav links over the dark "Why" panel fell to 4.00:1; at 90% they are 5.01:1     |
+| Orange (`primary`) nav underline      | `accent-text` underline                       | As a state indicator `#ff7448` is 2.68:1 on white; `#b93a10` is 5.71:1               |
+| Step numbers 3.5rem                   | 2.5rem                                        | Sized for the small 2 × 2 step cards next to the photo                               |
+| Booking panel sticky on the item page | The photo is sticky                           | The details column is the long one, so the photo is what should stay in view         |
+| Photo carousel hero                   | A search-first hero with no photo             | Nomu's hero has no photo; a carousel needs a Pause control and hides the main action |
+| `button-dark`                         | Removed                                       | No screen needed it; one primary and one ghost button cover every area               |
+| (not planned)                         | `<bdi>` around text that owners write         | English titles such as "4-Person Tent" showed as "Person Tent-4" on the Arabic page  |
+| (not planned)                         | The footer stays at the bottom on short pages | Short pages left a strip of cream under the dark footer                              |
+
 ### Principles
 
 1. **Warm and calm.** Cream canvas, ink text, white cards. Orange is rare, so
@@ -224,7 +235,7 @@ built on the design language of **Nomu** (en.nomu.store).
 2. **Big, light headlines.** One expressive headline per screen; everything
    else is small and quiet.
 3. **The item is the hero.** Large photos in floating white cards. Trust
-   details (owner, rating, deposit, status) sit right under the photo.
+   details (owner, rating, deposit, status) sit right next to the photo.
 4. **One action per area.** At most one orange button per section.
 5. **Motion that explains.** Things rise gently into place as you arrive or
    scroll. Nothing loops for attention.
@@ -262,6 +273,7 @@ Tokens become CSS custom properties in `src/style.css` under `:root`, named
 | Token            | Value     | Use                           | Contrast |
 | ---------------- | --------- | ----------------------------- | -------- |
 | `dark`           | `#0f151d` | Footer and dark panels        | n/a      |
+| `dark-raised`    | `#1a212b` | Cards inside the dark panel   | n/a      |
 | `on-dark`        | `#fff9f6` | Text on dark                  | 17.58    |
 | `on-dark-muted`  | `#b9bcc0` | Secondary text on dark        | 9.62     |
 | `on-dark-accent` | `#ff7448` | Orange text and icons on dark | 6.85     |
@@ -275,6 +287,16 @@ Tokens become CSS custom properties in `src/style.css` under `:root`, named
 | `danger-text` / `danger-bg`   | `#b42318` on `#fde8e4` | Unavailable, errors | 5.58     |
 
 `info-bg` `#d3e1ff` is Nomu's observed `--secondary`.
+
+### Role names (how the dark footer works)
+
+Shared components do not use the palette directly for page colour, text and
+lines. They use five **role names**: `--color-bg`, `--color-text`,
+`--color-heading`, `--color-border` and `--color-surface-tint`. On the cream
+page these point to `background`, `ink`, `line` and `surface-muted`. The
+footer gives them light values (`on-dark`, `on-dark-muted`, light lines), so
+a link or a heading inside the footer turns light with no second set of
+rules. Buttons use the palette directly, so they look the same everywhere.
 
 ### Colour rules
 
@@ -290,9 +312,10 @@ Tokens become CSS custom properties in `src/style.css` under `:root`, named
 
 ## Typography
 
-**Font: Inter** (observed on Nomu, open licence, on Google Fonts), loaded with
-the weights 400, 450, 500 and 600 from its variable axis. It replaces Space
-Grotesk and DM Sans. **Arabic: Tajawal** (already loaded) for every role.
+**Font: Inter** (observed on Nomu, open licence, on Google Fonts), loaded as
+its variable axis from 400 to 600, which includes 450. It replaces Space
+Grotesk and DM Sans. **Arabic: Tajawal** for every role, loaded at 400, 500
+and 700.
 
 | Role          | Size                             | Weight | Line height | Tracking | Source                                     |
 | ------------- | -------------------------------- | ------ | ----------- | -------- | ------------------------------------------ |
@@ -300,7 +323,7 @@ Grotesk and DM Sans. **Arabic: Tajawal** (already loaded) for every role.
 | `h1` (pages)  | `clamp(2.5rem, 4.5vw, 3.875rem)` | 450    | 1.1         | -0.045em | Observed `clamp(40px, 4.5vw, 62px)`        |
 | `h2`          | `clamp(2rem, 3.5vw, 2.875rem)`   | 450    | 1.1         | -0.035em | Observed `clamp(34px, 3.5vw, 46px)`        |
 | `h3`          | `clamp(1.25rem, 2vw, 1.5rem)`    | 500    | 1.25        | -0.02em  | Observed range `clamp(18px, 2.4vw, 25px)`  |
-| `step-number` | `3.5rem`                         | 400    | 1           | -0.05em  | BorrowBox                                  |
+| `step-number` | `2.5rem`                         | 400    | 1           | -0.05em  | BorrowBox                                  |
 | `body-lg`     | `1.25rem`                        | 400    | 1.5         | -0.01em  | BorrowBox                                  |
 | `body`        | `1rem`                           | 400    | 1.6         | 0        | BorrowBox                                  |
 | `label`       | `0.9375rem`                      | 500    | 1.3         | 0        | Observed weight 500 is Nomu's most used    |
@@ -312,14 +335,21 @@ Grotesk and DM Sans. **Arabic: Tajawal** (already loaded) for every role.
 - Headlines use `text-wrap: balance` (observed). Paragraphs use
   `text-wrap: pretty`.
 - One `display` per site (the home hero). Other pages start with `h1`.
+- An `h1` inside a card (the register card, placeholder pages) or a product
+  name (the item page) uses the `h2` size, because the `h1` size is too large
+  for a narrow column. The `h1` size is kept for full-width page headers,
+  such as the catalog when it is built.
 - One `h1` per page; heading levels never skip.
 - Text blocks: `max-width: 42rem` (Nomu's most used text width is 680px to
   700px).
 - **Arabic:** switch to Tajawal, remove negative tracking and uppercase (they
   break letter joining), and raise line height by 0.1.
-- **Open decision: Arabic heading weight.** Tajawal has no 450 weight; the
-  browser falls back to the nearest one it loads (400 or 500). The final
-  weight is chosen after previewing Arabic headings in the real interface.
+- **Open decision: Arabic heading weight.** Tajawal has no 450 weight. Now,
+  the hero headline falls back to 500, and section titles, category and
+  "Why" titles and subheadings use 700, because thin Arabic letters at those
+  sizes look weak.
+  This is the one place where headlines are bold. The final weights are
+  confirmed after previewing Arabic headings in the real interface.
 
 ## Layout
 
@@ -328,8 +358,8 @@ Grotesk and DM Sans. **Arabic: Tajawal** (already loaded) for every role.
 | Token     | Value   | Use                                  |
 | --------- | ------- | ------------------------------------ |
 | `2xs`     | 0.25rem | Icon gaps                            |
-| `xs`      | 0.5rem  | Card inner padding, chip gaps        |
-| `sm`      | 0.75rem | Between label and input              |
+| `xs`      | 0.5rem  | Card inner padding, label to input   |
+| `sm`      | 0.75rem | Chip gaps, title to text             |
 | `md`      | 1rem    | Default gap; mobile side padding     |
 | `lg`      | 1.5rem  | Between cards                        |
 | `xl`      | 2rem    | Desktop side padding; between blocks |
@@ -346,19 +376,26 @@ large.
 - Page container: `max-width: 1200px`, centred, side padding `md` (mobile)
   and `xl` (768px and up). _BorrowBox._
 - Text: `max-width: 42rem`. _Observed width._
-- Hero headline: `max-width: 14ch`, so it breaks into 2 or 3 lines.
+- Hero: one column of `max-width: 62rem`; each sentence of the headline is
+  on its own line.
+- Form card: `max-width: 32rem`. Placeholder card: `max-width: 50rem`.
+- **Sticky footer:** the page is at least one screen tall
+  (`min-height: 100dvh`) and `<main>` takes the space left over, so on a
+  short page the footer still sits at the bottom of the screen.
 
 ### Grid and breakpoints (mobile first)
 
 Base styles are for phones; larger screens add rules with `min-width` only.
 
-| Name | Query               | Changes                                                   |
-| ---- | ------------------- | --------------------------------------------------------- |
-| base | 320px and up        | One column; nav collapses to a menu button                |
-| sm   | `min-width: 640px`  | Item grid 2 columns                                       |
-| md   | `min-width: 768px`  | Steps 2 columns; detail page photo and panel side by side |
-| lg   | `min-width: 1024px` | Item grid 3 columns; steps 4 columns; full nav            |
-| xl   | `min-width: 1280px` | Item grid 4 columns on the catalog                        |
+| Name | Query               | Changes                                                                                                               |
+| ---- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| base | 320px and up        | One column; nav collapses to a menu button; only the logo icon shows                                                  |
+| —    | `min-width: 420px`  | The brand word "BorrowBox" appears next to the icon                                                                   |
+| sm   | `min-width: 640px`  | Featured items, category links, steps and "Why" cards in 2 columns; the two date fields side by side                  |
+| md   | `min-width: 768px`  | Side padding `xl`; sections get `section` padding; footer in 3 columns                                                |
+| lg   | `min-width: 1024px` | Full nav; featured items 4 columns; "Why" cards 5 columns; text and photo side by side; item photo beside its details |
+
+The catalog grid is set when the catalog is built.
 
 - No horizontal scroll and no clipped control at 320px, 768px and 1280px.
 - Use logical properties (`margin-inline-start`, `inset-inline-end`) so the
@@ -379,21 +416,22 @@ dark footer.
 | **Register** `#/register`    | `h1` and one centred white form card                                                                                                                                                  |
 
 The catalog, list item and dashboard pages are placeholders in the current
-app. This table sets their layout shell only; their content and features
-come from the approved spec when they are built. No new features are added
-here.
+app: each shows one centred white card with its `h1`, a short text and a
+"Back to home" button. This table sets their future layout shell only;
+their content and features come from the approved spec when they are
+built. No new features are added here.
 
 ## Elevation & Depth
 
 Depth comes from white surfaces on cream plus large, soft, low shadows.
 Borders are rare.
 
-| Level  | Value                                                       | Source                        | Use                            |
-| ------ | ----------------------------------------------------------- | ----------------------------- | ------------------------------ |
-| flat   | none                                                        |                               | Sections, chips                |
-| raised | `0 16px 40px -24px rgba(15, 21, 29, 0.28)`                  | Observed `--nomu-raised`      | Cards at rest, inputs, nav bar |
-| float  | `0 16px 44px -12px rgba(15, 21, 29, 0.22)`                  | Observed `--nomu-float`       | Card hover, dropdowns, menus   |
-| glass  | `backdrop-filter: blur(12px)` on `rgba(255, 249, 246, 0.8)` | Observed blur 12px; tint ours | Sticky nav over content        |
+| Level  | Value                                                                      | Source                                             | Use                            |
+| ------ | -------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------ |
+| flat   | none                                                                       |                                                    | Sections, chips                |
+| raised | `0 16px 40px -24px rgba(15, 21, 29, 0.28)`                                 | Observed `--nomu-raised`                           | Cards at rest, inputs, nav bar |
+| float  | `0 16px 44px -12px rgba(15, 21, 29, 0.22)`                                 | Observed `--nomu-float`                            | Card hover, dropdowns, menus   |
+| glass  | `backdrop-filter: blur(12px) saturate(180%)` on `rgba(255, 249, 246, 0.9)` | Observed blur; tint ours (90%: see "What changed") | Sticky nav over content        |
 
 - Shadow colour is always `ink`, never black.
 - On the dark footer, depth comes from `#1a212b` surfaces, not shadows.
@@ -424,10 +462,10 @@ Borders are rare.
   Centre: links in
   `label`. Right: the "List an item" `button-primary` (small, 40px) and the
   profile button.
-- Active link: ink text with a 2px orange underline that grows from the
-  centre.
-- Mobile: a menu button opens a full-width white panel that slides down 8px
-  and fades in.
+- Active link: ink text with a 2px `accent-text` underline that grows from
+  the centre.
+- Mobile: a menu button opens a white card under the pill that slides down
+  8px and fades in.
 
 ### Hero (home)
 
@@ -513,7 +551,6 @@ Use in the page:
 | Variant          | Rest                                  | Hover (hover devices)                            | Active        | Focus                           |
 | ---------------- | ------------------------------------- | ------------------------------------------------ | ------------- | ------------------------------- |
 | `button-primary` | Orange fill, ink text, pill, 48px     | `primary-hover`, lift `-2px`, arrow nudges `4px` | `scale(0.97)` | 3px `focus` outline, 3px offset |
-| `button-dark`    | Ink fill, cream text                  | lift `-2px`, `float` shadow                      | `scale(0.97)` | same                            |
 | `button-ghost`   | White fill, ink text, `raised` shadow | `float` shadow, lift `-2px`                      | `scale(0.97)` | same                            |
 | Text link        | `accent-text`, underline 1px          | underline 2px                                    | n/a           | same                            |
 
@@ -527,9 +564,10 @@ Use in the page:
 - White `surface`, radius `card` (28px), 8px padding, `raised` shadow, no
   border. (Observed card pattern.)
 - Image first: `aspect-ratio: 4 / 5`, radius `lg` (20px), `object-fit: cover`.
-- Under the image, with `md` padding: category (`caption`, `text-muted`),
-  title (`h3`), owner name with rating and verified mark, then a row with the
-  deposit and the status chip.
+  The status chip sits on the image, in the top end corner.
+- Under the image, with `md` padding: category and rating on one row, the
+  title, then condition and owner, and a footer row with the deposit and a
+  "Free to borrow" chip.
 - The whole card is one link to `#/item/:id`; it has one focusable element.
 - Hover: card lifts `-4px` and gets the `float` shadow; the image zooms to
   `scale(1.05)` inside its frame.
@@ -538,8 +576,9 @@ Use in the page:
 
 - Pill, `caption` text, `0.25rem 0.75rem` padding.
 - Status chips use the status pairs; the word is always shown.
-- Category filter chips: `surface` with ink text at rest; `ink` fill with
-  cream text when selected.
+- Hero category chips: `surface-muted` with ink text (15.54:1), 36px tall.
+- Category filter chips (catalog, when built): `surface` with ink text at
+  rest; `ink` fill with cream text when selected.
 
 ### Process steps ("How it works")
 
@@ -554,9 +593,12 @@ Use in the page:
 
 ### Forms
 
-- White form card, radius `card`, padding `xl`.
+- White form card, radius `card`, `raised` shadow, padding `xl` / `lg` on
+  phones and `2xl` / `xl` from 640px.
+- The booking form sits in the item page's booking panel, the only card on
+  that page with a shadow, because it holds the main action.
 - Inputs: `surface`, radius `md`, 52px tall, 1px `border-strong` border,
-  `focus` outline on focus.
+  `focus` outline on focus. Labels sit `xs` above their input.
 - Every input has a visible `<label>`. Placeholders are never labels.
 - Errors: `danger-text` under the field, linked with `aria-describedby`;
   focus moves to the first invalid field.
@@ -574,15 +616,16 @@ Use in the page:
 - WebP, quality 80, imported in TypeScript so Vite hashes the file name.
 - Content images have a real `alt`; decorative ones have `alt=""`.
 - Only relative or `https:` image URLs (see `CLAUDE.md`).
-- **Known gap:** the current photos are about 380×508px. The new layout shows
-  photos at up to about 560px wide, so they will look soft. Larger source
-  photos (at least 1200px wide) are needed before the redesign ships.
+- **Known gap (still open):** the current photos are about 380×508px. The
+  item page shows its photo at up to about 560px wide, so it looks soft.
+  Larger source photos (at least 1200px wide) are needed; the item photos
+  come first.
 
 ### Footer
 
 `dark` background with `panel` top corners, `on-dark` text, `on-dark-muted`
-links, and an orange `on-dark-accent` "List an item" link. Content stays as
-it is today.
+links, column headings in `on-dark-accent` (6.85:1), and a `button-primary`
+"List an item". Content stays as it is today.
 
 ## Motion
 
@@ -668,6 +711,11 @@ never busy.
 - On route change, focus moves to `<main>`.
 - Semantic HTML: one `h1`, landmarks, `<ol>` for steps, a label for every
   input.
+- **Mixed-direction text:** text that owners write (item title, description,
+  condition notes, owner name) is wrapped in `<bdi>`. It keeps its own
+  direction, so "4-Person Tent" stays in order on the Arabic page, while the
+  line keeps the page's alignment. `dir="auto"` is not used, because it would
+  push English titles to the left inside the Arabic layout.
 - Run Lighthouse accessibility before calling a page done.
 
 ## Do's and Don'ts

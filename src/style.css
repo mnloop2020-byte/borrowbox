@@ -2116,17 +2116,26 @@ p {
   font-weight: 700;
 }
 
-/* Very narrow phones: logo + language + profile + menu do not fit with the
-   brand word, so only the logo icon shows. The link keeps its accessible
-   name from aria-label ("BorrowBox home"). */
-@media (max-width: 419px) {
+/* Mobile first: on narrow phones the logo, language, profile and menu do
+   not fit with the brand word, so only the logo icon shows. The link keeps
+   its accessible name from aria-label ("BorrowBox home"). From 420px the
+   word fits and is shown. */
+.brand-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (min-width: 420px) {
   .brand-name {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
   }
 }
 
