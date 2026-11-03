@@ -2,17 +2,17 @@ import {
   CATEGORIES,
   categoryHref,
   categoryLabel,
-} from "../content/categories.js";
-import { t } from "../i18n/i18n.js";
-import { escapeHtml } from "../logic/html.js";
+} from "../content/categories.ts";
+import { t } from "../i18n/i18n.ts";
+import { escapeHtml } from "../logic/html.ts";
 
 /**
  * Site footer shown on every page. Real content only: no placeholder
  * address, phone, email or social links (redesign spec §4.9).
  *
- * @returns {string} HTML string
+ * @returns HTML string
  */
-export function renderFooter() {
+export function renderFooter(): string {
   const categoryLinks = CATEGORIES.map(
     (name) =>
       `<li><a href="${categoryHref(name)}" class="footer-link">${escapeHtml(categoryLabel(name))}</a></li>`,

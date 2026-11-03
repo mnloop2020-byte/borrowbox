@@ -2,17 +2,19 @@
 
 ## 1. Technology Stack
 
-- Use Vite with vanilla JavaScript, HTML, and CSS.
-- Do not use React, Vue, TypeScript, or other frameworks unless explicitly requested.
+- Use Vite with vanilla TypeScript, HTML, and CSS (strict mode, see `tsconfig.json`).
+- Do not use React, Vue, or other frameworks unless explicitly requested.
 - Use native browser APIs whenever practical.
 
 ## Architecture
 
-- `src/main.js`: app shell and hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`).
+- `src/main.ts`: app shell and hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`).
 - `src/views/`: one module per route. Each exports `mountXView(container, ...)` and returns a cleanup function.
 - `src/components/`: reusable UI. Functions return HTML strings, plus `bindX()` functions for events.
 - `src/store/`: data and `localStorage` persistence (seed data, demo users, item and request stores).
 - `src/logic/`: pure functions only (filtering, availability, date rules). No DOM and no `localStorage`, so they can be tested with Node.
+- `src/types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
+- `src/utils/dom.ts`: `getElement()` finds an element that must exist, with the right type.
 - `src/style.css`: all styles, organized in commented sections.
 - `docs/superpowers/specs/` holds the approved design spec. `docs/superpowers/plans/` holds implementation plans.
 
@@ -32,7 +34,13 @@
 - Use clear, consistent class names.
 - Keep styles organized and avoid unnecessary duplication.
 
-## 4. JavaScript
+## 4. TypeScript
+
+- Write `.ts` files. Import with the `.ts` extension (`from "./dates.ts"`), so Node can run the tests directly.
+- Use only erasable syntax (no `enum` or `namespace`); `tsconfig.json` enforces this.
+- Type function parameters and return values. Use `unknown` for untrusted input, never `any`.
+- Use `import type` for imports that are only types.
+- Use `getElement<T>()` or `querySelector<T>()` with a null check instead of `!` or `as` on DOM lookups.
 
 - Use ES modules with `import` and `export` when needed.
 - Prefer `const` and use `let` when reassignment is necessary.
@@ -54,6 +62,7 @@
 - Avoid unnecessary packages and configuration changes.
 - Keep the project compatible with the existing Vite setup.
 - Pure logic in `src/logic/` has tests run with `npm test` (Node's built-in `node:test`; no test packages).
+- `npm run typecheck` (`tsc --noEmit`) must pass. The pre-commit hook runs it.
 
 ## 6. Development Workflow
 

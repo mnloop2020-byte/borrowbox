@@ -1,18 +1,19 @@
-import { renderFooter } from "./components/Footer.js";
-import { renderNavbar, updateActiveNavLink } from "./components/Navbar.js";
-import { categoryLabel } from "./content/categories.js";
-import { t } from "./i18n/i18n.js";
-import { escapeHtml } from "./logic/html.js";
-import { isValidItemId, parseCatalogParams } from "./logic/validation.js";
-import { userStore } from "./store/userStore.js";
-import { scrollToSection } from "./utils/scrollToSection.js";
-import { mountHomeView } from "./views/HomeView.js";
-import { mountItemDetailView } from "./views/ItemDetailView.js";
-import { mountRegisterView } from "./views/RegisterView.js";
+import { renderFooter } from "./components/Footer.ts";
+import { renderNavbar, updateActiveNavLink } from "./components/Navbar.ts";
+import { categoryLabel } from "./content/categories.ts";
+import { t } from "./i18n/i18n.ts";
+import { escapeHtml } from "./logic/html.ts";
+import { isValidItemId, parseCatalogParams } from "./logic/validation.ts";
+import { userStore } from "./store/userStore.ts";
+import { getElement } from "./utils/dom.ts";
+import { scrollToSection } from "./utils/scrollToSection.ts";
+import { mountHomeView } from "./views/HomeView.ts";
+import { mountItemDetailView } from "./views/ItemDetailView.ts";
+import { mountRegisterView } from "./views/RegisterView.ts";
 import "./style.css";
 
 // Application root setup
-const app = document.querySelector("#app");
+const app = getElement(document, "#app");
 
 app.innerHTML = `
   <div id="nav-mount"></div>
@@ -22,12 +23,12 @@ app.innerHTML = `
   <div id="footer-mount"></div>
 `;
 
-const navMount = document.querySelector("#nav-mount");
-const viewContainer = document.querySelector("#view-container");
-const footerMount = document.querySelector("#footer-mount");
+const navMount = getElement(document, "#nav-mount");
+const viewContainer = getElement(document, "#view-container");
+const footerMount = getElement(document, "#footer-mount");
 
 /** Header and footer depend on language and persona, so both can re-render */
-function renderChrome() {
+function renderChrome(): void {
   renderNavbar(navMount);
   footerMount.innerHTML = renderFooter();
 }
@@ -35,17 +36,17 @@ function renderChrome() {
 renderChrome();
 
 // Track current active view cleanup handler
-let activeViewCleanup = null;
+let activeViewCleanup: (() => void) | null = null;
 
 /** "← Back to home" link used by the placeholder pages; the arrow flips in RTL */
-function backHomeLink() {
+function backHomeLink(): string {
   return `<p class="placeholder-actions"><a href="#/" class="btn btn-accent"><span class="icon-directional" aria-hidden="true">←</span> ${escapeHtml(t("page.backHome"))}</a></p>`;
 }
 
 /**
  * Hash-based View Dispatcher
  */
-function handleRoute() {
+function handleRoute(): void {
   const hash = window.location.hash || "#/";
   updateActiveNavLink(navMount);
 
@@ -161,22 +162,25 @@ function handleRoute() {
 // where the browser's normal starting point is correct.
 window.addEventListener("hashchange", () => {
   handleRoute();
-  document.querySelector("#main-content").focus();
+  getElement(document, "#main-content").focus();
 });
 
 // "How it works" style links: scroll to a section on the home page.
 // From another route, go home first, then scroll once the home view renders.
 document.addEventListener("click", (event) => {
-  const link = event.target.closest("[data-scroll-target]");
+  const link =
+    event.target instanceof Element
+      ? event.target.closest<HTMLElement>("[data-scroll-target]")
+      : null;
   if (!link) return;
   event.preventDefault();
 
   // Close the mobile menu if the link was inside it
   if (document.querySelector(".nav-menu.is-open")) {
-    document.querySelector(".nav-toggle-btn")?.click();
+    document.querySelector<HTMLButtonElement>(".nav-toggle-btn")?.click();
   }
 
-  const targetId = link.dataset.scrollTarget;
+  const targetId = link.dataset.scrollTarget ?? "";
   const isHome = ["", "#", "#/"].includes(window.location.hash);
   if (isHome) {
     scrollToSection(targetId);
@@ -201,25 +205,26 @@ window.addEventListener("borrowbox:userchange", () => {
 /**
  * Values typed into the current view, keyed by element id, so a re-render
  * (language change) can put them back. Passwords and files are never copied.
- * @param {HTMLElement} root
- * @returns {Map<string, string>}
  */
-function snapshotFields(root) {
-  const values = new Map();
-  root.querySelectorAll("input[id], select[id], textarea[id]").forEach((el) => {
-    if (el.type === "password" || el.type === "file") return;
-    values.set(el.id, el.value);
-  });
+/** Elements that hold a typed value */
+type FormField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+function snapshotFields(root: HTMLElement): Map<string, string> {
+  const values = new Map<string, string>();
+  root
+    .querySelectorAll<FormField>("input[id], select[id], textarea[id]")
+    .forEach((el) => {
+      if (el.type === "password" || el.type === "file") return;
+      values.set(el.id, el.value);
+    });
   return values;
 }
 
 /**
- * @param {HTMLElement} root
- * @param {Map<string, string>} values
  */
-function restoreFields(root, values) {
+function restoreFields(root: HTMLElement, values: Map<string, string>): void {
   values.forEach((value, id) => {
-    const el = root.querySelector(`#${CSS.escape(id)}`);
+    const el = root.querySelector<FormField>(`#${CSS.escape(id)}`);
     if (el) el.value = value;
   });
 }
@@ -236,7 +241,9 @@ window.addEventListener("borrowbox:langchange", () => {
 
   restoreFields(viewContainer, fields);
   // Focus first without scrolling, then put the page back where it was
-  navMount.querySelector(".lang-switch")?.focus({ preventScroll: true });
+  navMount
+    .querySelector<HTMLButtonElement>(".lang-switch")
+    ?.focus({ preventScroll: true });
   window.scrollTo(0, scrollY);
 });
 

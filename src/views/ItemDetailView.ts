@@ -1,22 +1,25 @@
-import { formatMoney, t, tValue } from "../i18n/i18n.js";
-import { todayISO } from "../logic/dates.js";
-import { escapeHtml, isSafeImageUrl } from "../logic/html.js";
+import { formatMoney, t, tValue } from "../i18n/i18n.ts";
+import { todayISO } from "../logic/dates.ts";
+import { escapeHtml, isSafeImageUrl } from "../logic/html.ts";
 import {
   createRequestRecord,
   deriveItemStatus,
   validateRequest,
-} from "../logic/requests.js";
-import { addRequest, getRequests } from "../store/requestStore.js";
-import { SEED_ITEMS } from "../store/seedData.js";
-import { userStore } from "../store/userStore.js";
+} from "../logic/requests.ts";
+import { addRequest, getRequests } from "../store/requestStore.ts";
+import { SEED_ITEMS } from "../store/seedData.ts";
+import { userStore } from "../store/userStore.ts";
+import type { Item, ItemStatus, MountedView } from "../types.ts";
+import { getElement } from "../utils/dom.ts";
 
 /** Translated text, escaped for use inside these HTML templates */
-const tx = (key, values) => escapeHtml(t(key, values));
+const tx = (key: string, values?: Record<string, unknown>): string =>
+  escapeHtml(t(key, values));
 
 /** Booking messages (item detail spec §3), from the dictionaries by code */
-const message = (code) => t(`booking.error.${code}`);
+const message = (code: string): string => t(`booking.error.${code}`);
 
-function renderNotFound() {
+function renderNotFound(): string {
   return `
     <section class="placeholder-view" aria-labelledby="page-title">
       <h1 id="page-title">${tx("item.notFoundTitle")}</h1>
@@ -26,7 +29,7 @@ function renderNotFound() {
   `;
 }
 
-function renderOwnerCard(item) {
+function renderOwnerCard(item: Item): string {
   const rating = Number(item.ownerRating);
   return `
     <section class="item-owner" aria-labelledby="owner-heading">
@@ -40,7 +43,7 @@ function renderOwnerCard(item) {
   `;
 }
 
-function renderBookingForm(today) {
+function renderBookingForm(today: string): string {
   return `
     <form id="borrow-form" class="borrow-form" novalidate>
       <div class="date-fields">
@@ -62,7 +65,12 @@ function renderBookingForm(today) {
   `;
 }
 
-function renderItem(item, status, isOwner, today) {
+function renderItem(
+  item: Item,
+  status: ItemStatus,
+  isOwner: boolean,
+  today: string,
+): string {
   const deposit = Number(item.depositAmount);
   return `
     <article class="item-detail" aria-labelledby="item-title">
@@ -104,9 +112,13 @@ function renderItem(item, status, isOwner, today) {
 }
 
 /** Shows or clears one field's error, keeping the ARIA state in step */
-function setFieldError(form, field, message) {
-  const input = form.querySelector(`#borrow-${field}`);
-  const error = form.querySelector(`#borrow-${field}-error`);
+function setFieldError(
+  form: HTMLFormElement,
+  field: "start" | "end",
+  message: string,
+): void {
+  const input = getElement<HTMLInputElement>(form, `#borrow-${field}`);
+  const error = getElement(form, `#borrow-${field}-error`);
   if (message) {
     input.setAttribute("aria-invalid", "true");
   } else {
@@ -116,16 +128,18 @@ function setFieldError(form, field, message) {
   error.hidden = !message;
 }
 
-function bindBookingForm(container, item) {
-  const form = container.querySelector("#borrow-form");
+function bindBookingForm(container: HTMLElement, item: Item): void {
+  const form = container.querySelector<HTMLFormElement>("#borrow-form");
   if (!form) return;
-  const statusBox = form.querySelector("#borrow-status");
-  const alertBox = form.querySelector("#borrow-alert");
+  const statusBox = getElement(form, "#borrow-status");
+  const alertBox = getElement(form, "#borrow-alert");
+  const startInput = getElement<HTMLInputElement>(form, "#borrow-start");
+  const endInput = getElement<HTMLInputElement>(form, "#borrow-end");
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const startDate = form.elements.start.value;
-    const endDate = form.elements.end.value;
+    const startDate = startInput.value;
+    const endDate = endInput.value;
     const borrower = userStore.getCurrentUser();
 
     setFieldError(form, "start", "");
@@ -148,7 +162,7 @@ function bindBookingForm(container, item) {
         alertBox.textContent = text;
       } else {
         setFieldError(form, result.field, text);
-        form.elements[result.field].focus();
+        (result.field === "start" ? startInput : endInput).focus();
       }
       return;
     }
@@ -175,11 +189,12 @@ function bindBookingForm(container, item) {
 /**
  * Mounts the item page for one item (item detail spec §2).
  *
- * @param {HTMLElement} container
- * @param {string} itemId - already checked by isValidItemId
- * @returns {{ title: string, cleanup: () => void }}
+ * @param itemId - already checked by isValidItemId
  */
-export function mountItemDetailView(container, itemId) {
+export function mountItemDetailView(
+  container: HTMLElement,
+  itemId: string,
+): MountedView {
   const item = SEED_ITEMS.find((candidate) => candidate.id === itemId);
   if (!item) {
     container.innerHTML = renderNotFound();

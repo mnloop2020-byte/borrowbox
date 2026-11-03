@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { escapeHtml, isSafeImageUrl } from "../src/logic/html.js";
-import { isValidItemId, parseCatalogParams } from "../src/logic/validation.js";
-import { renderItemCard } from "../src/components/ItemCard.js";
+import { escapeHtml, isSafeImageUrl } from "../src/logic/html.ts";
+import { isValidItemId, parseCatalogParams } from "../src/logic/validation.ts";
+import { renderItemCard } from "../src/components/ItemCard.ts";
+import { asItem } from "./fakes.ts";
 
 // ---------- escapeHtml ----------
 
@@ -80,7 +81,7 @@ test("parseCatalogParams limits the query to 100 characters", () => {
 
 // ---------- renderItemCard ----------
 
-const baseItem = {
+const baseItem = asItem({
   id: "item-101",
   title: "Drill",
   category: "Power Tools",
@@ -90,7 +91,7 @@ const baseItem = {
   ownerRating: 4.9,
   status: "Available",
   imageUrl: "/assets/drill.svg",
-};
+});
 
 test("renderItemCard escapes text fields, including inside attributes", () => {
   const html = renderItemCard({
@@ -109,10 +110,12 @@ test("renderItemCard drops an unsafe image URL", () => {
 });
 
 test("renderItemCard only uses known statuses in the class name", () => {
-  const html = renderItemCard({
-    ...baseItem,
-    status: 'x" onmouseover="alert(1)',
-  });
+  const html = renderItemCard(
+    asItem({
+      ...baseItem,
+      status: 'x" onmouseover="alert(1)',
+    }),
+  );
   assert.equal(html.includes("onmouseover="), false);
 });
 

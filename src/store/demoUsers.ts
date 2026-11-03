@@ -1,8 +1,10 @@
+import type { User } from "../types.ts";
+
 /**
  * Pre-configured Demo Personas for BorrowBox MVP
  * Defined in design spec section 5.1 and 7.
  */
-export const DEMO_USERS = [
+export const DEMO_USERS: User[] = [
   {
     id: "user-1",
     name: "Sarah Jenkins",

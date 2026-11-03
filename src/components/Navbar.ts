@@ -1,10 +1,10 @@
-import { getLang, setLang, t } from "../i18n/i18n.js";
-import { escapeHtml } from "../logic/html.js";
-import { userStore } from "../store/userStore.js";
+import { getLang, setLang, t } from "../i18n/i18n.ts";
+import { escapeHtml } from "../logic/html.ts";
+import { userStore } from "../store/userStore.ts";
 
 // Keep active listeners stored to allow clean removal during re-renders
-let activeDocumentClickHandler = null;
-let activeDocumentKeydownHandler = null;
+let activeDocumentClickHandler: ((e: MouseEvent) => void) | null = null;
+let activeDocumentKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
 
 /**
  * Renders and binds the Airbnb-style Main Navigation bar.
@@ -12,9 +12,8 @@ let activeDocumentKeydownHandler = null;
  * Center: Explore -> #/catalog, List an Item -> #/list-item, My Activity -> #/dashboard
  * Right: Profile icon with demo persona switcher
  *
- * @param {HTMLElement} container
  */
-export function renderNavbar(container) {
+export function renderNavbar(container: HTMLElement): void {
   const users = userStore.getUsers();
   const currentUser = userStore.getCurrentUser();
   const otherLang = getLang() === "ar" ? "en" : "ar";
@@ -131,9 +130,8 @@ export function renderNavbar(container) {
 
 /**
  * Handles active route styling
- * @param {HTMLElement} container
  */
-export function updateActiveNavLink(container) {
+export function updateActiveNavLink(container: HTMLElement): void {
   const currentHash = window.location.hash || "#/";
   const navLinks = container.querySelectorAll(".nav-link");
 
@@ -158,7 +156,7 @@ export function updateActiveNavLink(container) {
 /**
  * Removes global document click and keydown listeners
  */
-function cleanupGlobalNavbarEvents() {
+function cleanupGlobalNavbarEvents(): void {
   if (activeDocumentClickHandler) {
     document.removeEventListener("click", activeDocumentClickHandler);
     activeDocumentClickHandler = null;
@@ -171,18 +169,23 @@ function cleanupGlobalNavbarEvents() {
 
 /**
  * Binds DOM event listeners for the navigation bar
- * @param {HTMLElement} container
  */
-function bindNavbarEvents(container) {
-  const mobileToggle = container.querySelector("#mobile-nav-toggle");
-  const navMenu = container.querySelector("#primary-navigation");
-  const profileButton = container.querySelector("#profile-menu-button");
-  const profileDropdown = container.querySelector("#profile-dropdown-panel");
-  const personaButtons = container.querySelectorAll(".persona-item-btn");
+function bindNavbarEvents(container: HTMLElement): void {
+  const mobileToggle =
+    container.querySelector<HTMLButtonElement>("#mobile-nav-toggle");
+  const navMenu = container.querySelector<HTMLElement>("#primary-navigation");
+  const profileButton = container.querySelector<HTMLButtonElement>(
+    "#profile-menu-button",
+  );
+  const profileDropdown = container.querySelector<HTMLElement>(
+    "#profile-dropdown-panel",
+  );
+  const personaButtons =
+    container.querySelectorAll<HTMLButtonElement>(".persona-item-btn");
 
   // Mobile menu toggle
   if (mobileToggle && navMenu) {
-    mobileToggle.addEventListener("click", (e) => {
+    mobileToggle.addEventListener("click", (e: MouseEvent) => {
       e.stopPropagation();
       const isExpanded = mobileToggle.getAttribute("aria-expanded") === "true";
       mobileToggle.setAttribute("aria-expanded", String(!isExpanded));
@@ -206,7 +209,7 @@ function bindNavbarEvents(container) {
 
   // Profile dropdown toggle
   if (profileButton && profileDropdown) {
-    profileButton.addEventListener("click", (e) => {
+    profileButton.addEventListener("click", (e: MouseEvent) => {
       e.stopPropagation();
       const isExpanded = profileButton.getAttribute("aria-expanded") === "true";
       profileButton.setAttribute("aria-expanded", String(!isExpanded));
@@ -221,7 +224,7 @@ function bindNavbarEvents(container) {
   }
 
   // Global Outside-Click Handler
-  activeDocumentClickHandler = (e) => {
+  activeDocumentClickHandler = (e: MouseEvent) => {
     // 1. Handle profile dropdown outside click
     if (
       profileButton &&
@@ -229,8 +232,8 @@ function bindNavbarEvents(container) {
       profileDropdown.classList.contains("is-open")
     ) {
       if (
-        !profileDropdown.contains(e.target) &&
-        !profileButton.contains(e.target)
+        !profileDropdown.contains(e.target as Node) &&
+        !profileButton.contains(e.target as Node)
       ) {
         profileButton.setAttribute("aria-expanded", "false");
         profileDropdown.classList.remove("is-open");
@@ -239,7 +242,10 @@ function bindNavbarEvents(container) {
 
     // 2. Handle mobile menu outside click (do not close if clicking inside navMenu or on toggle)
     if (mobileToggle && navMenu && navMenu.classList.contains("is-open")) {
-      if (!navMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
+      if (
+        !navMenu.contains(e.target as Node) &&
+        !mobileToggle.contains(e.target as Node)
+      ) {
         mobileToggle.setAttribute("aria-expanded", "false");
         navMenu.classList.remove("is-open");
       }
@@ -248,7 +254,7 @@ function bindNavbarEvents(container) {
   document.addEventListener("click", activeDocumentClickHandler);
 
   // Global Escape Keydown Handler with Focus Restoration
-  activeDocumentKeydownHandler = (e) => {
+  activeDocumentKeydownHandler = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
       let restoredFocus = false;
 
@@ -278,7 +284,7 @@ function bindNavbarEvents(container) {
   };
   document.addEventListener("keydown", activeDocumentKeydownHandler);
 
-  // Language switch: main.js re-renders the page on "borrowbox:langchange"
+  // Language switch: main.ts re-renders the page on "borrowbox:langchange"
   container.querySelector(".lang-switch")?.addEventListener("click", () => {
     setLang(getLang() === "ar" ? "en" : "ar");
   });
@@ -288,8 +294,8 @@ function bindNavbarEvents(container) {
     btn.addEventListener("click", () => {
       const userId = btn.getAttribute("data-user-id");
       userStore.setCurrentUser(userId);
-      profileButton.setAttribute("aria-expanded", "false");
-      profileDropdown.classList.remove("is-open");
+      profileButton?.setAttribute("aria-expanded", "false");
+      profileDropdown?.classList.remove("is-open");
       // Re-render navbar to reflect updated persona name and avatar
       renderNavbar(container);
     });

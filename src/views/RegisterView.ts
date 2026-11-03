@@ -1,8 +1,11 @@
-import { t } from "../i18n/i18n.js";
-import { escapeHtml } from "../logic/html.js";
+import { t } from "../i18n/i18n.ts";
+import { escapeHtml } from "../logic/html.ts";
+import type { MountedView } from "../types.ts";
+import { getElement } from "../utils/dom.ts";
 
 /** Translated text, escaped for use inside this HTML template */
-const tx = (key, values) => escapeHtml(t(key, values));
+const tx = (key: string, values?: Record<string, unknown>): string =>
+  escapeHtml(t(key, values));
 
 /**
  * Registration page (product spec §1.2 item 7).
@@ -13,10 +16,8 @@ const tx = (key, values) => escapeHtml(t(key, values));
  * shows a confirmation: nothing is stored, and the password never leaves
  * the input.
  *
- * @param {HTMLElement} container
- * @returns {{ title: string, cleanup: () => void }}
  */
-export function mountRegisterView(container) {
+export function mountRegisterView(container: HTMLElement): MountedView {
   container.innerHTML = `
     <section class="register-view" aria-labelledby="page-title">
       <h1 id="page-title">${tx("register.title")}</h1>
@@ -50,13 +51,14 @@ export function mountRegisterView(container) {
     </section>
   `;
 
-  const form = container.querySelector("#register-form");
-  const status = container.querySelector("#register-status");
+  const form = getElement<HTMLFormElement>(container, "#register-form");
+  const nameInput = getElement<HTMLInputElement>(form, "#register-name");
+  const status = getElement(container, "#register-status");
 
   // "submit" only fires after the browser's own validation passes
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const name = form.elements.name.value.trim();
+    const name = nameInput.value.trim();
     form.reset();
     status.textContent = t("register.success", { name });
   });

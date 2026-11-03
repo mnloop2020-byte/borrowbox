@@ -4,10 +4,9 @@
  * Used instead of plain "#id" links, because the app routes on the URL hash
  * ("#/catalog"), so "#how-it-works" would be treated as an unknown route.
  *
- * @param {string} id - The section's element id
- * @returns {void}
+ * @param id - The section's element id
  */
-export function scrollToSection(id) {
+export function scrollToSection(id: string): void {
   const section = document.getElementById(id);
   if (!section) return;
 
@@ -21,5 +20,5 @@ export function scrollToSection(id) {
 
   // Move keyboard and screen-reader focus with the scroll
   const heading = section.querySelector("[tabindex='-1']");
-  heading?.focus({ preventScroll: true });
+  (heading as HTMLElement | null)?.focus({ preventScroll: true });
 }

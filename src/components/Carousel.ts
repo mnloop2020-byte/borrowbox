@@ -1,5 +1,6 @@
-import { t } from "../i18n/i18n.js";
-import { escapeHtml } from "../logic/html.js";
+import { t } from "../i18n/i18n.ts";
+import { escapeHtml } from "../logic/html.ts";
+import { getElement } from "../utils/dom.ts";
 
 const PAUSE_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>`;
 const PLAY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"></path></svg>`;
@@ -18,13 +19,13 @@ let rememberedUserPause = false;
  * A visible Pause/Play button satisfies WCAG 2.2.2 (anything that moves
  * for more than 5 seconds needs a way to stop it).
  *
- * @param {HTMLElement} mountElement
- * @param {{ image: string }[]} slides
- * @returns {{ cleanup: () => void }}
  */
-export function createHeroBackground(mountElement, slides) {
+export function createHeroBackground(
+  mountElement: HTMLElement,
+  slides: { image: string }[],
+): { cleanup: () => void } {
   let currentIndex = 0;
-  let timerId = null;
+  let timerId: ReturnType<typeof setInterval> | null = null;
   // True after the user presses Pause; hover and focus must not restart rotation then.
   let isUserPaused = rememberedUserPause;
 
@@ -45,22 +46,25 @@ export function createHeroBackground(mountElement, slides) {
     </button>
   `;
 
-  const slideEls = mountElement.querySelectorAll(".hero-bg-slide");
-  const pauseBtn = mountElement.querySelector(".hero-pause-btn");
+  const slideEls = mountElement.querySelectorAll<HTMLElement>(".hero-bg-slide");
+  const pauseBtn = getElement<HTMLButtonElement>(
+    mountElement,
+    ".hero-pause-btn",
+  );
 
-  function showSlide(newIndex) {
+  function showSlide(newIndex: number): void {
     slideEls[currentIndex].classList.remove("is-active");
     currentIndex = (newIndex + slideEls.length) % slideEls.length;
     slideEls[currentIndex].classList.add("is-active");
   }
 
-  function startAutoRotate() {
+  function startAutoRotate(): void {
     if (prefersReducedMotion || isUserPaused || timerId || slideEls.length < 2)
       return;
     timerId = setInterval(() => showSlide(currentIndex + 1), SLIDE_DURATION_MS);
   }
 
-  function stopAutoRotate() {
+  function stopAutoRotate(): void {
     if (timerId) {
       clearInterval(timerId);
       timerId = null;
@@ -69,7 +73,7 @@ export function createHeroBackground(mountElement, slides) {
 
   // Keep the button's icon and label in sync with the rotation state.
   // Hidden under reduced motion, because nothing rotates there.
-  function updatePauseButton() {
+  function updatePauseButton(): void {
     pauseBtn.hidden = prefersReducedMotion || slideEls.length < 2;
     pauseBtn.setAttribute(
       "aria-label",
@@ -78,7 +82,7 @@ export function createHeroBackground(mountElement, slides) {
     pauseBtn.innerHTML = isUserPaused ? PLAY_ICON : PAUSE_ICON;
   }
 
-  function handleMotionChange(e) {
+  function handleMotionChange(e: MediaQueryListEvent): void {
     prefersReducedMotion = e.matches;
     if (prefersReducedMotion) {
       stopAutoRotate();

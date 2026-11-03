@@ -1,7 +1,7 @@
 /**
  * Structure and images for the home page (redesign spec §4).
- * The words live in src/i18n/en.js and ar.js; these entries hold the keys,
- * which HomeView.js passes to t() at render time.
+ * The words live in src/i18n/en.ts and ar.ts; these entries hold the keys,
+ * which HomeView.ts passes to t() at render time.
  *
  * Photos supplied by the user (src/assets/photos).
  */
@@ -12,7 +12,7 @@ import cleaningPhoto from "../assets/photos/04-cleaning.png";
 import sharingPhoto from "../assets/photos/05-neighbor-tool-sharing.png";
 import garagePhoto from "../assets/photos/06-garage-tools.png";
 import outdoorPhoto from "../assets/photos/07-outdoor-equipment.png";
-import { CATEGORIES } from "./categories.js";
+import { CATEGORIES } from "./categories.ts";
 
 const [POWER_TOOLS, HAND_TOOLS, GARDENING, CLEANING, CAMPING, OUTDOOR] =
   CATEGORIES;

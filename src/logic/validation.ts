@@ -2,25 +2,27 @@
  * Allowlist checks for values that come from the URL (product spec §8.3).
  * Pure functions: no DOM, so Node can test them.
  */
-import { CATEGORIES } from "../content/categories.js";
+import { CATEGORIES } from "../content/categories.ts";
 
 const ITEM_ID_PATTERN = /^item-\d{1,6}$/;
 const MAX_QUERY_LENGTH = 100;
 
 /**
- * @param {unknown} id
- * @returns {boolean} true for ids like "item-101"
+ * @returns true for ids like "item-101"
  */
-export function isValidItemId(id) {
+export function isValidItemId(id: unknown): boolean {
   return typeof id === "string" && ITEM_ID_PATTERN.test(id);
 }
 
 /**
  * Reads catalog filters from a query string, keeping only allowed values.
- * @param {string} queryString - e.g. "category=Gardening&q=drill"
+ * @param queryString - e.g. "category=Gardening&q=drill"
  * @returns {{ category: string, q: string }}
  */
-export function parseCatalogParams(queryString) {
+export function parseCatalogParams(queryString: string): {
+  category: string;
+  q: string;
+} {
   const params = new URLSearchParams(queryString);
   const category = params.get("category") ?? "";
   return {

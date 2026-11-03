@@ -1,6 +1,6 @@
-import { createHeroBackground } from "../components/Carousel.js";
-import { renderItemCard } from "../components/ItemCard.js";
-import { categoryHref, categoryLabel } from "../content/categories.js";
+import { createHeroBackground } from "../components/Carousel.ts";
+import { renderItemCard } from "../components/ItemCard.ts";
+import { categoryHref, categoryLabel } from "../content/categories.ts";
 import {
   CATEGORY_GROUPS,
   HERO_BULLET_KEYS,
@@ -10,20 +10,22 @@ import {
   IDLE_IMAGE,
   IDLE_POINT_KEYS,
   WHY_ITEMS,
-} from "../content/homeContent.js";
-import { t } from "../i18n/i18n.js";
-import { escapeHtml } from "../logic/html.js";
-import { SEED_ITEMS } from "../store/seedData.js";
+} from "../content/homeContent.ts";
+import { t } from "../i18n/i18n.ts";
+import { escapeHtml } from "../logic/html.ts";
+import { SEED_ITEMS } from "../store/seedData.ts";
+import { getElement } from "../utils/dom.ts";
 
 /** Translated text, escaped for use inside these HTML templates */
-const tx = (key, values) => escapeHtml(t(key, values));
+const tx = (key: string, values?: Record<string, unknown>): string =>
+  escapeHtml(t(key, values));
 
 // The arrow points along the reading direction, so it flips in RTL (.icon-directional)
 const ARROW_ICON = `<svg class="icon-directional" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg>`;
 const CHECK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>`;
 const SEARCH_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>`;
 
-function renderHero() {
+function renderHero(): string {
   return `
     <section class="hero" aria-labelledby="hero-heading">
       <div id="hero-bg-mount" class="hero-bg-mount"></div>
@@ -58,7 +60,7 @@ function renderHero() {
   `;
 }
 
-function renderAbout() {
+function renderAbout(): string {
   return `
     <section class="home-section about-section" aria-labelledby="about-heading">
       <div class="about-heading-col">
@@ -73,7 +75,7 @@ function renderAbout() {
   `;
 }
 
-function renderCategoryGroup(group) {
+function renderCategoryGroup(group: (typeof CATEGORY_GROUPS)[number]): string {
   // href keeps the English category name; only the label is translated
   const links = group.categories
     .map(
@@ -94,7 +96,7 @@ function renderCategoryGroup(group) {
   `;
 }
 
-function renderCategories() {
+function renderCategories(): string {
   return `
     <section id="categories" class="home-section categories-section" aria-labelledby="categories-heading">
       <h2 id="categories-heading" class="section-title">${tx("home.categories.title")}</h2>
@@ -106,7 +108,7 @@ function renderCategories() {
   `;
 }
 
-function renderFeatured() {
+function renderFeatured(): string {
   return `
     <section class="home-section featured-section" aria-labelledby="featured-heading">
       <div class="featured-header">
@@ -120,7 +122,7 @@ function renderFeatured() {
   `;
 }
 
-function renderHowItWorks() {
+function renderHowItWorks(): string {
   return `
     <section id="how-it-works" class="home-section split-section" aria-labelledby="how-heading">
       <div class="split-text">
@@ -138,7 +140,7 @@ function renderHowItWorks() {
   `;
 }
 
-function renderIdleTools() {
+function renderIdleTools(): string {
   return `
     <section class="home-section split-section split-section--reverse" aria-labelledby="idle-heading">
       <div class="split-text">
@@ -154,7 +156,7 @@ function renderIdleTools() {
   `;
 }
 
-function renderWhy() {
+function renderWhy(): string {
   return `
     <section class="home-section" aria-labelledby="why-heading">
       <div class="why-panel">
@@ -178,10 +180,9 @@ function renderWhy() {
  * Mounts the home page into the container (redesign spec §4).
  * Returns a cleanup function that stops the hero background timer.
  *
- * @param {HTMLElement} container
- * @returns {Function} cleanup
+ * @returns cleanup
  */
-export function mountHomeView(container) {
+export function mountHomeView(container: HTMLElement): () => void {
   container.innerHTML = `
     <div class="home-view">
       ${renderHero()}
@@ -195,12 +196,18 @@ export function mountHomeView(container) {
   `;
 
   const heroBackground = createHeroBackground(
-    container.querySelector("#hero-bg-mount"),
+    getElement(container, "#hero-bg-mount"),
     HERO_SLIDES,
   );
 
-  const searchForm = container.querySelector("#hero-search-form");
-  const searchInput = container.querySelector("#hero-search-input");
+  const searchForm = getElement<HTMLFormElement>(
+    container,
+    "#hero-search-form",
+  );
+  const searchInput = getElement<HTMLInputElement>(
+    container,
+    "#hero-search-input",
+  );
   searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const term = searchInput.value.trim();

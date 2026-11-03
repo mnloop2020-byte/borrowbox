@@ -2,17 +2,18 @@
  * Borrow request rules (item detail spec §3–§4, product spec §5.2–§6.2).
  * Pure functions: no DOM and no storage, so Node can test them.
  */
-import { rangesOverlap } from "./dates.js";
+import type { BorrowRequest, Item, ItemStatus, User } from "../types.ts";
+import { rangesOverlap } from "./dates.ts";
+
+/** The result of checking a new request: ok, or which field failed and why */
+export type ValidationResult =
+  { ok: true } | { ok: false; field: "start" | "end" | "form"; code: string };
 
 /** Only these statuses hold dates; every other status releases them (product spec §6.2). */
 const DATE_LOCKING_STATUSES = ["Active", "Pending Approval"];
 
 /**
  * Checks a new request against the rules, in spec §3 order.
- *
- * @param {{ item: object, borrowerId: string, startDate: string, endDate: string,
- *           requests: object[], today: string }} input
- * @returns {{ ok: true } | { ok: false, field: "start" | "end" | "form", code: string }}
  */
 export function validateRequest({
   item,
@@ -21,7 +22,14 @@ export function validateRequest({
   endDate,
   requests,
   today,
-}) {
+}: {
+  item: Item;
+  borrowerId: string;
+  startDate: string;
+  endDate: string;
+  requests: BorrowRequest[];
+  today: string;
+}): ValidationResult {
   if (!startDate) return { ok: false, field: "start", code: "missing-dates" };
   if (!endDate) return { ok: false, field: "end", code: "missing-dates" };
   if (startDate < today) {
@@ -51,10 +59,6 @@ export function validateRequest({
 
 /**
  * Builds a new request in the product spec §5.3 shape.
- *
- * @param {{ item: object, borrower: { id: string, name: string }, startDate: string,
- *           endDate: string, now: Date, id: string }} input
- * @returns {object}
  */
 export function createRequestRecord({
   item,
@@ -63,7 +67,14 @@ export function createRequestRecord({
   endDate,
   now,
   id,
-}) {
+}: {
+  item: Item;
+  borrower: Pick<User, "id" | "name">;
+  startDate: string;
+  endDate: string;
+  now: Date;
+  id: string;
+}): BorrowRequest {
   return {
     id,
     itemId: item.id,
@@ -96,12 +107,14 @@ export function createRequestRecord({
 /**
  * Availability shown on cards and the item page (product spec §5.2).
  *
- * @param {object} item
- * @param {object[]} requests - all requests; filtered to this item here
- * @param {string} today - "YYYY-MM-DD"
- * @returns {"Available" | "Reserved" | "Unavailable"}
+ * @param requests - all requests; filtered to this item here
+ * @param today - "YYYY-MM-DD"
  */
-export function deriveItemStatus(item, requests, today) {
+export function deriveItemStatus(
+  item: Item,
+  requests: BorrowRequest[],
+  today: string,
+): ItemStatus {
   const itemRequests = requests.filter((r) => r.itemId === item.id);
   if (item.isManuallyPaused) return "Unavailable";
   if (itemRequests.some((r) => r.status === "Disputed")) return "Unavailable";

@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import en from "../src/i18n/en.js";
-import ar from "../src/i18n/ar.js";
+import en from "../src/i18n/en.ts";
+import ar from "../src/i18n/ar.ts";
 import {
   formatMoney,
   getLang,
@@ -11,28 +11,8 @@ import {
   setLang,
   t,
   translate,
-} from "../src/i18n/i18n.js";
-
-/** In-memory stand-in for localStorage */
-function fakeStorage(initial = {}) {
-  const data = { ...initial };
-  return {
-    getItem: (key) => (key in data ? data[key] : null),
-    setItem: (key, value) => {
-      data[key] = String(value);
-    },
-    data,
-  };
-}
-
-const throwingStorage = {
-  getItem() {
-    throw new Error("blocked");
-  },
-  setItem() {
-    throw new Error("blocked");
-  },
-};
+} from "../src/i18n/i18n.ts";
+import { asItem, fakeStorage, throwingStorage } from "./fakes.ts";
 
 // ---------- Phase 1: stored language ----------
 
@@ -68,8 +48,8 @@ test("English and Arabic dictionaries have exactly the same keys", () => {
   const arKeys = Object.keys(ar);
   const missingInAr = enKeys.filter((k) => !(k in ar));
   const missingInEn = arKeys.filter((k) => !(k in en));
-  assert.deepEqual(missingInAr, [], "missing in ar.js");
-  assert.deepEqual(missingInEn, [], "missing in en.js");
+  assert.deepEqual(missingInAr, [], "missing in ar.ts");
+  assert.deepEqual(missingInEn, [], "missing in en.ts");
 });
 
 test("no Arabic translation is empty", () => {
@@ -144,7 +124,7 @@ test("formatMoney treats non-numbers as 0", () => {
 
 // ---------- Phase 5: display of fixed data values ----------
 
-import { tValue } from "../src/i18n/i18n.js";
+import { tValue } from "../src/i18n/i18n.ts";
 
 test("tValue translates a known value and shows an unknown one as stored", () => {
   setLang("ar");
@@ -161,7 +141,7 @@ import { readFileSync, readdirSync } from "node:fs";
 
 test("views and components contain no hard-coded English interface text", () => {
   const files = [
-    "src/main.js",
+    "src/main.ts",
     ...readdirSync("src/components").map((f) => `src/components/${f}`),
     ...readdirSync("src/views").map((f) => `src/views/${f}`),
   ];
@@ -188,9 +168,9 @@ import {
   CATEGORIES,
   categoryHref,
   categoryLabel,
-} from "../src/content/categories.js";
-import { parseCatalogParams } from "../src/logic/validation.js";
-import { renderItemCard } from "../src/components/ItemCard.js";
+} from "../src/content/categories.ts";
+import { parseCatalogParams } from "../src/logic/validation.ts";
+import { renderItemCard } from "../src/components/ItemCard.ts";
 
 test("category data and URLs stay English in Arabic", () => {
   setLang("ar");
@@ -215,16 +195,18 @@ test("category data and URLs stay English in Arabic", () => {
 
 test("an Arabic item card keeps its English link and status class", () => {
   setLang("ar");
-  const html = renderItemCard({
-    id: "item-101",
-    title: "Bosch Drill",
-    category: "Power Tools",
-    condition: "Excellent",
-    depositAmount: 45,
-    ownerName: "Sarah",
-    status: "Available",
-    imageUrl: "/a.png",
-  });
+  const html = renderItemCard(
+    asItem({
+      id: "item-101",
+      title: "Bosch Drill",
+      category: "Power Tools",
+      condition: "Excellent",
+      depositAmount: 45,
+      ownerName: "Sarah",
+      status: "Available",
+      imageUrl: "/a.png",
+    }),
+  );
   assert.ok(html.includes('href="#/item/item-101"'));
   assert.ok(html.includes("status-available"));
   assert.ok(html.includes("متاح"));

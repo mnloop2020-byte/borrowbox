@@ -1,6 +1,6 @@
 /**
  * English interface text (product spec §10.3).
- * Keys must match src/i18n/ar.js exactly; tests/i18n.test.js checks this.
+ * Keys must match src/i18n/ar.ts exactly; tests/i18n.test.ts checks this.
  * Plain text only, no HTML. "{name}" style placeholders are filled by t().
  */
 export default {

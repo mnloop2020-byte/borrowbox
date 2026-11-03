@@ -1,3 +1,4 @@
+import type { Item } from "../types.ts";
 import drillImg from "../assets/photos/01-power-tools.png";
 import gardenImg from "../assets/photos/02-gardening.png";
 import campImg from "../assets/photos/03-camping.png";
@@ -8,7 +9,7 @@ import cleanImg from "../assets/images/carousel-cleaning.svg";
  * Approved Initial Seed Data for BorrowBox MVP
  * Conforms strictly to Item Model in Section 5.2 of the design specification
  */
-export const SEED_ITEMS = [
+export const SEED_ITEMS: Item[] = [
   {
     id: "item-101",
     title: "Bosch Professional Hammer Drill",

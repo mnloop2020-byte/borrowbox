@@ -4,26 +4,29 @@
  * Safe to import in Node: nothing here touches document or window at import
  * time, and every storage call is wrapped in try/catch.
  */
-import ar from "./ar.js";
-import en from "./en.js";
+import type { Lang } from "../types.ts";
+import ar from "./ar.ts";
+import en from "./en.ts";
 
-const DICTIONARIES = { en, ar };
+/** One language's interface text: key -> text */
+export type Dictionary = Record<string, string>;
+
+const DICTIONARIES: Record<Lang, Dictionary> = { en, ar };
 const LANG_KEY = "borrowbox_lang";
 
 /**
- * @param {unknown} value
- * @returns {"en" | "ar"} only the exact string "ar" selects Arabic
+ * @returns only the exact string "ar" selects Arabic
  */
-function normalizeLang(value) {
+function normalizeLang(value: unknown): Lang {
   return value === "ar" ? "ar" : "en";
 }
 
 /**
  * Reads the saved language. Missing, invalid or unreadable means English.
- * @param {Storage} [storage]
- * @returns {"en" | "ar"}
  */
-export function readStoredLang(storage = globalThis.localStorage) {
+export function readStoredLang(
+  storage: Storage = globalThis.localStorage,
+): Lang {
   try {
     return normalizeLang(storage.getItem(LANG_KEY));
   } catch {
@@ -33,11 +36,12 @@ export function readStoredLang(storage = globalThis.localStorage) {
 
 /**
  * Saves the language as a plain string ("en" or "ar").
- * @param {"en" | "ar"} lang
- * @param {Storage} [storage]
- * @returns {boolean} false when storage is blocked or full
+ * @returns false when storage is blocked or full
  */
-export function saveLang(lang, storage = globalThis.localStorage) {
+export function saveLang(
+  lang: Lang,
+  storage: Storage = globalThis.localStorage,
+): boolean {
   try {
     storage.setItem(LANG_KEY, normalizeLang(lang));
     return true;
@@ -46,10 +50,9 @@ export function saveLang(lang, storage = globalThis.localStorage) {
   }
 }
 
-let currentLang = readStoredLang();
+let currentLang: Lang = readStoredLang();
 
-/** @returns {"en" | "ar"} */
-export function getLang() {
+export function getLang(): Lang {
   return currentLang;
 }
 
@@ -57,10 +60,9 @@ export function getLang() {
  * Changes the language for the rest of the visit, saves it when possible,
  * updates <html lang dir> and tells the app to re-render.
  *
- * @param {unknown} lang
- * @returns {"en" | "ar"} the language actually set
+ * @returns the language actually set
  */
-export function setLang(lang) {
+export function setLang(lang: unknown): Lang {
   currentLang = normalizeLang(lang);
   saveLang(currentLang);
   if (typeof document !== "undefined") {
@@ -80,14 +82,14 @@ export function setLang(lang) {
  * key itself, so the result is never empty. "{name}" placeholders are filled
  * from values; a placeholder with no value stays as written.
  *
- * @param {{ en: object, ar?: object }} dictionaries
- * @param {"en" | "ar"} lang
- * @param {string} key
- * @param {Record<string, unknown>} [values]
- * @returns {string}
  */
-export function translate(dictionaries, lang, key, values = {}) {
-  const pick = (dict) =>
+export function translate(
+  dictionaries: { en: Dictionary; ar?: Dictionary },
+  lang: Lang,
+  key: string,
+  values: Record<string, unknown> = {},
+): string {
+  const pick = (dict: Dictionary | undefined): string | null =>
     dict && typeof dict[key] === "string" && dict[key].trim() !== ""
       ? dict[key]
       : null;
@@ -101,11 +103,8 @@ export function translate(dictionaries, lang, key, values = {}) {
  * Interface text in the current language. The result is plain text: insert it
  * with textContent, or with escapeHtml() inside an HTML template.
  *
- * @param {string} key
- * @param {Record<string, unknown>} [values]
- * @returns {string}
  */
-export function t(key, values) {
+export function t(key: string, values?: Record<string, unknown>): string {
   return translate(DICTIONARIES, currentLang, key, values);
 }
 
@@ -114,11 +113,10 @@ export function t(key, values) {
  * condition, role). Data keeps the English value; a known value is
  * translated, an unknown one is shown exactly as stored (spec §10.4).
  *
- * @param {string} prefix - e.g. "status"
- * @param {unknown} value - e.g. "Available"
- * @returns {string}
+ * @param prefix - e.g. "status"
+ * @param value - e.g. "Available"
  */
-export function tValue(prefix, value) {
+export function tValue(prefix: string, value: unknown): string {
   if (value === null || value === undefined) return "";
   const key = `${prefix}.${value}`;
   const text = t(key);
@@ -127,10 +125,9 @@ export function tValue(prefix, value) {
 
 /**
  * Formats a deposit in whole US dollars with Western digits in both languages.
- * @param {unknown} amount
- * @returns {string} e.g. "$45" in English
+ * @returns e.g. "$45" in English
  */
-export function formatMoney(amount) {
+export function formatMoney(amount: unknown): string {
   const value = Number(amount);
   return new Intl.NumberFormat(currentLang === "ar" ? "ar" : "en-US", {
     style: "currency",

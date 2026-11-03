@@ -6,13 +6,13 @@
  */
 
 /**
- * @template T
- * @param {string} key
- * @param {T} fallback - returned when the key is missing, unreadable or corrupt
- * @param {Storage} [storage]
- * @returns {T}
+ * @param fallback - returned when the key is missing, unreadable or corrupt
  */
-export function getJSON(key, fallback, storage = globalThis.localStorage) {
+export function getJSON<T>(
+  key: string,
+  fallback: T,
+  storage: Storage = globalThis.localStorage,
+): T {
   try {
     const raw = storage.getItem(key);
     return raw === null ? fallback : JSON.parse(raw);
@@ -22,12 +22,13 @@ export function getJSON(key, fallback, storage = globalThis.localStorage) {
 }
 
 /**
- * @param {string} key
- * @param {unknown} value
- * @param {Storage} [storage]
- * @returns {boolean} false when the value could not be saved
+ * @returns false when the value could not be saved
  */
-export function setJSON(key, value, storage = globalThis.localStorage) {
+export function setJSON(
+  key: string,
+  value: unknown,
+  storage: Storage = globalThis.localStorage,
+): boolean {
   try {
     storage.setItem(key, JSON.stringify(value));
     return true;

@@ -1,6 +1,7 @@
-import { formatMoney, t, tValue } from "../i18n/i18n.js";
-import { escapeHtml, isSafeImageUrl } from "../logic/html.js";
-import { isValidItemId } from "../logic/validation.js";
+import { formatMoney, t, tValue } from "../i18n/i18n.ts";
+import { escapeHtml, isSafeImageUrl } from "../logic/html.ts";
+import { isValidItemId } from "../logic/validation.ts";
+import type { Item } from "../types.ts";
 
 const KNOWN_STATUSES = ["Available", "Reserved", "Unavailable"];
 
@@ -12,10 +13,10 @@ const KNOWN_STATUSES = ["Available", "Reserved", "Unavailable"];
  * localStorage and the List an Item form): text is escaped, the image URL
  * and id are checked, and only known statuses reach the class name.
  *
- * @param {Object} item - An item object conforming to the Item Model
- * @returns {string} HTML string
+ * @param item - An item object conforming to the Item Model
+ * @returns HTML string
  */
-export function renderItemCard(item) {
+export function renderItemCard(item: Item): string {
   const deposit = Number(item.depositAmount);
   const depositFormatted = escapeHtml(formatMoney(deposit));
   const rating = Number(item.ownerRating);

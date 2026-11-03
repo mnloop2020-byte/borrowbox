@@ -1,30 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { getJSON, setJSON } from "../src/store/storage.js";
-import { addRequest, getRequests } from "../src/store/requestStore.js";
-
-/** A minimal in-memory stand-in for window.localStorage */
-function fakeStorage(initial = {}) {
-  const data = { ...initial };
-  return {
-    getItem: (key) => (key in data ? data[key] : null),
-    setItem: (key, value) => {
-      data[key] = String(value);
-    },
-    data,
-  };
-}
-
-/** Storage that throws on every call, like Safari private mode used to */
-const brokenStorage = {
-  getItem() {
-    throw new Error("blocked");
-  },
-  setItem() {
-    throw new Error("blocked");
-  },
-};
+import { getJSON, setJSON } from "../src/store/storage.ts";
+import { addRequest, getRequests } from "../src/store/requestStore.ts";
+import {
+  asRequest,
+  fakeStorage,
+  throwingStorage as brokenStorage,
+} from "./fakes.ts";
 
 test("setJSON then getJSON round-trips a value", () => {
   const storage = fakeStorage();
@@ -53,8 +36,8 @@ test("getRequests returns [] when stored data is not an array", () => {
 
 test("addRequest appends to the stored list", () => {
   const storage = fakeStorage();
-  addRequest({ id: "req-1" }, storage);
-  addRequest({ id: "req-2" }, storage);
+  addRequest(asRequest({ id: "req-1" }), storage);
+  addRequest(asRequest({ id: "req-2" }), storage);
   assert.deepEqual(
     getRequests(storage).map((r) => r.id),
     ["req-1", "req-2"],

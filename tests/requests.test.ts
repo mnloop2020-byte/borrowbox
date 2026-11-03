@@ -1,24 +1,26 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { rangesOverlap, todayISO } from "../src/logic/dates.js";
+import { rangesOverlap, todayISO } from "../src/logic/dates.ts";
 import {
   createRequestRecord,
   deriveItemStatus,
   validateRequest,
-} from "../src/logic/requests.js";
+} from "../src/logic/requests.ts";
+import type { BorrowRequest } from "../src/types.ts";
+import { asItem, asRequest } from "./fakes.ts";
 
-const item = {
+const item = asItem({
   id: "item-101",
   title: "Drill",
   ownerId: "user-1",
   depositAmount: 45,
   isManuallyPaused: false,
-};
+});
 const today = "2026-11-10";
 
-function request(overrides) {
-  return {
+function request(overrides: Partial<BorrowRequest> = {}): BorrowRequest {
+  return asRequest({
     id: "req-1",
     itemId: "item-101",
     borrowerId: "user-3",
@@ -26,10 +28,12 @@ function request(overrides) {
     endDate: "2026-11-14",
     status: "Pending Approval",
     ...overrides,
-  };
+  });
 }
 
-function validate(overrides) {
+function validate(
+  overrides: Partial<Parameters<typeof validateRequest>[0]> = {},
+) {
   return validateRequest({
     item,
     borrowerId: "user-2",
@@ -144,7 +148,11 @@ test("overlap with an active request fails", () => {
       endDate: "2026-11-20",
     }),
   ];
-  assert.equal(validate({ requests }).code, "overlap");
+  assert.deepEqual(validate({ requests }), {
+    ok: false,
+    field: "form",
+    code: "overlap",
+  });
 });
 
 test("ended requests do not block their dates", () => {
@@ -202,7 +210,7 @@ test("createRequestRecord builds a pending request with the spec shape", () => {
     "cancelledAt",
     "returnedAt",
     "inspectedAt",
-  ]) {
+  ] as const) {
     assert.equal(record[key], null, key);
   }
 });
