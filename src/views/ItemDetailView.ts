@@ -29,16 +29,24 @@ function renderNotFound(): string {
   `;
 }
 
+// Points back (left in English); .icon-directional flips it in Arabic
+const BACK_ICON = `<svg class="icon-directional" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6 6-6-6 6-6"></path></svg>`;
+
+/** Who lends the item: the trust details that sit under the title */
 function renderOwnerCard(item: Item): string {
   const rating = Number(item.ownerRating);
+  const initial = item.ownerName.trim().charAt(0);
   return `
     <section class="item-owner" aria-labelledby="owner-heading">
-      <h2 id="owner-heading" class="item-subheading">${tx("item.ownerHeading")}</h2>
-      <p class="item-owner-name">
-        ${escapeHtml(item.ownerName)}
-        ${item.ownerVerified ? `<span class="verified-badge">${tx("item.verified")}</span>` : ""}
-      </p>
-      ${Number.isFinite(rating) && rating > 0 ? `<p class="item-owner-rating">${tx("item.rating", { rating })}</p>` : ""}
+      <span class="owner-avatar" aria-hidden="true">${escapeHtml(initial)}</span>
+      <div class="item-owner-body">
+        <h2 id="owner-heading" class="item-owner-label">${tx("item.ownerHeading")}</h2>
+        <p class="item-owner-name">
+          <bdi>${escapeHtml(item.ownerName)}</bdi>
+          ${item.ownerVerified ? `<span class="verified-badge">${tx("item.verified")}</span>` : ""}
+        </p>
+        ${Number.isFinite(rating) && rating > 0 ? `<p class="item-owner-rating">${tx("item.rating", { rating })}</p>` : ""}
+      </div>
     </section>
   `;
 }
@@ -74,38 +82,48 @@ function renderItem(
   const deposit = Number(item.depositAmount);
   return `
     <article class="item-detail" aria-labelledby="item-title">
-      <a href="#/catalog" class="text-link item-back"><span class="icon-directional" aria-hidden="true">←</span> ${tx("item.back")}</a>
+      <a href="#/catalog" class="text-link item-back">${BACK_ICON} ${tx("item.back")}</a>
 
       <div class="item-detail-layout">
-        <div class="item-detail-main">
+        <div class="item-detail-media">
           ${
             isSafeImageUrl(item.imageUrl)
               ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" class="item-detail-img" />`
               : ""
           }
-          <p class="item-detail-category">${escapeHtml(tValue("category", item.category))}</p>
-          <h1 id="item-title" class="item-detail-title">${escapeHtml(item.title)}</h1>
-          <p class="item-card-badge status-${status.toLowerCase()} item-detail-status">${escapeHtml(tValue("status", status))}</p>
-          <p class="item-detail-description">${escapeHtml(item.description)}</p>
+        </div>
+
+        <!-- One column, in reading order: what it is, who lends it, how to borrow it -->
+        <div class="item-detail-info">
+          <div class="item-detail-header">
+            <p class="item-detail-category">${escapeHtml(tValue("category", item.category))}</p>
+            <!-- <bdi>: owners write in any language, so the text keeps its own direction
+                 ("4-Person Tent" stays in order on the Arabic page) and the line keeps the page's alignment -->
+            <h1 id="item-title" class="item-detail-title"><bdi>${escapeHtml(item.title)}</bdi></h1>
+            <p class="item-detail-description"><bdi>${escapeHtml(item.description)}</bdi></p>
+          </div>
+
+          ${renderOwnerCard(item)}
+
+          <aside class="booking-panel" aria-labelledby="booking-heading">
+            <div class="booking-panel-head">
+              <h2 id="booking-heading" class="item-subheading">${tx("booking.depositHeading")}</h2>
+              <p class="item-card-badge status-${status.toLowerCase()} item-detail-status">${escapeHtml(tValue("status", status))}</p>
+            </div>
+            <p class="booking-deposit">${escapeHtml(formatMoney(deposit))}</p>
+            <p class="booking-note">${tx("booking.note")}</p>
+            ${
+              isOwner
+                ? `<p class="booking-owner-note">${tx("booking.ownerNote")}</p>`
+                : renderBookingForm(today)
+            }
+          </aside>
 
           <section class="item-condition" aria-labelledby="condition-heading">
             <h2 id="condition-heading" class="item-subheading">${tx("item.conditionHeading", { condition: tValue("condition", item.condition) })}</h2>
-            <p>${escapeHtml(item.conditionNotes)}</p>
+            <p><bdi>${escapeHtml(item.conditionNotes)}</bdi></p>
           </section>
-
-          ${renderOwnerCard(item)}
         </div>
-
-        <aside class="booking-panel" aria-labelledby="booking-heading">
-          <h2 id="booking-heading" class="item-subheading">${tx("booking.depositHeading")}</h2>
-          <p class="booking-deposit">${escapeHtml(formatMoney(deposit))}</p>
-          <p class="booking-note">${tx("booking.note")}</p>
-          ${
-            isOwner
-              ? `<p class="booking-owner-note">${tx("booking.ownerNote")}</p>`
-              : renderBookingForm(today)
-          }
-        </aside>
       </div>
     </article>
   `;

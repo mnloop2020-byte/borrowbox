@@ -62,7 +62,8 @@ export function renderItemCard(item: Item): string {
             }
           </div>
 
-          <h3 class="item-card-title">${title}</h3>
+          <!-- <bdi> keeps an English title in order on the Arabic page -->
+          <h3 class="item-card-title"><bdi>${title}</bdi></h3>
 
           <div class="item-card-meta">
             <span class="item-card-condition">${escapeHtml(t("card.conditionLabel"))} <strong>${condition}</strong></span>

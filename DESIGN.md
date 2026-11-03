@@ -369,14 +369,14 @@ Base styles are for phones; larger screens add rules with `min-width` only.
 All pages share the floating nav, the cream canvas, the container and the
 dark footer.
 
-| Page                         | Layout                                                                                                                                                                  |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Home** `#/`                | Hero → About → Browse by category → Featured items → How it works (steps `01–04`) → Got tools sitting idle? → Why BorrowBox (dark panel) → Footer                       |
-| **Catalog** `#/catalog`      | `h1`, a pill `search-bar`, category chips (from the existing category list and `?category=`), then the item grid. Empty and "no results" states use the same card shape |
-| **Item detail** `#/item/:id` | Large photo in a `card` (left on desktop), a sticky booking panel (right) with deposit, status and the date form; owner and trust details under the title               |
-| **List item** `#/list-item`  | `h1` and one centred white form card (`max-width: 42rem`)                                                                                                               |
-| **Dashboard** `#/dashboard`  | `h1`, then white cards in a single column on mobile and two columns from 1024px                                                                                         |
-| **Register** `#/register`    | `h1` and one centred white form card                                                                                                                                    |
+| Page                         | Layout                                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Home** `#/`                | Hero → About → Browse by category → Featured items → How it works (steps `01–04`) → Got tools sitting idle? → Why BorrowBox (dark panel) → Footer                                     |
+| **Catalog** `#/catalog`      | `h1`, a pill `search-bar`, category chips (from the existing category list and `?category=`), then the item grid. Empty and "no results" states use the same card shape               |
+| **Item detail** `#/item/:id` | Large 4:5 photo in a white `card` frame (left on desktop, sticky); one column on the right: title, owner and trust details, the booking panel (deposit, status, date form), condition |
+| **List item** `#/list-item`  | `h1` and one centred white form card (`max-width: 42rem`)                                                                                                                             |
+| **Dashboard** `#/dashboard`  | `h1`, then white cards in a single column on mobile and two columns from 1024px                                                                                                       |
+| **Register** `#/register`    | `h1` and one centred white form card                                                                                                                                                  |
 
 The catalog, list item and dashboard pages are placeholders in the current
 app. This table sets their layout shell only; their content and features
