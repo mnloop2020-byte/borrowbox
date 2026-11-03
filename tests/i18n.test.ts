@@ -12,7 +12,7 @@ import {
   t,
   translate,
 } from "../src/i18n/i18n.ts";
-import { asItem, fakeStorage, throwingStorage } from "./fakes.ts";
+import { fakeStorage, makeItem, throwingStorage } from "./fakes.ts";
 
 // ---------- Phase 1: stored language ----------
 
@@ -196,7 +196,7 @@ test("category data and URLs stay English in Arabic", () => {
 test("an Arabic item card keeps its English link and status class", () => {
   setLang("ar");
   const html = renderItemCard(
-    asItem({
+    makeItem({
       id: "item-101",
       title: "Bosch Drill",
       category: "Power Tools",

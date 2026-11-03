@@ -8,9 +8,9 @@ import {
   validateRequest,
 } from "../src/logic/requests.ts";
 import type { BorrowRequest } from "../src/types.ts";
-import { asItem, asRequest } from "./fakes.ts";
+import { makeItem, makeRequest } from "./fakes.ts";
 
-const item = asItem({
+const item = makeItem({
   id: "item-101",
   title: "Drill",
   ownerId: "user-1",
@@ -20,7 +20,7 @@ const item = asItem({
 const today = "2026-11-10";
 
 function request(overrides: Partial<BorrowRequest> = {}): BorrowRequest {
-  return asRequest({
+  return makeRequest({
     id: "req-1",
     itemId: "item-101",
     borrowerId: "user-3",

@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import { getJSON, setJSON } from "../src/store/storage.ts";
 import { addRequest, getRequests } from "../src/store/requestStore.ts";
 import {
-  asRequest,
   fakeStorage,
+  makeRequest,
   throwingStorage as brokenStorage,
 } from "./fakes.ts";
 
@@ -36,8 +36,8 @@ test("getRequests returns [] when stored data is not an array", () => {
 
 test("addRequest appends to the stored list", () => {
   const storage = fakeStorage();
-  addRequest(asRequest({ id: "req-1" }), storage);
-  addRequest(asRequest({ id: "req-2" }), storage);
+  addRequest(makeRequest({ id: "req-1" }), storage);
+  addRequest(makeRequest({ id: "req-2" }), storage);
   assert.deepEqual(
     getRequests(storage).map((r) => r.id),
     ["req-1", "req-2"],

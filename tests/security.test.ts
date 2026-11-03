@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { escapeHtml, isSafeImageUrl } from "../src/logic/html.ts";
 import { isValidItemId, parseCatalogParams } from "../src/logic/validation.ts";
 import { renderItemCard } from "../src/components/ItemCard.ts";
-import { asItem } from "./fakes.ts";
+import { makeItem } from "./fakes.ts";
 
 // ---------- escapeHtml ----------
 
@@ -81,7 +81,7 @@ test("parseCatalogParams limits the query to 100 characters", () => {
 
 // ---------- renderItemCard ----------
 
-const baseItem = asItem({
+const baseItem = makeItem({
   id: "item-101",
   title: "Drill",
   category: "Power Tools",
@@ -111,8 +111,9 @@ test("renderItemCard drops an unsafe image URL", () => {
 
 test("renderItemCard only uses known statuses in the class name", () => {
   const html = renderItemCard(
-    asItem({
+    makeItem({
       ...baseItem,
+      // @ts-expect-error: a hostile status from corrupted storage, outside ItemStatus
       status: 'x" onmouseover="alert(1)',
     }),
   );

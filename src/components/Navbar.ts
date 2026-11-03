@@ -225,6 +225,10 @@ function bindNavbarEvents(container: HTMLElement): void {
 
   // Global Outside-Click Handler
   activeDocumentClickHandler = (e: MouseEvent) => {
+    // e.target can be null or a non-Node (such as window); only a Node can be "inside"
+    const target = e.target;
+    if (!(target instanceof Node)) return;
+
     // 1. Handle profile dropdown outside click
     if (
       profileButton &&
@@ -232,8 +236,8 @@ function bindNavbarEvents(container: HTMLElement): void {
       profileDropdown.classList.contains("is-open")
     ) {
       if (
-        !profileDropdown.contains(e.target as Node) &&
-        !profileButton.contains(e.target as Node)
+        !profileDropdown.contains(target) &&
+        !profileButton.contains(target)
       ) {
         profileButton.setAttribute("aria-expanded", "false");
         profileDropdown.classList.remove("is-open");
@@ -242,10 +246,7 @@ function bindNavbarEvents(container: HTMLElement): void {
 
     // 2. Handle mobile menu outside click (do not close if clicking inside navMenu or on toggle)
     if (mobileToggle && navMenu && navMenu.classList.contains("is-open")) {
-      if (
-        !navMenu.contains(e.target as Node) &&
-        !mobileToggle.contains(e.target as Node)
-      ) {
+      if (!navMenu.contains(target) && !mobileToggle.contains(target)) {
         mobileToggle.setAttribute("aria-expanded", "false");
         navMenu.classList.remove("is-open");
       }

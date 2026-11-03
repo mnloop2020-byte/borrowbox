@@ -19,6 +19,6 @@ export function scrollToSection(id: string): void {
   });
 
   // Move keyboard and screen-reader focus with the scroll
-  const heading = section.querySelector("[tabindex='-1']");
-  (heading as HTMLElement | null)?.focus({ preventScroll: true });
+  const heading = section.querySelector<HTMLElement>("[tabindex='-1']");
+  heading?.focus({ preventScroll: true });
 }

@@ -44,9 +44,62 @@ export const throwingStorage: Storage = {
 };
 
 /**
- * Tests often pass incomplete or deliberately hostile data (an XSS status,
- * a bad id) to prove the code survives it. These casts say so out loud,
- * instead of loosening the app's real types.
+ * A complete, valid item. A test passes only the fields it cares about.
  */
-export const asItem = (data: object): Item => data as Item;
-export const asRequest = (data: object): BorrowRequest => data as BorrowRequest;
+export function makeItem(overrides: Partial<Item> = {}): Item {
+  return {
+    id: "item-101",
+    title: "Drill",
+    category: "Power Tools",
+    description: "",
+    condition: "Excellent",
+    conditionNotes: "",
+    conditionImages: [],
+    depositAmount: 45,
+    ownerId: "user-1",
+    ownerName: "Sarah",
+    ownerVerified: true,
+    ownerRating: 4.9,
+    status: "Available",
+    isManuallyPaused: false,
+    imageUrl: "/a.png",
+    createdAt: "2026-11-01T00:00:00.000Z",
+    ...overrides,
+  };
+}
+
+/**
+ * A complete, valid borrow request. A test passes only the fields it cares about.
+ */
+export function makeRequest(
+  overrides: Partial<BorrowRequest> = {},
+): BorrowRequest {
+  return {
+    id: "req-1",
+    itemId: "item-101",
+    itemTitle: "Drill",
+    borrowerId: "user-3",
+    borrowerName: "Omar",
+    ownerId: "user-1",
+    startDate: "2026-11-12",
+    endDate: "2026-11-14",
+    depositAmount: 45,
+    status: "Pending Approval",
+    depositStatus: "Not Held",
+    createdAt: "2026-11-01T00:00:00.000Z",
+    approvedAt: null,
+    rejectedAt: null,
+    expiredAt: null,
+    handedOverAt: null,
+    cancelledAt: null,
+    returnedAt: null,
+    inspectedAt: null,
+    preHandoverNotes: "",
+    preHandoverImages: [],
+    postReturnNotes: "",
+    cancellationReason: null,
+    issueDescription: null,
+    issueImages: [],
+    ...overrides,
+  };
+}
