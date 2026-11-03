@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Local AI tool settings
+.claude/
+
 
 # Environment variables and secrets
 .env
