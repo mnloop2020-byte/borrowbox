@@ -5,6 +5,7 @@ import { userStore } from "../store/userStore.ts";
 // Keep active listeners stored to allow clean removal during re-renders
 let activeDocumentClickHandler: ((e: MouseEvent) => void) | null = null;
 let activeDocumentKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
+let activeScrollHandler: (() => void) | null = null;
 
 /**
  * Renders and binds the Airbnb-style Main Navigation bar.
@@ -154,7 +155,7 @@ export function updateActiveNavLink(container: HTMLElement): void {
 }
 
 /**
- * Removes global document click and keydown listeners
+ * Removes global document click, keydown and window scroll listeners
  */
 function cleanupGlobalNavbarEvents(): void {
   if (activeDocumentClickHandler) {
@@ -164,6 +165,10 @@ function cleanupGlobalNavbarEvents(): void {
   if (activeDocumentKeydownHandler) {
     document.removeEventListener("keydown", activeDocumentKeydownHandler);
     activeDocumentKeydownHandler = null;
+  }
+  if (activeScrollHandler) {
+    window.removeEventListener("scroll", activeScrollHandler);
+    activeScrollHandler = null;
   }
 }
 
@@ -182,6 +187,16 @@ function bindNavbarEvents(container: HTMLElement): void {
   );
   const personaButtons =
     container.querySelectorAll<HTMLButtonElement>(".persona-item-btn");
+  const header = container.querySelector<HTMLElement>(".app-header");
+
+  // Once the page scrolls, the floating bar turns to frosted glass
+  if (header) {
+    activeScrollHandler = () => {
+      header.classList.toggle("is-scrolled", window.scrollY > 8);
+    };
+    activeScrollHandler();
+    window.addEventListener("scroll", activeScrollHandler, { passive: true });
+  }
 
   // Mobile menu toggle
   if (mobileToggle && navMenu) {

@@ -75,7 +75,7 @@
   --space-section: 7.5rem;
 
   /* Layout, shapes and depth */
-  --nav-height: 4.25rem;
+  --nav-height: 3.75rem; /* 60px pill; the header adds 12px above it */
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -257,24 +257,46 @@ p {
    Header & Navbar Styles
    ========================================================================== */
 
-.app-header {
+/* The sticky element is the mount, not the header: a sticky element only
+   sticks inside its parent, and #nav-mount is exactly as tall as the header,
+   so a sticky header inside it never moved. */
+#nav-mount {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-subtle);
+}
+
+/* A white pill that floats 12px below the top of the page (Nomu pattern).
+   The header itself is transparent, so the page shows around the pill. */
+.app-header {
+  position: relative;
+  padding: var(--space-sm) var(--space-md) 0;
 }
 
 .nav-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--space-md);
+  padding: 0 var(--space-xs) 0 var(--space-md);
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: var(--nav-height);
   position: relative;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-raised);
+  transition:
+    background-color var(--duration-medium) var(--ease-out),
+    box-shadow var(--duration-medium) var(--ease-out);
+}
+
+/* After scrolling, content shows through as frosted glass. 90% cream, not
+   Nomu's 80%: over the dark hero, muted links would drop to 4.0:1 at 80%
+   and stay at 5.0:1 at 90%. */
+.app-header.is-scrolled .nav-container {
+  background-color: rgba(255, 249, 246, 0.9);
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: var(--shadow-float);
 }
 
 .nav-brand {
@@ -282,8 +304,8 @@ p {
   align-items: center;
   gap: var(--space-xs);
   text-decoration: none;
-  color: var(--color-text);
-  font-weight: 700;
+  color: var(--color-ink);
+  font-weight: 600;
   font-size: var(--font-size-lg);
   letter-spacing: -0.02em;
 }
@@ -311,22 +333,31 @@ p {
   height: 1.375rem;
 }
 
+/* Mobile menu: a white card under the pill that slides down 8px and fades in */
 .nav-menu {
   display: none;
   position: absolute;
-  top: var(--nav-height);
+  top: calc(100% + var(--space-xs));
   left: 0;
   right: 0;
-  background-color: var(--color-bg);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-dropdown);
-  padding: var(--space-md);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float);
+  padding: var(--space-xs);
   flex-direction: column;
   gap: var(--space-xs);
 }
 
 .nav-menu.is-open {
   display: flex;
+  animation: menu-in var(--duration-standard) var(--ease-out);
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 .nav-links-list {
@@ -339,6 +370,7 @@ p {
 }
 
 .nav-link {
+  position: relative;
   display: flex;
   align-items: center;
   min-height: 44px;
@@ -346,27 +378,42 @@ p {
   text-decoration: none;
   color: var(--color-text-muted);
   font-weight: 500;
-  font-size: var(--font-size-base);
+  font-size: 0.9375rem;
   border-radius: var(--radius-full);
-  transition:
-    background-color var(--transition-standard),
-    color var(--transition-standard);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* Underline that grows from the centre. It uses the darker orange
+   (5.71:1 on white): #ff7448 would be only 2.68:1 as a state indicator. */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: var(--space-md);
+  bottom: 8px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent-text);
+  transform: scaleX(0);
+  transition: transform var(--duration-medium) var(--ease-out);
 }
 
 .nav-link.is-active {
-  color: var(--color-text);
-  background-color: var(--color-surface-tint);
-}
-
-@media (hover: hover) {
-  .nav-link:hover {
-    color: var(--color-text);
-    background-color: var(--color-surface-tint);
-  }
-}
-
-.nav-link.is-active {
+  color: var(--color-ink);
   font-weight: 600;
+}
+
+.nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-link:hover {
+    color: var(--color-ink);
+  }
+
+  .nav-link:hover::after {
+    transform: scaleX(1);
+  }
 }
 
 .nav-controls {
@@ -413,23 +460,21 @@ p {
   align-items: center;
   gap: var(--space-xs);
   padding: var(--space-2xs) var(--space-sm) var(--space-2xs) var(--space-2xs);
-  background-color: var(--color-bg);
-  border: 1px solid var(--color-border);
+  min-height: 44px;
+  background-color: var(--color-surface-muted);
+  border: 0;
   border-radius: var(--radius-full);
-  color: var(--color-text);
+  color: var(--color-ink);
   cursor: pointer;
   font-family: inherit;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  transition:
-    border-color var(--transition-standard),
-    box-shadow var(--transition-standard);
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .profile-button:hover {
-    border-color: var(--color-border-strong);
-    box-shadow: var(--shadow-subtle);
+    background-color: var(--color-line);
   }
 }
 
@@ -468,15 +513,16 @@ p {
   inset-inline-end: 0;
   width: 240px;
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-dropdown);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
   padding: var(--space-xs) 0;
+  overflow: hidden;
   z-index: 110;
 }
 
 .profile-dropdown.is-open {
   display: block;
+  animation: menu-in var(--duration-standard) var(--ease-out);
 }
 
 .dropdown-header {
@@ -553,9 +599,23 @@ p {
   }
 }
 
-/* The lime "List an item" button needs room; below 1024px the same link sits in the menu */
+/* The "List an item" button needs room; below 1024px the same link sits in the menu */
 .nav-cta {
   display: none;
+  min-height: 40px;
+  padding-inline: var(--space-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-menu.is-open,
+  .profile-dropdown.is-open {
+    animation: none;
+  }
+
+  .nav-link::after,
+  .nav-container {
+    transition: none;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -1145,10 +1205,13 @@ p {
   font-size: var(--font-size-lg);
 }
 
+/* The card is dark, so the title needs its own light colour: the global
+   heading colour is ink, which is 1:1 on this card */
 .why-title {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
+  color: var(--color-panel-text);
 }
 
 .why-text {
@@ -1447,10 +1510,12 @@ p {
    Site Footer (all pages)
    ========================================================================== */
 
+/* Dark ink footer with large rounded top corners */
 .site-footer {
   margin-top: var(--space-3xl);
   background-color: var(--color-bg);
-  border-top: 1px solid var(--color-border);
+  border-start-start-radius: var(--radius-panel);
+  border-start-end-radius: var(--radius-panel);
 }
 
 .footer-inner {
@@ -1540,17 +1605,16 @@ p {
 }
 
 /* ==========================================================================
-   Dark areas: Header, Hero, Footer
+   Dark areas: Hero (until its redesign), Footer
    The same components are used inside them; only the tokens change, so text,
    borders, links and focus rings switch to light versions automatically.
    Every pair measured on #0f151d.
    ========================================================================== */
 
-.app-header,
 .hero,
 .site-footer {
   /* Text with no color of its own (e.g. the footer logo) would otherwise keep
-     the dark color inherited from body, which is 1.3:1 on navy */
+     the dark color inherited from body, which is 1.3:1 on the dark ink */
   color: var(--color-text);
   --color-bg: var(--color-dark);
   --color-surface-tint: rgba(255, 249, 246, 0.12);
@@ -1829,7 +1893,7 @@ p {
    Language support
    ========================================================================== */
 
-/* Language switch: a quiet pill in the dark header */
+/* Language switch: a quiet pill in the header */
 .lang-switch {
   min-height: 40px;
   padding: 0 var(--space-md);
