@@ -22,12 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Local AI tool settings
 .claude/
-.agents/
-docs/superpowers/
-
 
 # Environment variables and secrets
 .env

@@ -1,0 +1,6 @@
+# Always use LF line endings, as Prettier expects, on every operating system
+* text=auto eol=lf
+
+# Images are binary: never change their bytes
+*.webp binary
+*.png binary
