@@ -8,15 +8,15 @@
 
 ## Architecture
 
-- `src/main.ts`: app shell and hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`).
-- `src/views/`: one module per route. Each exports `mountXView(container, ...)` and returns a cleanup function.
-- `src/components/`: reusable UI. Functions return HTML strings, plus `bindX()` functions for events. `icons.ts` holds the shared arrow icons.
+- `src/main.ts`: app shell and hash router only (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). It picks a view and handles app-wide events; it renders no page itself.
+- `src/views/`: one module per route. Each exports `mountXView(container, ...)` and returns a `MountedView` (`{ title, cleanup }`). The catalog, list item and dashboard views are placeholders for now.
+- `src/components/`: reusable UI. Functions return HTML strings, plus `bindX()` functions for events. `icons.ts` holds the shared arrow icons; `Placeholder.ts` is the card that placeholder and "not found" pages share.
 - `src/content/`: fixed page content (the category list, home page sections).
 - `src/i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys, and `t()`, `setLang()`, `formatMoney()`.
 - `src/store/`: data and `localStorage` persistence (seed data, demo users, request store).
 - `src/logic/`: pure functions only (escaping, validation, dates, borrow requests). No DOM and no `localStorage`, so they can be tested with Node.
 - `src/types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
-- `src/utils/`: small browser helpers. `dom.ts` has `getElement()`, which finds an element that must exist, with the right type; `reveal.ts` reveals sections on scroll.
+- `src/utils/`: small browser helpers. `dom.ts` has `getElement()`, which finds an element that must exist, with the right type; `reveal.ts` reveals sections on scroll; `formFields.ts` keeps typed values when the language changes.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `tests/`: `node:test` unit tests for requests, security (escaping and validation), storage and translations. `fakes.ts` builds complete test objects.
 
@@ -27,7 +27,7 @@ Example: the catalog page (`#/catalog`).
 1. **Data shape:** add or extend the types in `src/types.ts`.
 2. **Rules:** put the pure logic in `src/logic/` (for example `catalog.ts` for filtering), with tests in `tests/catalog.test.ts`.
 3. **Data access:** reading or saving data goes in `src/store/`.
-4. **Page:** create `src/views/CatalogView.ts` that exports `mountCatalogView(container)` and returns a cleanup function. Add the route in `src/main.ts`.
+4. **Page:** the page goes in `src/views/`. The catalog already has `src/views/CatalogView.ts` as a placeholder, so replace its content; it keeps returning a `MountedView`. A brand new page gets a new `XView.ts` and one route in `mountRoute()` in `src/main.ts`.
 5. **Reusable parts:** UI used on more than one page goes in `src/components/` (the catalog reuses `ItemCard.ts`).
 6. **Text:** add every visible string to both `src/i18n/en.ts` and `src/i18n/ar.ts`. `npm test` fails if the keys differ.
 7. **Styles:** add a commented section in `src/style.css` that uses the existing tokens and follows `DESIGN.md`.

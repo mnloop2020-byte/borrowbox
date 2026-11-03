@@ -1,4 +1,5 @@
 import { BACK_ICON } from "../components/icons.ts";
+import { renderPlaceholder } from "../components/Placeholder.ts";
 import { formatMoney, t, tValue } from "../i18n/i18n.ts";
 import { todayISO } from "../logic/dates.ts";
 import { escapeHtml, isSafeImageUrl } from "../logic/html.ts";
@@ -21,13 +22,10 @@ const tx = (key: string, values?: Record<string, unknown>): string =>
 const message = (code: string): string => t(`booking.error.${code}`);
 
 function renderNotFound(): string {
-  return `
-    <section class="placeholder-view" aria-labelledby="page-title">
-      <h1 id="page-title">${tx("item.notFoundTitle")}</h1>
-      <p>${tx("item.notFoundText")}</p>
-      <p class="placeholder-actions"><a href="#/catalog" class="btn btn-primary">${tx("item.browseCatalog")}</a></p>
-    </section>
-  `;
+  return renderPlaceholder(t("item.notFoundTitle"), tx("item.notFoundText"), {
+    href: "#/catalog",
+    label: t("item.browseCatalog"),
+  });
 }
 
 /** Who lends the item: the trust details that sit under the title */

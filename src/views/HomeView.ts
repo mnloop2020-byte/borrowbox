@@ -17,6 +17,7 @@ import {
 import { t } from "../i18n/i18n.ts";
 import { escapeHtml } from "../logic/html.ts";
 import { SEED_ITEMS } from "../store/seedData.ts";
+import type { MountedView } from "../types.ts";
 import { getElement } from "../utils/dom.ts";
 import { observeReveals } from "../utils/reveal.ts";
 
@@ -189,11 +190,9 @@ function renderWhy(): string {
 
 /**
  * Mounts the home page into the container.
- * Returns a cleanup function that stops the scroll reveal.
- *
- * @returns cleanup
+ * Its cleanup stops the scroll reveal.
  */
-export function mountHomeView(container: HTMLElement): () => void {
+export function mountHomeView(container: HTMLElement): MountedView {
   container.innerHTML = `
     <div class="home-view">
       ${renderHero()}
@@ -224,7 +223,5 @@ export function mountHomeView(container: HTMLElement): () => void {
 
   const stopReveals = observeReveals(container);
 
-  return function cleanup() {
-    stopReveals();
-  };
+  return { title: t("title.home"), cleanup: stopReveals };
 }
