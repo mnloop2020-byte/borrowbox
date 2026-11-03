@@ -3,7 +3,7 @@ import drillImg from "../assets/photos/01-power-tools.webp";
 import gardenImg from "../assets/photos/02-gardening.webp";
 import campImg from "../assets/photos/03-camping.webp";
 // No pressure-washer photo yet; the cleaning photo shows a bucket, so the illustration stays
-import cleanImg from "../assets/images/carousel-cleaning.svg";
+import cleanImg from "../assets/images/pressure-washer.svg";
 
 /**
  * Approved Initial Seed Data for BorrowBox MVP
