@@ -6,8 +6,6 @@
  * Photos supplied by the user (src/assets/photos).
  */
 import powerToolsPhoto from "../assets/photos/01-power-tools.webp";
-import gardeningPhoto from "../assets/photos/02-gardening.webp";
-import campingPhoto from "../assets/photos/03-camping.webp";
 import cleaningPhoto from "../assets/photos/04-cleaning.webp";
 import sharingPhoto from "../assets/photos/05-neighbor-tool-sharing.webp";
 import garagePhoto from "../assets/photos/06-garage-tools.webp";
@@ -16,12 +14,6 @@ import { CATEGORIES } from "./categories.ts";
 
 const [POWER_TOOLS, HAND_TOOLS, GARDENING, CLEANING, CAMPING, OUTDOOR] =
   CATEGORIES;
-
-export const HERO_SLIDES = [
-  { image: powerToolsPhoto },
-  { image: gardeningPhoto },
-  { image: campingPhoto },
-];
 
 export const HERO_BULLET_KEYS = [
   "home.hero.bullet1",

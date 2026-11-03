@@ -1,10 +1,12 @@
-import { createHeroBackground } from "../components/Carousel.ts";
 import { renderItemCard } from "../components/ItemCard.ts";
-import { categoryHref, categoryLabel } from "../content/categories.ts";
+import {
+  CATEGORIES,
+  categoryHref,
+  categoryLabel,
+} from "../content/categories.ts";
 import {
   CATEGORY_GROUPS,
   HERO_BULLET_KEYS,
-  HERO_SLIDES,
   HOW_IMAGE,
   HOW_STEP_KEYS,
   IDLE_IMAGE,
@@ -26,32 +28,40 @@ const CHECK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 const SEARCH_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>`;
 
 function renderHero(): string {
+  // Category chips link with the English name; only the label is translated
+  const chips = CATEGORIES.map(
+    (name, i) =>
+      `<li><a href="${categoryHref(name)}" class="category-chip" style="--i: ${i}">${escapeHtml(categoryLabel(name))}</a></li>`,
+  ).join("");
+
   return `
     <section class="hero" aria-labelledby="hero-heading">
-      <div id="hero-bg-mount" class="hero-bg-mount"></div>
       <div class="hero-content">
-        <span class="hero-eyebrow">${tx("home.hero.eyebrow")}</span>
-        <h1 id="hero-heading" class="hero-title">
+        <span class="hero-eyebrow hero-enter">${tx("home.hero.eyebrow")}</span>
+        <h1 id="hero-heading" class="hero-title hero-enter">
           ${tx("home.hero.title")} <span class="hero-title-accent">${tx("home.hero.titleAccent")}</span>
         </h1>
-        <ul class="hero-bullets">
-          ${HERO_BULLET_KEYS.map((key) => `<li>${tx(key)}</li>`).join("")}
+        <ul class="hero-points hero-enter hero-enter--2">
+          ${HERO_BULLET_KEYS.map((key) => `<li>${CHECK_ICON}${tx(key)}</li>`).join("")}
         </ul>
-        <form id="hero-search-form" class="hero-search-form" role="search" aria-label="${tx("home.hero.searchLabel")}">
-          <div class="search-input-group">
-            <!-- A real <label for> (hidden visually; the placeholder and icon show the purpose) -->
-            <label for="hero-search-input" class="visually-hidden">${tx("home.hero.searchInputLabel")}</label>
-            <span class="search-icon" aria-hidden="true">${SEARCH_ICON}</span>
-            <input
-              type="search"
-              id="hero-search-input"
-              class="hero-search-input"
-              placeholder="${tx("home.hero.searchPlaceholder")}"
-            />
-            <button type="submit" class="search-submit-btn">${tx("home.hero.searchButton")}</button>
-          </div>
-        </form>
-        <div class="hero-actions">
+        <div class="hero-search-card hero-enter hero-enter--2">
+          <form id="hero-search-form" role="search" aria-label="${tx("home.hero.searchLabel")}">
+            <div class="search-input-group">
+              <!-- A real <label for> (hidden visually; the placeholder and icon show the purpose) -->
+              <label for="hero-search-input" class="visually-hidden">${tx("home.hero.searchInputLabel")}</label>
+              <span class="search-icon" aria-hidden="true">${SEARCH_ICON}</span>
+              <input
+                type="search"
+                id="hero-search-input"
+                class="hero-search-input"
+                placeholder="${tx("home.hero.searchPlaceholder")}"
+              />
+              <button type="submit" class="search-submit-btn">${tx("home.hero.searchButton")}</button>
+            </div>
+          </form>
+          <ul class="hero-categories" aria-label="${tx("home.categories.title")}">${chips}</ul>
+        </div>
+        <div class="hero-actions hero-enter hero-enter--3">
           <a href="#/catalog" class="btn btn-primary">${tx("home.hero.exploreAll")}</a>
           <a href="#/list-item" class="btn btn-ghost">${tx("nav.listItem")}</a>
         </div>
@@ -178,7 +188,7 @@ function renderWhy(): string {
 
 /**
  * Mounts the home page into the container.
- * Returns a cleanup function that stops the hero background timer.
+ * Returns a cleanup function (nothing to stop on this page today).
  *
  * @returns cleanup
  */
@@ -194,11 +204,6 @@ export function mountHomeView(container: HTMLElement): () => void {
       ${renderWhy()}
     </div>
   `;
-
-  const heroBackground = createHeroBackground(
-    getElement(container, "#hero-bg-mount"),
-    HERO_SLIDES,
-  );
 
   const searchForm = getElement<HTMLFormElement>(
     container,
@@ -216,7 +221,5 @@ export function mountHomeView(container: HTMLElement): () => void {
       : "#/catalog";
   });
 
-  return function cleanup() {
-    heroBackground.cleanup();
-  };
+  return function cleanup() {};
 }

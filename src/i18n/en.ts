@@ -65,8 +65,6 @@ export default {
   "home.hero.searchPlaceholder": "Search drills, lawn mowers, tents…",
   "home.hero.searchButton": "Search",
   "home.hero.exploreAll": "Explore all items",
-  "home.hero.pause": "Pause background slideshow",
-  "home.hero.play": "Play background slideshow",
 
   // About
   "home.about.eyebrow": "About BorrowBox",

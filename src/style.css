@@ -708,179 +708,99 @@ p {
   align-self: center;
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero ----------
+   Like Nomu, no photo: one centred column on the cream page. The product's
+   first action (search) sits in a white floating card. */
 .hero {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background-color: var(--color-navy);
-}
-
-/* The mount holds the photos (below the cream wash) and the Pause button
-   (above it). It has no z-index of its own, so its children can sit on
-   different layers; it ignores clicks so the hero content stays usable. */
-.hero-bg-mount {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-}
-
-.hero-bg-slide {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-.hero-bg-slide.is-active {
-  opacity: 1;
-}
-
-/* Navy wash over the photos so white text stays readable.
-   Measured at 78%: white text 6.7+, light-blue accent 4.0+ (large text),
-   muted 4.5+ over both the lightest and darkest image areas. Text spans the
-   full width on small screens, so the wash is even there. */
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-color: rgba(15, 21, 29, 0.78);
-}
-
-/* Wide screens: text stays in the left ~70%, so the right edge shows more photo */
-@media (min-width: 1024px) {
-  .hero::before {
-    background: linear-gradient(
-      90deg,
-      rgba(15, 21, 29, 0.88) 0%,
-      rgba(15, 21, 29, 0.78) 70%,
-      rgba(15, 21, 29, 0.3) 100%
-    );
-  }
-}
-
-.hero-pause-btn {
-  pointer-events: auto;
-  position: absolute;
-  top: var(--space-md);
-  inset-inline-end: var(--space-md);
-  z-index: 2;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-border-strong);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.hero-pause-btn[hidden] {
-  display: none;
-}
-
-.hero-pause-btn svg {
-  width: 1.125rem;
-  height: 1.125rem;
+  padding: var(--space-3xl) var(--space-md) var(--space-2xl);
 }
 
 .hero-content {
-  max-width: 1280px;
+  max-width: 62rem;
   margin: 0 auto;
-  padding: var(--space-2xl) var(--space-md);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-lg);
+  text-align: center;
 }
 
 .hero-eyebrow {
-  padding: var(--space-xs) var(--space-md);
+  padding: var(--space-2xs) var(--space-sm);
   border-radius: var(--radius-full);
-  /* Orange over the photo wash can drop to 3.43:1, too low for small text */
-  border: 1px solid var(--color-text);
-  color: var(--color-text);
-  background-color: transparent;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  background-color: var(--color-surface-muted);
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .hero-title {
   margin: 0;
-  max-width: 880px;
-  font-size: clamp(2rem, 4.5vw, 3.25rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.035em;
-  color: var(--color-text);
-  text-wrap: balance;
+  font-size: var(--font-size-display);
+  line-height: 1.02;
+  letter-spacing: var(--tracking-display);
 }
 
+/* Each sentence on its own line. Large text: 5.48:1 on cream */
 .hero-title-accent {
+  display: block;
   color: var(--color-accent-text);
 }
 
-.hero-bullets {
+/* The three trust points, as one quiet line */
+.hero-points {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs) var(--space-lg);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+}
+
+/* The check mark flows with the text, so it stays next to the first word
+   when a point wraps on a narrow screen */
+.hero-points svg {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-inline-end: var(--space-xs);
+  vertical-align: -0.125em;
+  color: var(--color-accent-text);
+}
+
+.hero-search-card {
+  width: 100%;
+  max-width: 40rem;
+  margin-top: var(--space-xs);
+  padding: var(--space-xs);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float);
+  display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  font-size: 1rem;
-  color: var(--color-text);
-}
-
-.hero-bullets li {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.hero-bullets li::before {
-  content: "";
-  flex: none;
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-accent-fill);
-  box-shadow: 0 0 0 1px var(--color-accent-text);
-}
-
-.hero-search-form {
-  width: 100%;
-  max-width: 600px;
 }
 
 .search-input-group {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  background-color: var(--color-surface);
+  background-color: var(--color-background);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-full);
-  padding-block: var(--space-xs);
-  padding-inline: var(--space-lg) var(--space-xs);
-  transition:
-    border-color var(--transition-standard),
-    box-shadow var(--transition-standard);
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-md) var(--space-2xs);
+  transition: border-color var(--duration-fast) var(--ease-out);
 }
 
+/* The whole group shows the focus ring, since the input inside has none */
 .search-input-group:focus-within {
-  border-color: var(--color-accent-text);
-  box-shadow: 0 0 0 3px var(--color-accent-ring);
+  border-color: var(--color-ink);
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .search-icon {
@@ -890,19 +810,19 @@ p {
 }
 
 .search-icon svg {
-  width: 1.375rem;
-  height: 1.375rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .hero-search-input {
   flex: 1;
   min-width: 0; /* let the input shrink so the Search button stays visible on narrow screens */
-  height: 40px;
+  height: 44px;
   border: none;
   background: transparent;
   font-family: inherit;
   font-size: var(--font-size-base);
-  color: var(--color-text);
+  color: var(--color-ink);
 }
 
 .hero-search-input::placeholder {
@@ -917,27 +837,118 @@ p {
   flex: none;
   min-height: 44px;
   padding-inline: var(--space-lg);
-  background-color: var(--color-accent-fill);
-  color: var(--color-on-accent);
-  border: 1px solid var(--color-accent-text);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: 0;
   border-radius: var(--radius-full);
   font-family: inherit;
-  font-weight: 700;
-  font-size: var(--font-size-base);
+  font-weight: 500;
+  font-size: 0.9375rem;
   cursor: pointer;
-  transition: background-color var(--transition-standard);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-press) var(--ease-out);
 }
 
-@media (hover: hover) {
+.search-submit-btn:active {
+  transform: scale(var(--scale-press));
+}
+
+/* The six categories as chips under the search bar */
+.hero-categories {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--space-xs) var(--space-xs);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-muted);
+  color: var(--color-ink);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-out);
+  /* Chips follow the search card into view, 80ms apart */
+  animation: hero-fade-up var(--duration-enter) var(--ease-out) both;
+  animation-delay: calc(0.45s + var(--i, 0) * var(--stagger-group));
+}
+
+@media (hover: hover) and (pointer: fine) {
   .search-submit-btn:hover {
-    background-color: var(--color-accent-fill-hover);
+    background-color: var(--color-primary-hover);
+  }
+
+  .search-input-group:hover {
+    border-color: var(--color-ink);
+  }
+
+  /* ink on #ffc8b7 is 12.40:1 */
+  .category-chip:hover {
+    background-color: var(--color-surface-warm);
   }
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-sm);
+}
+
+/* Entrance: each part rises 20px and fades in, one after another
+   (Nomu's delays 0.1s, 0.25s, 0.4s). It plays once and ends in about 1.5s,
+   so it needs no Pause control. */
+.hero-enter {
+  animation: hero-fade-up var(--duration-enter) var(--ease-out) both;
+  animation-delay: 0.1s;
+}
+
+.hero-enter--2 {
+  animation-delay: 0.25s;
+}
+
+.hero-enter--3 {
+  animation-delay: 0.4s;
+}
+
+/* The search card rises further and slower */
+.hero-search-card.hero-enter {
+  animation-name: hero-rise;
+  animation-duration: var(--duration-reveal);
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--distance-md));
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--distance-lg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter,
+  .category-chip {
+    animation: none;
+  }
+
+  .search-submit-btn:active {
+    transform: none;
+  }
 }
 
 /* ---------- About ---------- */
@@ -1239,8 +1250,8 @@ p {
     padding-top: var(--space-2xl);
   }
 
-  .hero-content {
-    padding: 3.5rem var(--space-xl) 4rem;
+  .hero {
+    padding: var(--space-section) var(--space-xl) var(--space-3xl);
   }
 
   .why-panel {
@@ -1312,7 +1323,6 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-bg-slide,
   .tool-link {
     transition: none;
   }
@@ -1605,13 +1615,12 @@ p {
 }
 
 /* ==========================================================================
-   Dark areas: Hero (until its redesign), Footer
+   Dark area: Footer
    The same components are used inside them; only the tokens change, so text,
    borders, links and focus rings switch to light versions automatically.
    Every pair measured on #0f151d.
    ========================================================================== */
 
-.hero,
 .site-footer {
   /* Text with no color of its own (e.g. the footer logo) would otherwise keep
      the dark color inherited from body, which is 1.3:1 on the dark ink */
@@ -1628,9 +1637,7 @@ p {
 }
 
 /* Light panels that sit inside a dark area get the light tokens back */
-.profile-dropdown,
-.search-input-group,
-.hero-pause-btn {
+.profile-dropdown {
   --color-bg: var(--color-surface);
   --color-surface-tint: var(--color-surface-muted);
   --color-text: var(--color-ink);
@@ -1926,19 +1933,6 @@ p {
 
 [dir="rtl"] .icon-directional {
   transform: scaleX(-1);
-}
-
-/* On wide screens the hero text sits at the start edge; in RTL that is the
-   right, so the darker side of the wash follows it */
-@media (min-width: 1024px) {
-  [dir="rtl"] .hero::before {
-    background: linear-gradient(
-      270deg,
-      rgba(15, 21, 29, 0.88) 0%,
-      rgba(15, 21, 29, 0.78) 70%,
-      rgba(15, 21, 29, 0.3) 100%
-    );
-  }
 }
 
 /* Arabic typography: Tajawal for everything (Inter has no Arabic letters),

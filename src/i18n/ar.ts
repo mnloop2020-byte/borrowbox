@@ -65,8 +65,6 @@ export default {
   "home.hero.searchPlaceholder": "ابحث عن مثقاب، جزّازة عشب، خيمة…",
   "home.hero.searchButton": "بحث",
   "home.hero.exploreAll": "استكشف كل الأدوات",
-  "home.hero.pause": "أوقف عرض الصور في الخلفية",
-  "home.hero.play": "شغّل عرض الصور في الخلفية",
 
   // About
   "home.about.eyebrow": "عن BorrowBox",

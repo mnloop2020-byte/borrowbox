@@ -435,8 +435,10 @@ Like Nomu, the hero has **no photo**. Nomu's hero shows its own product in
 use (an "Ask Nomu anything" prompt card); BorrowBox shows its own first
 action: the search.
 
-- Cream canvas, one centred column (`max-width: 52rem`): eyebrow, `display`
-  headline (max 14ch), one `body-lg` line in `text-muted`.
+- Cream canvas, one centred column (`max-width: 62rem`): eyebrow, `display`
+  headline with each sentence on its own line, then the three trust points
+  as one quiet `text-muted` row with check marks (they wrap on mobile, and
+  each check mark stays next to its first word).
 - **Search card:** a white `card` with the `float` shadow, holding the pill
   `search-bar` and, under it, the six categories as chips linking to
   `#/catalog?category=<name>`. It uses the existing search form and category
