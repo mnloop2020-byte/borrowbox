@@ -1,35 +1,52 @@
 :root {
-  /* Official palette (Primary Blue #00a1e0, Deep Navy #032d60, White, Light Gray #f3f6f9, Dark Text #181818).
-     #00a1e0 is 2.93:1 with white, so it is used for decoration only;
-     buttons and links use the darker #0070a8 (5.41:1). All pairs measured. */
-  --color-brand: #00a1e0;
-  --color-navy: #032d60;
-  --color-bg: #ffffff;
-  --color-surface: #f3f6f9;
-  --color-surface-tint: #e3ecf5;
-  --color-text: #181818;
-  --color-heading: #032d60;
-  --color-text-muted: #4a5565;
-  --color-accent-fill: #0070a8;
-  --color-accent-fill-hover: #005a87;
-  --color-on-accent: #ffffff;
-  --color-accent-text: #0070a8;
-  --color-accent-ring: rgba(0, 112, 168, 0.25);
-  --color-focus: #0070a8;
-  --color-border: #dde3ea;
-  --color-border-strong: #7a8794;
-  --color-panel: #032d60;
-  --color-panel-text: #ffffff;
-  --color-panel-muted: #c9d6e8;
-  --color-success-bg: #e3f4ea;
-  --color-success-text: #1e6b3a;
-  --color-danger-bg: #fde8e7;
-  --color-danger-text: #b42318; /* 6.57 on white, 5.6 on danger-bg */
+  /* Colours from DESIGN.md (Nomu-based palette). Every text pair is measured;
+     the ratios are listed in DESIGN.md. Orange #ff7448 is never text and never
+     a background for white text (2.68:1); text on it is ink (6.85:1). */
+  --color-primary: #ff7448;
+  --color-primary-hover: #ff8d69;
+  --color-on-primary: #0f151d;
+  --color-accent-text: #b93a10;
+  --color-background: #fff9f6;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1ebe9;
+  --color-surface-warm: #ffc8b7;
+  --color-ink: #0f151d;
+  --color-text-muted: #5b5f63;
+  --color-line: #eae5e2;
+  --color-border-strong: #8a8c8e;
+  --color-focus: #0f151d;
+  --color-dark: #0f151d;
+  --color-on-dark: #fff9f6;
+  --color-on-dark-muted: #b9bcc0;
+  --color-on-dark-accent: #ff7448;
+  --color-info-bg: #d3e1ff;
+  --color-info-text: #1e3a8a;
+  --color-success-bg: #e3f2e6;
+  --color-success-text: #1d6b3d;
+  --color-danger-bg: #fde8e4;
+  --color-danger-text: #b42318;
 
-  /* Typography */
+  /* Legacy names, kept until each component is restyled to the names above */
+  --color-brand: var(--color-primary);
+  --color-navy: var(--color-dark);
+  --color-bg: var(--color-background);
+  --color-surface-tint: var(--color-surface-muted);
+  --color-text: var(--color-ink);
+  --color-heading: var(--color-ink);
+  --color-accent-fill: var(--color-primary);
+  --color-accent-fill-hover: var(--color-primary-hover);
+  --color-on-accent: var(--color-on-primary);
+  --color-accent-ring: rgba(185, 58, 16, 0.25);
+  --color-border: var(--color-line);
+  --color-panel: var(--color-dark);
+  --color-panel-text: var(--color-on-dark);
+  --color-panel-muted: var(--color-on-dark-muted);
+
+  /* Typography: Inter for Latin text, Tajawal for Arabic (see :root[lang="ar"]) */
   --font-body:
-    "DM Sans", "Tajawal", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-heading: "Space Grotesk", "Tajawal", system-ui, sans-serif;
+    "Inter", "Tajawal", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: var(--font-body);
+  --font-weight-heading: 450;
   --font-size-xs: 0.75rem; /* 12px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-base: 1rem; /* 16px */
@@ -38,6 +55,13 @@
   --font-size-2xl: 1.5rem; /* 24px */
   --font-size-3xl: 2rem; /* 32px */
   --font-size-4xl: 2.5rem; /* 40px */
+  --font-size-display: clamp(3rem, 7.2vw, 7rem);
+  --font-size-h1: clamp(2.5rem, 4.5vw, 3.875rem);
+  --font-size-h2: clamp(2rem, 3.5vw, 2.875rem);
+  --font-size-h3: clamp(1.25rem, 2vw, 1.5rem);
+  --tracking-display: -0.045em;
+  --tracking-h2: -0.035em;
+  --tracking-h3: -0.02em;
 
   /* Spacing */
   --space-2xs: 0.25rem;
@@ -47,24 +71,42 @@
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   --space-2xl: 3rem;
-  --space-3xl: 4rem;
+  --space-3xl: 4.5rem;
+  --space-section: 7.5rem;
 
-  /* Layout & Elevations */
+  /* Layout, shapes and depth */
   --nav-height: 4.25rem;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-card: 28px;
+  --radius-panel: 40px;
   --radius-full: 9999px;
-  --radius-card: 24px; /* item cards, why cards, placeholder pages */
-  --radius-panel: 32px; /* large category group panels */
-  --shadow-subtle:
-    0 1px 3px rgba(69, 79, 73, 0.05), 0 1px 2px rgba(69, 79, 73, 0.03);
-  --shadow-card: 0 4px 12px rgba(69, 79, 73, 0.06);
-  --shadow-dropdown:
-    0 10px 25px -5px rgba(69, 79, 73, 0.1),
-    0 8px 10px -6px rgba(69, 79, 73, 0.06);
-  --transition-standard: 200ms ease-in-out;
-  --transition-fade: 400ms ease-in-out;
+  --shadow-raised: 0 16px 40px -24px rgba(15, 21, 29, 0.28);
+  --shadow-float: 0 16px 44px -12px rgba(15, 21, 29, 0.22);
+  /* Legacy shadow names */
+  --shadow-subtle: var(--shadow-raised);
+  --shadow-card: var(--shadow-raised);
+  --shadow-dropdown: var(--shadow-float);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-press: 100ms;
+  --duration-fast: 150ms;
+  --duration-standard: 200ms;
+  --duration-medium: 300ms;
+  --duration-enter: 500ms;
+  --duration-reveal: 800ms;
+  --distance-sm: 4px;
+  --distance-md: 20px;
+  --distance-lg: 40px;
+  --stagger-group: 80ms;
+  --scale-press: 0.97;
+  --scale-image-hover: 1.05;
+  --scale-enter: 1.03;
+  /* Legacy transition names */
+  --transition-standard: var(--duration-standard) var(--ease-out);
+  --transition-fade: 400ms var(--ease-out);
 }
 
 *,
@@ -98,10 +140,22 @@ h3,
   font-family: var(--font-heading);
 }
 
+/* Headlines are light and tight; size, not weight, carries the hierarchy */
 h1,
 h2,
 h3 {
   color: var(--color-heading);
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--tracking-h2);
+  text-wrap: balance;
+}
+
+h3 {
+  letter-spacing: var(--tracking-h3);
+}
+
+p {
+  text-wrap: pretty;
 }
 
 :focus-visible {
@@ -625,7 +679,7 @@ h3 {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-color: rgba(3, 45, 96, 0.78);
+  background-color: rgba(15, 21, 29, 0.78);
 }
 
 /* Wide screens: text stays in the left ~70%, so the right edge shows more photo */
@@ -633,9 +687,9 @@ h3 {
   .hero::before {
     background: linear-gradient(
       90deg,
-      rgba(3, 45, 96, 0.88) 0%,
-      rgba(3, 45, 96, 0.78) 70%,
-      rgba(3, 45, 96, 0.3) 100%
+      rgba(15, 21, 29, 0.88) 0%,
+      rgba(15, 21, 29, 0.78) 70%,
+      rgba(15, 21, 29, 0.3) 100%
     );
   }
 }
@@ -680,8 +734,9 @@ h3 {
 .hero-eyebrow {
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-accent-text);
-  color: var(--color-accent-text);
+  /* Orange over the photo wash can drop to 3.43:1, too low for small text */
+  border: 1px solid var(--color-text);
+  color: var(--color-text);
   background-color: transparent;
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -1463,7 +1518,7 @@ h3 {
    Dark areas: Header, Hero, Footer
    The same components are used inside them; only the tokens change, so text,
    borders, links and focus rings switch to light versions automatically.
-   Every pair measured on #032d60.
+   Every pair measured on #0f151d.
    ========================================================================== */
 
 .app-header,
@@ -1472,31 +1527,30 @@ h3 {
   /* Text with no color of its own (e.g. the footer logo) would otherwise keep
      the dark color inherited from body, which is 1.3:1 on navy */
   color: var(--color-text);
-  --color-bg: #032d60;
-  --color-surface-tint: rgba(255, 255, 255, 0.12);
-  --color-text: #ffffff;
-  --color-heading: #ffffff;
-  --color-text-muted: #c9d6e8;
-  --color-accent-text: #7fd3f5;
-  --color-focus: #ffffff;
-  --color-border: rgba(255, 255, 255, 0.18);
-  --color-border-strong: rgba(255, 255, 255, 0.45);
+  --color-bg: var(--color-dark);
+  --color-surface-tint: rgba(255, 249, 246, 0.12);
+  --color-text: var(--color-on-dark);
+  --color-heading: var(--color-on-dark);
+  --color-text-muted: var(--color-on-dark-muted);
+  --color-accent-text: var(--color-on-dark-accent);
+  --color-focus: var(--color-on-dark);
+  --color-border: rgba(255, 249, 246, 0.18);
+  --color-border-strong: rgba(255, 249, 246, 0.45);
 }
 
 /* Light panels that sit inside a dark area get the light tokens back */
 .profile-dropdown,
 .search-input-group,
 .hero-pause-btn {
-  --color-bg: #ffffff;
-  --color-surface: #ffffff;
-  --color-surface-tint: #e3ecf5;
-  --color-text: #181818;
-  --color-heading: #032d60;
-  --color-text-muted: #4a5565;
-  --color-accent-text: #0070a8;
-  --color-focus: #0070a8;
-  --color-border: #dde3ea;
-  --color-border-strong: #7a8794;
+  --color-bg: var(--color-surface);
+  --color-surface-tint: var(--color-surface-muted);
+  --color-text: var(--color-ink);
+  --color-heading: var(--color-ink);
+  --color-text-muted: #5b5f63;
+  --color-accent-text: #b93a10;
+  --color-focus: var(--color-ink);
+  --color-border: var(--color-line);
+  --color-border-strong: #8a8c8e;
 }
 
 /* ==========================================================================
@@ -1758,7 +1812,7 @@ h3 {
 
 /* The English label must use the English font even inside the Arabic page */
 .lang-switch:lang(en) {
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 @media (hover: hover) {
@@ -1783,19 +1837,24 @@ h3 {
   [dir="rtl"] .hero::before {
     background: linear-gradient(
       270deg,
-      rgba(3, 45, 96, 0.88) 0%,
-      rgba(3, 45, 96, 0.78) 70%,
-      rgba(3, 45, 96, 0.3) 100%
+      rgba(15, 21, 29, 0.88) 0%,
+      rgba(15, 21, 29, 0.78) 70%,
+      rgba(15, 21, 29, 0.3) 100%
     );
   }
 }
 
-/* Arabic typography: Tajawal for everything (Space Grotesk and DM Sans have
-   no Arabic letters), no negative tracking or uppercase (they break letter
-   joining), and 700 where English uses 600 (Tajawal ships 400/500/700). */
+/* Arabic typography: Tajawal for everything (Inter has no Arabic letters),
+   no negative tracking or uppercase (they break letter joining), and 700
+   where English uses 600 (Tajawal ships 400/500/700). Tajawal has no 450, so
+   headings use the nearest loaded weight (500); the final Arabic heading
+   weight is still an open decision in DESIGN.md. */
 :root[lang="ar"] {
   --font-body: "Tajawal", system-ui, sans-serif;
   --font-heading: "Tajawal", system-ui, sans-serif;
+  --tracking-display: 0;
+  --tracking-h2: 0;
+  --tracking-h3: 0;
 }
 
 [lang="ar"] body {
