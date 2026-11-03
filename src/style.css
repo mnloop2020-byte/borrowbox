@@ -2094,3 +2094,30 @@ p {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   Scroll reveal (src/utils/reveal.ts)
+   Elements rise 40px and fade in over 800ms (Nomu's scroll fade-up), once.
+   The hiding rule needs .js-reveal, which the script adds, so the page is
+   complete without JavaScript. "animation ... backwards" only holds the
+   start state during the delay; it does not take over "transition", so
+   card hover effects keep their own timing.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js-reveal [data-reveal]:not(.is-visible) {
+    opacity: 0;
+  }
+
+  .js-reveal [data-reveal].is-visible {
+    animation: reveal-up var(--duration-reveal) var(--ease-out) backwards;
+    animation-delay: calc(var(--reveal-i, 0) * var(--stagger-group));
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--distance-lg));
+  }
+}

@@ -17,6 +17,7 @@ import { t } from "../i18n/i18n.ts";
 import { escapeHtml } from "../logic/html.ts";
 import { SEED_ITEMS } from "../store/seedData.ts";
 import { getElement } from "../utils/dom.ts";
+import { observeReveals } from "../utils/reveal.ts";
 
 /** Translated text, escaped for use inside these HTML templates */
 const tx = (key: string, values?: Record<string, unknown>): string =>
@@ -73,11 +74,11 @@ function renderHero(): string {
 function renderAbout(): string {
   return `
     <section class="home-section about-section" aria-labelledby="about-heading">
-      <div class="about-heading-col">
+      <div class="about-heading-col" data-reveal>
         <span class="section-eyebrow">${tx("home.about.eyebrow")}</span>
         <h2 id="about-heading" class="section-title">${tx("home.about.title")}</h2>
       </div>
-      <div class="about-body-col">
+      <div class="about-body-col" data-reveal>
         <p class="about-text">${tx("home.about.text")}</p>
         <a href="#/" class="text-link" data-scroll-target="how-it-works">${tx("home.about.link")} ${ARROW_ICON}</a>
       </div>
@@ -95,7 +96,7 @@ function renderCategoryGroup(group: (typeof CATEGORY_GROUPS)[number]): string {
     .join("");
 
   return `
-    <article class="category-group" aria-labelledby="group-${group.id}">
+    <article class="category-group" data-reveal aria-labelledby="group-${group.id}">
       <img src="${group.image}" alt="${tx(group.imageAltKey)}" class="category-group-img" loading="lazy" />
       <div class="category-group-body">
         <h3 id="group-${group.id}" class="category-group-title">${tx(group.titleKey)}</h3>
@@ -109,7 +110,7 @@ function renderCategoryGroup(group: (typeof CATEGORY_GROUPS)[number]): string {
 function renderCategories(): string {
   return `
     <section id="categories" class="home-section categories-section" aria-labelledby="categories-heading">
-      <h2 id="categories-heading" class="section-title">${tx("home.categories.title")}</h2>
+      <h2 id="categories-heading" class="section-title" data-reveal>${tx("home.categories.title")}</h2>
       <div class="category-groups">
         ${CATEGORY_GROUPS.map(renderCategoryGroup).join("")}
       </div>
@@ -121,11 +122,11 @@ function renderCategories(): string {
 function renderFeatured(): string {
   return `
     <section class="home-section featured-section" aria-labelledby="featured-heading">
-      <div class="featured-header">
+      <div class="featured-header" data-reveal>
         <h2 id="featured-heading" class="section-title">${tx("home.featured.title")}</h2>
         <a href="#/catalog" class="text-link">${tx("home.featured.viewAll")} ${ARROW_ICON}</a>
       </div>
-      <div class="featured-grid">
+      <div class="featured-grid" data-reveal-group>
         ${SEED_ITEMS.map((item) => renderItemCard(item)).join("")}
       </div>
     </section>
@@ -136,9 +137,9 @@ function renderHowItWorks(): string {
   return `
     <section id="how-it-works" class="home-section split-section" aria-labelledby="how-heading">
       <div class="split-text">
-        <h2 id="how-heading" class="section-title" tabindex="-1">${tx("home.how.title")}</h2>
-        <p class="section-lead">${tx("home.how.lead")}</p>
-        <ol class="how-steps">
+        <h2 id="how-heading" class="section-title" tabindex="-1" data-reveal>${tx("home.how.title")}</h2>
+        <p class="section-lead" data-reveal>${tx("home.how.lead")}</p>
+        <ol class="how-steps" data-reveal-group>
           ${HOW_STEP_KEYS.map(
             (key, i) =>
               // Two digits ("01"), like Nomu's numbered process; <ol> already gives the order
@@ -146,7 +147,7 @@ function renderHowItWorks(): string {
           ).join("")}
         </ol>
       </div>
-      <img src="${HOW_IMAGE.image}" alt="${tx(HOW_IMAGE.altKey)}" class="split-img" loading="lazy" />
+      <img src="${HOW_IMAGE.image}" alt="${tx(HOW_IMAGE.altKey)}" class="split-img" loading="lazy" data-reveal />
     </section>
   `;
 }
@@ -154,7 +155,7 @@ function renderHowItWorks(): string {
 function renderIdleTools(): string {
   return `
     <section class="home-section split-section split-section--reverse" aria-labelledby="idle-heading">
-      <div class="split-text">
+      <div class="split-text" data-reveal>
         <h2 id="idle-heading" class="section-title">${tx("home.idle.title")}</h2>
         <p class="section-lead">${tx("home.idle.lead")}</p>
         <ul class="check-list">
@@ -162,7 +163,7 @@ function renderIdleTools(): string {
         </ul>
         <a href="#/list-item" class="btn btn-primary">${tx("nav.listItem")}</a>
       </div>
-      <img src="${IDLE_IMAGE.image}" alt="${tx(IDLE_IMAGE.altKey)}" class="split-img" loading="lazy" />
+      <img src="${IDLE_IMAGE.image}" alt="${tx(IDLE_IMAGE.altKey)}" class="split-img" loading="lazy" data-reveal />
     </section>
   `;
 }
@@ -171,8 +172,8 @@ function renderWhy(): string {
   return `
     <section class="home-section" aria-labelledby="why-heading">
       <div class="why-panel">
-        <h2 id="why-heading" class="section-title">${tx("home.why.title")}</h2>
-        <ul class="why-grid">
+        <h2 id="why-heading" class="section-title" data-reveal>${tx("home.why.title")}</h2>
+        <ul class="why-grid" data-reveal-group>
           ${WHY_ITEMS.map(
             (item, i) => `
               <li class="why-card">
@@ -189,7 +190,7 @@ function renderWhy(): string {
 
 /**
  * Mounts the home page into the container.
- * Returns a cleanup function (nothing to stop on this page today).
+ * Returns a cleanup function that stops the scroll reveal.
  *
  * @returns cleanup
  */
@@ -222,5 +223,9 @@ export function mountHomeView(container: HTMLElement): () => void {
       : "#/catalog";
   });
 
-  return function cleanup() {};
+  const stopReveals = observeReveals(container);
+
+  return function cleanup() {
+    stopReveals();
+  };
 }
