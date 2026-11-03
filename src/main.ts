@@ -40,7 +40,7 @@ let activeViewCleanup: (() => void) | null = null;
 
 /** "← Back to home" link used by the placeholder pages; the arrow flips in RTL */
 function backHomeLink(): string {
-  return `<p class="placeholder-actions"><a href="#/" class="btn btn-accent"><span class="icon-directional" aria-hidden="true">←</span> ${escapeHtml(t("page.backHome"))}</a></p>`;
+  return `<p class="placeholder-actions"><a href="#/" class="btn btn-primary"><span class="icon-directional" aria-hidden="true">←</span> ${escapeHtml(t("page.backHome"))}</a></p>`;
 }
 
 /**

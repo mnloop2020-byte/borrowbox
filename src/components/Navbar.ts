@@ -55,7 +55,7 @@ export function renderNavbar(container: HTMLElement): void {
           </ul>
         </nav>
 
-        <a href="#/list-item" class="btn btn-accent nav-cta">${escapeHtml(t("nav.listItem"))}</a>
+        <a href="#/list-item" class="btn btn-primary nav-cta">${escapeHtml(t("nav.listItem"))}</a>
 
         <!-- Right Side Controls: Profile / Demo Switcher + Mobile Toggle -->
         <div class="nav-controls">

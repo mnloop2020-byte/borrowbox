@@ -25,7 +25,7 @@ export function renderFooter(): string {
           <div class="footer-brand">
             <span class="footer-logo">BorrowBox</span>
             <p class="footer-tagline">${escapeHtml(t("footer.tagline"))}</p>
-            <a href="#/list-item" class="btn btn-accent">${escapeHtml(t("nav.listItem"))}</a>
+            <a href="#/list-item" class="btn btn-primary">${escapeHtml(t("nav.listItem"))}</a>
           </div>
 
           <nav class="footer-column" aria-labelledby="footer-quick-heading">

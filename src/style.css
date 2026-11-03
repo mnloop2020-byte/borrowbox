@@ -160,7 +160,7 @@ p {
 
 :focus-visible {
   outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 /* Skip link */
@@ -183,58 +183,73 @@ p {
 }
 
 /* Base button styles */
+/* Pill buttons, 48px tall. Colours are set from the base tokens (not the
+   legacy aliases), so a button looks the same inside the dark header and
+   footer as on the cream page. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: inherit;
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
+  gap: var(--space-xs);
+  min-height: 48px;
+  padding: 0 1.75rem;
+  border: 0;
   border-radius: var(--radius-full);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.3;
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid transparent;
   transition:
-    background-color var(--transition-standard),
-    transform var(--transition-standard),
-    box-shadow var(--transition-standard);
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-standard) var(--ease-out),
+    transform var(--duration-standard) var(--ease-out);
 }
 
-/* .btn-primary is kept as an alias so older markup stays styled */
-.btn-primary,
-.btn-accent {
-  background-color: var(--color-accent-fill);
-  color: var(--color-on-accent);
-  /* Lime is 1.16:1 against cream, so a dark edge shows the button's shape */
-  border-color: var(--color-accent-text);
-  font-weight: 700;
+/* Orange fill with ink text: white on #ff7448 is only 2.68:1 */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
-.btn-outline {
-  background-color: transparent;
-  color: var(--color-text);
-  border: 2px solid var(--color-text);
-  font-weight: 700;
+.btn-ghost {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-raised);
 }
 
-.btn-lg {
-  min-height: 48px;
-  padding-inline: 1.5rem;
-  font-size: 1rem;
+/* Press feedback works on touch screens too */
+.btn:active {
+  transform: scale(var(--scale-press));
+  transition-duration: var(--duration-press);
 }
 
-/* Hover styles live inside @media (hover: hover) throughout this file,
-   so a tap on a touch screen never leaves a "stuck" hover state. */
-@media (hover: hover) {
-  .btn-primary:hover,
-  .btn-accent:hover {
-    background-color: var(--color-accent-fill-hover);
-    box-shadow: var(--shadow-subtle);
+/* Hover styles live inside this query throughout the file, so a tap on a
+   touch screen never leaves a "stuck" hover state. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    transform: translateY(-2px);
   }
 
-  .btn-outline:hover {
-    background-color: var(--color-surface-tint);
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+  }
+
+  .btn-ghost:hover {
+    box-shadow: var(--shadow-float);
+  }
+
+  .btn:active {
+    transform: scale(var(--scale-press));
+  }
+}
+
+/* Reduced motion: colour changes stay, movement goes */
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover,
+  .btn:active {
+    transform: none;
   }
 }
 
@@ -1285,24 +1300,34 @@ p {
   object-fit: cover;
 }
 
+/* Status chip. The word is always shown; colour is a second signal only. */
 .item-card-badge {
   position: absolute;
   top: var(--space-xs);
   inset-inline-end: var(--space-xs);
-  padding: 0.2rem 0.6rem;
+  padding: var(--space-2xs) var(--space-sm);
   border-radius: var(--radius-full);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: var(--color-text);
-  backdrop-filter: blur(4px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
 }
 
+/* Measured: 5.62, 7.88 and 5.58 to 1 */
 .item-card-badge.status-available {
   background-color: var(--color-success-bg);
   color: var(--color-success-text);
+}
+
+.item-card-badge.status-reserved {
+  background-color: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.item-card-badge.status-unavailable {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
 }
 
 .item-card-body {
@@ -1713,18 +1738,26 @@ p {
 }
 
 .form-field label {
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 500;
 }
 
 .form-field input {
-  min-height: 48px;
-  padding: 0 var(--space-sm);
+  min-height: 52px;
+  padding: 0 var(--space-md);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
   font-family: inherit;
   font-size: var(--font-size-base); /* 16px: stops iOS zooming the page */
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .form-field input:hover {
+    border-color: var(--color-ink);
+  }
 }
 
 .form-field input[aria-invalid="true"] {
@@ -1948,7 +1981,7 @@ p {
   width: 1.25rem;
   height: 1.25rem;
   margin: 0;
-  accent-color: var(--color-accent-fill);
+  accent-color: var(--color-primary);
 }
 
 .form-check label {

@@ -24,7 +24,7 @@ function renderNotFound(): string {
     <section class="placeholder-view" aria-labelledby="page-title">
       <h1 id="page-title">${tx("item.notFoundTitle")}</h1>
       <p>${tx("item.notFoundText")}</p>
-      <p class="placeholder-actions"><a href="#/catalog" class="btn btn-accent">${tx("item.browseCatalog")}</a></p>
+      <p class="placeholder-actions"><a href="#/catalog" class="btn btn-primary">${tx("item.browseCatalog")}</a></p>
     </section>
   `;
 }
@@ -58,7 +58,7 @@ function renderBookingForm(today: string): string {
           <p id="borrow-end-error" class="field-error" hidden></p>
         </div>
       </div>
-      <button type="submit" class="btn btn-accent btn-lg borrow-submit">${tx("booking.submit")}</button>
+      <button type="submit" class="btn btn-primary borrow-submit">${tx("booking.submit")}</button>
       <div id="borrow-status" class="form-message" role="status"></div>
       <div id="borrow-alert" class="form-message form-message--error" role="alert"></div>
     </form>

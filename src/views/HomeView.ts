@@ -52,8 +52,8 @@ function renderHero(): string {
           </div>
         </form>
         <div class="hero-actions">
-          <a href="#/catalog" class="btn btn-accent btn-lg">${tx("home.hero.exploreAll")}</a>
-          <a href="#/list-item" class="btn btn-outline btn-lg">${tx("nav.listItem")}</a>
+          <a href="#/catalog" class="btn btn-primary">${tx("home.hero.exploreAll")}</a>
+          <a href="#/list-item" class="btn btn-ghost">${tx("nav.listItem")}</a>
         </div>
       </div>
     </section>
@@ -103,7 +103,7 @@ function renderCategories(): string {
       <div class="category-groups">
         ${CATEGORY_GROUPS.map(renderCategoryGroup).join("")}
       </div>
-      <a href="#/catalog" class="btn btn-outline btn-lg section-cta">${tx("home.categories.viewAll")}</a>
+      <a href="#/catalog" class="btn btn-ghost section-cta">${tx("home.categories.viewAll")}</a>
     </section>
   `;
 }
@@ -149,7 +149,7 @@ function renderIdleTools(): string {
         <ul class="check-list">
           ${IDLE_POINT_KEYS.map((key) => `<li>${CHECK_ICON}${tx(key)}</li>`).join("")}
         </ul>
-        <a href="#/list-item" class="btn btn-accent btn-lg">${tx("nav.listItem")}</a>
+        <a href="#/list-item" class="btn btn-primary">${tx("nav.listItem")}</a>
       </div>
       <img src="${IDLE_IMAGE.image}" alt="${tx(IDLE_IMAGE.altKey)}" class="split-img" loading="lazy" />
     </section>

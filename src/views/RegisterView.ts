@@ -45,7 +45,7 @@ export function mountRegisterView(container: HTMLElement): MountedView {
           <label for="register-agree">${tx("register.agree")}</label>
         </div>
 
-        <button type="submit" class="btn btn-accent btn-lg">${tx("register.submit")}</button>
+        <button type="submit" class="btn btn-primary">${tx("register.submit")}</button>
         <div id="register-status" class="form-message" role="status"></div>
       </form>
     </section>
