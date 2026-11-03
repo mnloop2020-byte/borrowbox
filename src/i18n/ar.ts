@@ -1,13 +1,13 @@
 /**
- * نصوص الواجهة بالعربية (مواصفات المنتج §10.3).
- * المفاتيح مطابقة تمامًا لـ src/i18n/en.ts، ويتحقق من ذلك tests/i18n.test.ts.
- * نص عادي فقط بلا HTML. القيم مثل "{name}" يملؤها t().
+ * Arabic interface text (product spec §10.3).
+ * Keys must match src/i18n/en.ts exactly; tests/i18n.test.ts checks this.
+ * Plain text only, no HTML. "{name}" style placeholders are filled by t().
  */
 export default {
-  // زر تبديل اللغة
+  // Language switch
   "lang.switchTo": "English",
 
-  // عناوين الصفحات
+  // Page titles
   "title.home": "BorrowBox — مشاركة الأدوات بين الجيران",
   "title.catalog": "الكتالوج — BorrowBox",
   "title.listItem": "اعرض أداة — BorrowBox",
@@ -17,7 +17,7 @@ export default {
   "title.itemNotFound": "الأداة غير موجودة — BorrowBox",
   "title.item": "{title} — BorrowBox",
 
-  // الترويسة
+  // Header
   "nav.skip": "انتقل إلى المحتوى الرئيسي",
   "nav.homeLabel": "الصفحة الرئيسية لـ BorrowBox",
   "nav.mainLabel": "التنقل الرئيسي",
@@ -29,12 +29,12 @@ export default {
   "nav.switchPersona": "بدّل الحساب التجريبي",
   "nav.menuToggle": "فتح قائمة التنقل أو إغلاقها",
 
-  // أدوار الحسابات (القيم المخزنة تبقى بالإنجليزية)
+  // Persona roles (stored values stay English)
   "role.Owner": "مالك",
   "role.Borrower": "مستعير",
   "role.New Member": "عضو جديد",
 
-  // التصنيفات (البيانات والروابط تبقى بالإنجليزية)
+  // Categories (data and URLs keep the English names)
   "category.Power Tools": "أدوات كهربائية",
   "category.Hand Tools": "أدوات يدوية",
   "category.Gardening": "البستنة",
@@ -42,18 +42,18 @@ export default {
   "category.Camping": "التخييم",
   "category.Outdoor Equipment": "معدات خارجية",
 
-  // حالة التوفر
+  // Availability status
   "status.Available": "متاح",
   "status.Reserved": "محجوز",
   "status.Unavailable": "غير متاح",
 
-  // مستوى الحالة
+  // Condition levels
   "condition.Like New": "كالجديد",
   "condition.Excellent": "ممتازة",
   "condition.Good": "جيدة",
   "condition.Fair": "مقبولة",
 
-  // القسم الرئيسي
+  // Hero
   "home.hero.eyebrow": "أدوات مستعملة، يتشاركها الجيران",
   "home.hero.title": "استعر ما تحتاجه.",
   "home.hero.titleAccent": "وشارك ما تملكه.",
@@ -68,14 +68,14 @@ export default {
   "home.hero.pause": "أوقف عرض الصور في الخلفية",
   "home.hero.play": "شغّل عرض الصور في الخلفية",
 
-  // من نحن
+  // About
   "home.about.eyebrow": "عن BorrowBox",
   "home.about.title": "لماذا تشتري أداة ستستخدمها مرتين فقط؟",
   "home.about.text":
     "يربط BorrowBox أصحاب الأدوات المستعملة بجيرانهم الذين يحتاجونها ليوم أو لعطلة نهاية الأسبوع. يستفيد المالكون من أدوات لا يستخدمونها، ويوفّر المستعيرون ثمنها ومساحة تخزينها، وكل عملية تسليم محمية بتأمين مسترد.",
   "home.about.link": "تعرّف على طريقة العمل",
 
-  // مجموعات التصنيفات
+  // Category groups
   "home.categories.title": "تصفّح الأدوات حسب التصنيف",
   "home.categories.viewAll": "عرض كل الأدوات",
   "home.groups.tools.title": "العُدد والأدوات",
@@ -91,11 +91,11 @@ export default {
     "آلات ومستلزمات تنظيف للأعمال العارضة والتنظيف الموسمي الشامل.",
   "home.groups.home.imageAlt": "دلو فيه مستلزمات تنظيف وبخاخات وفرشاة",
 
-  // أدوات مميزة
+  // Featured
   "home.featured.title": "أدوات مميزة في منطقتك",
   "home.featured.viewAll": "عرض الكل",
 
-  // كيف يعمل
+  // How it works
   "home.how.title": "كيف يعمل BorrowBox",
   "home.how.lead": "أربع خطوات من «أحتاج مثقابًا» إلى عمل منجز.",
   "home.how.step1": "اعثر على أداة قريبة منك",
@@ -104,7 +104,7 @@ export default {
   "home.how.step4": "أعِدها واسترد تأمينك",
   "home.how.imageAlt": "جار يسلّم مثقابًا لاسلكيًا لجاره",
 
-  // أدوات غير مستخدمة
+  // Idle tools
   "home.idle.title": "لديك أدوات لا تستخدمها؟",
   "home.idle.lead": "اعرض أداة مستعملة خلال دقائق، وحدّد بنفسك متى تكون متاحة.",
   "home.idle.point1": "أضف صورًا وصِف حالتها",
@@ -112,7 +112,7 @@ export default {
   "home.idle.point3": "وافق على طلبات الجيران الموثّقين",
   "home.idle.imageAlt": "مرآب منزلي مرتب فيه أدوات معلّقة على لوح",
 
-  // لماذا BorrowBox
+  // Why BorrowBox
   "home.why.title": "لماذا BorrowBox؟",
   "home.why.item1.title": "هدر أقل",
   "home.why.item1.text":
@@ -127,14 +127,14 @@ export default {
   "home.why.item5.text":
     "أدوات على بُعد شوارع قليلة، لا في الطرف الآخر من المدينة.",
 
-  // بطاقة الأداة
+  // Item card
   "card.ratingLabel": "التقييم {rating} من 5",
   "card.conditionLabel": "الحالة:",
   "card.owner": "المالك: {name}",
   "card.depositLabel": "تأمين مسترد",
   "card.freeLoan": "استعارة مجانية",
 
-  // صفحة الأداة
+  // Item detail page
   "item.back": "العودة إلى الكتالوج",
   "item.conditionHeading": "الحالة: {condition}",
   "item.ownerHeading": "المالك",
@@ -144,7 +144,7 @@ export default {
   "item.notFoundText": "ربما حُذفت، أو أن الرابط غير صحيح.",
   "item.browseCatalog": "تصفّح الكتالوج",
 
-  // لوحة الحجز
+  // Booking panel
   "booking.depositHeading": "تأمين مسترد",
   "booking.note":
     "الاستعارة مجانية. يعود إليك التأمين عند إرجاع الأداة بحالة جيدة.",
@@ -163,7 +163,7 @@ export default {
     "تعذّر حفظ طلبك. تأكد من أن متصفحك يسمح بتخزين بيانات الموقع، ثم حاول مرة أخرى.",
   "booking.success": "أُرسل طلبك. أمام المالك 48 ساعة للرد.",
 
-  // الصفحات المؤقتة
+  // Placeholder pages
   "page.backHome": "العودة إلى الرئيسية",
   "page.catalog.title": "استكشف الكتالوج",
   "page.catalog.filtering": "التصفية حسب التصنيف:",
@@ -178,7 +178,7 @@ export default {
   "page.notFound.title": "الصفحة غير موجودة",
   "page.notFound.text": "لم نعثر على الصفحة التي طلبتها.",
 
-  // التسجيل (مواصفات المنتج §1.2 البند 7: تحقق ثم تأكيد، بلا إنشاء مستخدم)
+  // Registration (product spec §1.2 item 7: validates, confirms, creates no user)
   "register.title": "أنشئ حسابك",
   "register.intro": "انضم إلى جيرانك لاستعارة الأدوات ومشاركتها.",
   "register.name": "الاسم الكامل",
@@ -191,7 +191,7 @@ export default {
     "شكرًا يا {name}. هذه نسخة تجريبية، لذلك لم يُنشأ أي حساب.",
   "footer.register": "إنشاء حساب",
 
-  // التذييل
+  // Footer
   "footer.tagline": "استعر ما تحتاجه، وشارك ما تملكه.",
   "footer.quickLinks": "روابط سريعة",
   "footer.categories": "التصنيفات",
