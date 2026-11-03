@@ -7,7 +7,7 @@ import cleanImg from "../assets/images/carousel-cleaning.svg";
 
 /**
  * Approved Initial Seed Data for BorrowBox MVP
- * Conforms strictly to Item Model in Section 5.2 of the design specification
+ * Every entry is a complete Item (see src/types.ts)
  */
 export const SEED_ITEMS: Item[] = [
   {

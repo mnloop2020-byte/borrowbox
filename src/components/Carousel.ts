@@ -8,11 +8,11 @@ const PLAY_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="tru
 const SLIDE_DURATION_MS = 6000;
 
 // Kept outside the component so a language re-render does not restart a
-// slideshow the user paused (product spec §10.7)
+// slideshow the user paused
 let rememberedUserPause = false;
 
 /**
- * Mounts the Hero's rotating photo background (redesign spec §4.2).
+ * Mounts the Hero's rotating photo background.
  *
  * The photos are decorative: the heading and search sit on top of them,
  * so they are hidden from screen readers and have empty alt text.

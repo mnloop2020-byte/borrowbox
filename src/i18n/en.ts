@@ -1,5 +1,5 @@
 /**
- * English interface text (product spec §10.3).
+ * English interface text.
  * Keys must match src/i18n/ar.ts exactly; tests/i18n.test.ts checks this.
  * Plain text only, no HTML. "{name}" style placeholders are filled by t().
  */
@@ -184,7 +184,7 @@ export default {
   "page.notFound.title": "Page not found",
   "page.notFound.text": "We couldn't find the page you asked for.",
 
-  // Registration (product spec §1.2 item 7: validates, confirms, creates no user)
+  // Registration: validates, confirms, creates no user
   "register.title": "Create your account",
   "register.intro": "Join your neighbors to borrow and share tools.",
   "register.name": "Full name",

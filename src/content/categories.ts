@@ -1,7 +1,7 @@
 import { tValue } from "../i18n/i18n.ts";
 
 /**
- * The six item categories approved in the product spec (v1.4.0, §1.2).
+ * The six item categories.
  * This is the only place category names are written; everything else imports them.
  */
 export const CATEGORIES: string[] = [
@@ -24,7 +24,7 @@ export function categoryHref(name: string): string {
 
 /**
  * The category name to show in the current language. Data and URLs keep the
- * English name (product spec §10.4); only this display text changes.
+ * English name; only this display text changes.
  * @param name - One of CATEGORIES
  * @returns e.g. "أدوات كهربائية" in Arabic
  */

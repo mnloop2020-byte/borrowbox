@@ -67,7 +67,7 @@ test("rangesOverlap is false for separate ranges", () => {
   );
 });
 
-// ---------- validateRequest (spec §3 order) ----------
+// ---------- validateRequest ----------
 
 test("valid request passes", () => {
   assert.deepEqual(validate({}), { ok: true });
@@ -215,7 +215,7 @@ test("createRequestRecord builds a pending request with the spec shape", () => {
   }
 });
 
-// ---------- deriveItemStatus (product spec §5.2) ----------
+// ---------- deriveItemStatus ----------
 
 test("a paused item is Unavailable", () => {
   assert.equal(

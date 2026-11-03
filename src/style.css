@@ -508,7 +508,7 @@ h3 {
 }
 
 /* ==========================================================================
-   Home Page (redesign spec 2026-11-01 §4)
+   Home Page
    ========================================================================== */
 
 .home-view {
@@ -616,7 +616,7 @@ h3 {
   opacity: 1;
 }
 
-/* Navy wash over the photos so white text stays readable (spec §4.2).
+/* Navy wash over the photos so white text stays readable.
    Measured at 78%: white text 6.7+, light-blue accent 4.0+ (large text),
    muted 4.5+ over both the lightest and darkest image areas. Text spans the
    full width on small screens, so the wash is even there. */
@@ -1500,7 +1500,7 @@ h3 {
 }
 
 /* ==========================================================================
-   Item Detail Page (item detail spec §2)
+   Item Detail Page
    ========================================================================== */
 
 .item-detail {
@@ -1739,7 +1739,7 @@ h3 {
 }
 
 /* ==========================================================================
-   Language support (product spec §10)
+   Language support
    ========================================================================== */
 
 /* Language switch: a quiet pill in the dark header */
@@ -1842,7 +1842,7 @@ h3 {
 }
 
 /* ==========================================================================
-   Registration page (product spec §1.2 item 7)
+   Registration page
    ========================================================================== */
 
 .register-view {

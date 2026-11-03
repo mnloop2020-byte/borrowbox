@@ -1,5 +1,5 @@
 /**
- * Allowlist checks for values that come from the URL (product spec §8.3).
+ * Allowlist checks for values that come from the URL.
  * Pure functions: no DOM, so Node can test them.
  */
 import { CATEGORIES } from "../content/categories.ts";

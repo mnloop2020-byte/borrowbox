@@ -1,5 +1,5 @@
 /**
- * Borrow request rules (item detail spec §3–§4, product spec §5.2–§6.2).
+ * Borrow request rules.
  * Pure functions: no DOM and no storage, so Node can test them.
  */
 import type { BorrowRequest, Item, ItemStatus, User } from "../types.ts";
@@ -9,11 +9,11 @@ import { rangesOverlap } from "./dates.ts";
 export type ValidationResult =
   { ok: true } | { ok: false; field: "start" | "end" | "form"; code: string };
 
-/** Only these statuses hold dates; every other status releases them (product spec §6.2). */
+/** Only these statuses hold dates; every other status releases them. */
 const DATE_LOCKING_STATUSES = ["Active", "Pending Approval"];
 
 /**
- * Checks a new request against the rules, in spec §3 order.
+ * Checks a new request against the rules and returns the first one that fails.
  */
 export function validateRequest({
   item,
@@ -58,7 +58,7 @@ export function validateRequest({
 }
 
 /**
- * Builds a new request in the product spec §5.3 shape.
+ * Builds a new request with every BorrowRequest field set.
  */
 export function createRequestRecord({
   item,
@@ -105,7 +105,7 @@ export function createRequestRecord({
 }
 
 /**
- * Availability shown on cards and the item page (product spec §5.2).
+ * Availability shown on cards and the item page.
  *
  * @param requests - all requests; filtered to this item here
  * @param today - "YYYY-MM-DD"

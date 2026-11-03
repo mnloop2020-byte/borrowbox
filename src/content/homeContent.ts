@@ -1,5 +1,5 @@
 /**
- * Structure and images for the home page (redesign spec §4).
+ * Structure and images for the home page.
  * The words live in src/i18n/en.ts and ar.ts; these entries hold the keys,
  * which HomeView.ts passes to t() at render time.
  *

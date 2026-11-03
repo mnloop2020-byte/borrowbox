@@ -1,5 +1,5 @@
 /**
- * Shared data shapes for BorrowBox (product spec §5).
+ * Shared data shapes for BorrowBox.
  * Types only: this file has no runtime code.
  */
 
@@ -9,7 +9,7 @@ export type ItemStatus = "Available" | "Reserved" | "Unavailable";
 
 export type UserRole = "Owner" | "Borrower" | "New Member";
 
-/** A listed tool (product spec §5.2) */
+/** A listed tool */
 export interface Item {
   id: string;
   title: string;
@@ -29,7 +29,7 @@ export interface Item {
   createdAt: string;
 }
 
-/** A demo persona (design spec §5.1) */
+/** A demo persona */
 export interface User {
   id: string;
   name: string;
@@ -39,7 +39,7 @@ export interface User {
   isVerified: boolean;
 }
 
-/** A borrow request (product spec §5.3). Dates are "YYYY-MM-DD" strings. */
+/** A borrow request. Dates are "YYYY-MM-DD" strings. */
 export interface BorrowRequest {
   id: string;
   itemId: string;

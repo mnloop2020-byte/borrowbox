@@ -68,7 +68,7 @@ function handleRoute(): void {
   // Route 2: Catalog View (#/catalog, supports ?q= and ?category= params)
   if (hash.startsWith("#/catalog")) {
     // Only allowed values survive; the text is then set with textContent,
-    // which never turns it into HTML (spec §8.3)
+    // which never turns it into HTML
     const { category, q: query } = parseCatalogParams(hash.split("?")[1] || "");
     const label = category
       ? t("page.catalog.filtering")
@@ -158,7 +158,7 @@ function handleRoute(): void {
 
 // Listen for hash navigation changes.
 // After a route change, move focus to <main> so screen-reader and keyboard
-// users start at the new view's content (spec §8.2). Not done on first load,
+// users start at the new view's content. Not done on first load,
 // where the browser's normal starting point is correct.
 window.addEventListener("hashchange", () => {
   handleRoute();
@@ -229,7 +229,7 @@ function restoreFields(root: HTMLElement, values: Map<string, string>): void {
   });
 }
 
-// Language switch (spec §10.7): re-render everything in the new language
+// Language switch: re-render everything in the new language
 // without a reload, keeping the route, persona, typed values, scroll and focus.
 // The hash is not touched, so no hashchange fires.
 window.addEventListener("borrowbox:langchange", () => {

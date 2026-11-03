@@ -16,7 +16,7 @@ import { getElement } from "../utils/dom.ts";
 const tx = (key: string, values?: Record<string, unknown>): string =>
   escapeHtml(t(key, values));
 
-/** Booking messages (item detail spec §3), from the dictionaries by code */
+/** Booking messages, from the dictionaries by code */
 const message = (code: string): string => t(`booking.error.${code}`);
 
 function renderNotFound(): string {
@@ -187,7 +187,7 @@ function bindBookingForm(container: HTMLElement, item: Item): void {
 }
 
 /**
- * Mounts the item page for one item (item detail spec §2).
+ * Mounts the item page for one item.
  *
  * @param itemId - already checked by isValidItemId
  */

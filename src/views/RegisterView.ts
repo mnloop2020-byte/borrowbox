@@ -8,7 +8,7 @@ const tx = (key: string, values?: Record<string, unknown>): string =>
   escapeHtml(t(key, values));
 
 /**
- * Registration page (product spec §1.2 item 7).
+ * Registration page.
  *
  * The browser does all the validation through native attributes
  * (required, type="email", minlength), so there is no `novalidate` and no

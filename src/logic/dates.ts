@@ -1,6 +1,6 @@
 /**
  * Date helpers for bookings. Dates are plain "YYYY-MM-DD" strings in the
- * user's local calendar (product spec §1.2: compare dates, not timestamps).
+ * user's local calendar (compare dates, not timestamps).
  * ISO date strings sort the same way as the dates they name, so string
  * comparison is date comparison.
  */
@@ -16,7 +16,7 @@ export function todayISO(now: Date = new Date()): string {
 }
 
 /**
- * Inclusive overlap: ranges that share even one day overlap (product spec §6.2).
+ * Inclusive overlap: ranges that share even one day overlap.
  */
 export function rangesOverlap(
   aStart: string,

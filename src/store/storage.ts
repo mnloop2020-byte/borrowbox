@@ -1,5 +1,5 @@
 /**
- * Safe JSON access to localStorage (product spec §8.1).
+ * Safe JSON access to localStorage.
  * Storage can be missing, full, blocked (private mode) or hold corrupt data;
  * none of those may crash the page, so every call is wrapped in try/catch.
  * The storage object is a parameter so tests can pass a fake one.

@@ -1,6 +1,6 @@
 /**
  * Helpers for putting untrusted text into HTML templates safely
- * (product spec §8.3, CLAUDE.md §4a). Pure functions: no DOM, so Node can test them.
+ * (CLAUDE.md §4a). Pure functions: no DOM, so Node can test them.
  */
 
 const HTML_ESCAPES: Record<string, string> = {

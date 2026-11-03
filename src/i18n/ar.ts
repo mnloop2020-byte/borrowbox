@@ -1,5 +1,5 @@
 /**
- * Arabic interface text (product spec §10.3).
+ * Arabic interface text.
  * Keys must match src/i18n/en.ts exactly; tests/i18n.test.ts checks this.
  * Plain text only, no HTML. "{name}" style placeholders are filled by t().
  */
@@ -178,7 +178,7 @@ export default {
   "page.notFound.title": "الصفحة غير موجودة",
   "page.notFound.text": "لم نعثر على الصفحة التي طلبتها.",
 
-  // Registration (product spec §1.2 item 7: validates, confirms, creates no user)
+  // Registration: validates, confirms, creates no user
   "register.title": "أنشئ حسابك",
   "register.intro": "انضم إلى جيرانك لاستعارة الأدوات ومشاركتها.",
   "register.name": "الاسم الكامل",

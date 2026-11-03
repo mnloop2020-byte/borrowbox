@@ -1,5 +1,5 @@
 /**
- * Language management and translation (product spec §10).
+ * Language management and translation.
  *
  * Safe to import in Node: nothing here touches document or window at import
  * time, and every storage call is wrapped in try/catch.
@@ -111,7 +111,7 @@ export function t(key: string, values?: Record<string, unknown>): string {
 /**
  * Display text for a value from a fixed data list (category, status,
  * condition, role). Data keeps the English value; a known value is
- * translated, an unknown one is shown exactly as stored (spec §10.4).
+ * translated, an unknown one is shown exactly as stored.
  *
  * @param prefix - e.g. "status"
  * @param value - e.g. "Available"

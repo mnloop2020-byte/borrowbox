@@ -8,7 +8,7 @@ import { escapeHtml } from "../logic/html.ts";
 
 /**
  * Site footer shown on every page. Real content only: no placeholder
- * address, phone, email or social links (redesign spec §4.9).
+ * address, phone, email or social links.
  *
  * @returns HTML string
  */

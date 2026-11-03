@@ -177,7 +177,7 @@ function renderWhy(): string {
 }
 
 /**
- * Mounts the home page into the container (redesign spec §4).
+ * Mounts the home page into the container.
  * Returns a cleanup function that stops the hero background timer.
  *
  * @returns cleanup
