@@ -1,7 +1,7 @@
 import type { Item } from "../types.ts";
-import drillImg from "../assets/photos/01-power-tools.png";
-import gardenImg from "../assets/photos/02-gardening.png";
-import campImg from "../assets/photos/03-camping.png";
+import drillImg from "../assets/photos/01-power-tools.webp";
+import gardenImg from "../assets/photos/02-gardening.webp";
+import campImg from "../assets/photos/03-camping.webp";
 // No pressure-washer photo yet; the cleaning photo shows a bucket, so the illustration stays
 import cleanImg from "../assets/images/carousel-cleaning.svg";
 
