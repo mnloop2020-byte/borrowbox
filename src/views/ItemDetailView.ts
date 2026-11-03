@@ -1,3 +1,4 @@
+import { BACK_ICON } from "../components/icons.ts";
 import { formatMoney, t, tValue } from "../i18n/i18n.ts";
 import { todayISO } from "../logic/dates.ts";
 import { escapeHtml, isSafeImageUrl } from "../logic/html.ts";
@@ -28,9 +29,6 @@ function renderNotFound(): string {
     </section>
   `;
 }
-
-// Points back (left in English); .icon-directional flips it in Arabic
-const BACK_ICON = `<svg class="icon-directional" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6 6-6-6 6-6"></path></svg>`;
 
 /** Who lends the item: the trust details that sit under the title */
 function renderOwnerCard(item: Item): string {

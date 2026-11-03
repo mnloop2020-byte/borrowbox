@@ -27,21 +27,14 @@
   --color-danger-bg: #fde8e4;
   --color-danger-text: #b42318;
 
-  /* Legacy names, kept until each component is restyled to the names above */
-  --color-brand: var(--color-primary);
-  --color-navy: var(--color-dark);
+  /* Role names: what shared components use for page, text and lines. A dark
+     area (the footer) gives them light values, so the same component works
+     on cream and on ink without a second set of rules. */
   --color-bg: var(--color-background);
   --color-surface-tint: var(--color-surface-muted);
   --color-text: var(--color-ink);
   --color-heading: var(--color-ink);
-  --color-accent-fill: var(--color-primary);
-  --color-accent-fill-hover: var(--color-primary-hover);
-  --color-on-accent: var(--color-on-primary);
-  --color-accent-ring: rgba(185, 58, 16, 0.25);
   --color-border: var(--color-line);
-  --color-panel: var(--color-dark);
-  --color-panel-text: var(--color-on-dark);
-  --color-panel-muted: var(--color-on-dark-muted);
 
   /* Typography: Inter for Latin text, Tajawal for Arabic (see :root[lang="ar"]) */
   --font-body:
@@ -85,10 +78,6 @@
   --radius-full: 9999px;
   --shadow-raised: 0 16px 40px -24px rgba(15, 21, 29, 0.28);
   --shadow-float: 0 16px 44px -12px rgba(15, 21, 29, 0.22);
-  /* Legacy shadow names */
-  --shadow-subtle: var(--shadow-raised);
-  --shadow-card: var(--shadow-raised);
-  --shadow-dropdown: var(--shadow-float);
 
   /* Motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -105,15 +94,26 @@
   --scale-press: 0.97;
   --scale-image-hover: 1.05;
   --scale-enter: 1.03;
-  /* Legacy transition names */
-  --transition-standard: var(--duration-standard) var(--ease-out);
-  --transition-fade: 400ms var(--ease-out);
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* Sticky footer: the page is at least one screen tall and <main> takes the
+   space left over, so on a short page the footer still sits at the bottom
+   instead of leaving a strip of page colour under it */
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh; /* phones: excludes the browser's address bar */
+}
+
+.main-content {
+  flex: 1 0 auto;
 }
 
 /* Keep scrolled-to sections and focused elements clear of the sticky header */
@@ -176,7 +176,7 @@ p {
   text-decoration: none;
   font-weight: 500;
   z-index: 1000;
-  transition: top var(--transition-standard);
+  transition: top var(--duration-standard) var(--ease-out);
 }
 
 .skip-link:focus {
@@ -184,9 +184,8 @@ p {
 }
 
 /* Base button styles */
-/* Pill buttons, 48px tall. Colours are set from the base tokens (not the
-   legacy aliases), so a button looks the same inside the dark header and
-   footer as on the cream page. */
+/* Pill buttons, 48px tall. Colours come from the base tokens, not the role
+   names, so a button looks the same in the dark footer as on the cream page. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -206,6 +205,12 @@ p {
     background-color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-standard) var(--ease-out),
     transform var(--duration-standard) var(--ease-out);
+}
+
+.btn svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /* Orange fill with ink text: white on #ff7448 is only 2.68:1 */
@@ -324,8 +329,8 @@ p {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background-color: var(--color-brand);
-  color: var(--color-navy);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
   flex-shrink: 0;
 }
 
@@ -436,8 +441,8 @@ p {
   cursor: pointer;
   padding: 0;
   transition:
-    background-color var(--transition-standard),
-    border-color var(--transition-standard);
+    background-color var(--duration-standard) var(--ease-out),
+    border-color var(--duration-standard) var(--ease-out);
 }
 
 @media (hover: hover) {
@@ -483,8 +488,8 @@ p {
   width: 2rem;
   height: 2rem;
   border-radius: var(--radius-full);
-  background-color: var(--color-accent-fill);
-  color: var(--color-on-accent);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -555,7 +560,7 @@ p {
   color: var(--color-text);
   text-align: start;
   cursor: pointer;
-  transition: background-color var(--transition-standard);
+  transition: background-color var(--duration-standard) var(--ease-out);
 }
 
 .persona-item-btn.is-selected {
@@ -1529,28 +1534,33 @@ p {
   border-radius: var(--radius-full);
 }
 
-/* Placeholders for secondary routes */
+/* Placeholders for secondary routes: one centred white card, like the
+   register form card */
 .placeholder-view {
-  text-align: center;
-  padding: var(--space-2xl) var(--space-md);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
   width: calc(100% - 2 * var(--space-md)); /* keep a gutter on phones */
-  max-width: 800px;
-  margin: var(--space-xl) auto;
+  max-width: 50rem;
+  margin: var(--space-2xl) auto 0;
+  padding: var(--space-2xl) var(--space-lg);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+  text-align: center;
 }
 
 .placeholder-view h1 {
-  color: var(--color-text);
-  margin-top: 0;
-  font-size: 1.75rem;
+  margin: 0 0 var(--space-sm);
+  font-size: var(--font-size-h2);
+  line-height: 1.1;
 }
 
 .placeholder-view p {
-  color: var(--color-text-muted);
-  max-width: 540px;
+  max-width: 34rem;
   margin: 0 auto;
+  color: var(--color-text-muted);
+}
+
+.placeholder-view .placeholder-actions {
+  margin-top: var(--space-xl);
 }
 
 /* ==========================================================================
@@ -1671,19 +1681,6 @@ p {
   --color-focus: var(--color-on-dark);
   --color-border: rgba(255, 249, 246, 0.18);
   --color-border-strong: rgba(255, 249, 246, 0.45);
-}
-
-/* Light panels that sit inside a dark area get the light tokens back */
-.profile-dropdown {
-  --color-bg: var(--color-surface);
-  --color-surface-tint: var(--color-surface-muted);
-  --color-text: var(--color-ink);
-  --color-heading: var(--color-ink);
-  --color-text-muted: #5b5f63;
-  --color-accent-text: #b93a10;
-  --color-focus: var(--color-ink);
-  --color-border: var(--color-line);
-  --color-border-strong: #8a8c8e;
 }
 
 /* ==========================================================================

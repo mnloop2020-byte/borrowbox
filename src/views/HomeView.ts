@@ -1,3 +1,4 @@
+import { ARROW_ICON } from "../components/icons.ts";
 import { renderItemCard } from "../components/ItemCard.ts";
 import {
   CATEGORIES,
@@ -23,8 +24,6 @@ import { observeReveals } from "../utils/reveal.ts";
 const tx = (key: string, values?: Record<string, unknown>): string =>
   escapeHtml(t(key, values));
 
-// The arrow points along the reading direction, so it flips in RTL (.icon-directional)
-const ARROW_ICON = `<svg class="icon-directional" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg>`;
 const CHECK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>`;
 const SEARCH_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>`;
 

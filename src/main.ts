@@ -1,4 +1,5 @@
 import { renderFooter } from "./components/Footer.ts";
+import { BACK_ICON } from "./components/icons.ts";
 import { renderNavbar, updateActiveNavLink } from "./components/Navbar.ts";
 import { categoryLabel } from "./content/categories.ts";
 import { t } from "./i18n/i18n.ts";
@@ -40,7 +41,7 @@ let activeViewCleanup: (() => void) | null = null;
 
 /** "← Back to home" link used by the placeholder pages; the arrow flips in RTL */
 function backHomeLink(): string {
-  return `<p class="placeholder-actions"><a href="#/" class="btn btn-primary"><span class="icon-directional" aria-hidden="true">←</span> ${escapeHtml(t("page.backHome"))}</a></p>`;
+  return `<p class="placeholder-actions"><a href="#/" class="btn btn-primary">${BACK_ICON} ${escapeHtml(t("page.backHome"))}</a></p>`;
 }
 
 /**
