@@ -1,9 +1,6 @@
 # BorrowBox
 
 A peer-to-peer tool-sharing web app. Neighbors borrow tools from each other for free, and each borrow is backed by a **simulated** refundable deposit.
-
-> **ملخص بالعربية:** BorrowBox منصة لمشاركة الأدوات بين الجيران. الاستعارة مجانية، ومحمية بتأمين مسترد (تجريبي). الواجهة متاحة بالعربية والإنجليزية، وتدعم الاتجاه من اليمين إلى اليسار.
-
 This is a front-end MVP: there is no server. Data lives in the browser (`localStorage`), and three demo personas let you try both the owner and the borrower side in one browser.
 
 ## Features
