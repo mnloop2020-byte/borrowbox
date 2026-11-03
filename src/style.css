@@ -16,6 +16,7 @@
   --color-border-strong: #8a8c8e;
   --color-focus: #0f151d;
   --color-dark: #0f151d;
+  --color-dark-raised: #1a212b;
   --color-on-dark: #fff9f6;
   --color-on-dark-muted: #b9bcc0;
   --color-on-dark-accent: #ff7448;
@@ -645,18 +646,19 @@ p {
   flex-direction: column;
 }
 
-/* Shared section frame: centred, padded, mobile-first */
+/* Shared section frame: centred, padded, mobile-first. Sections sit far
+   apart (Nomu rhythm); components inside them stay compact. */
 .home-section {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-2xl) var(--space-md) 0;
+  padding: var(--space-3xl) var(--space-md) 0;
 }
 
 .section-eyebrow {
   display: block;
-  font-size: var(--font-size-sm);
-  font-weight: 700;
+  font-size: 0.8125rem;
+  font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-accent-text);
@@ -664,10 +666,8 @@ p {
 
 .section-title {
   margin: 0;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-size: var(--font-size-h2);
+  line-height: 1.1;
   color: var(--color-heading);
 }
 
@@ -677,8 +677,9 @@ p {
 
 .section-lead {
   margin: 0;
-  font-size: 1.0625rem;
-  line-height: 1.7;
+  max-width: 42rem;
+  font-size: var(--font-size-lg);
+  line-height: 1.6;
   color: var(--color-text-muted);
 }
 
@@ -688,19 +689,34 @@ p {
   align-items: center;
   gap: var(--space-xs);
   min-height: 44px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-accent-text);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
 }
 
 .text-link svg {
   width: 1.25rem;
   height: 1.25rem;
+  transition: translate var(--duration-standard) var(--ease-out);
 }
 
-@media (hover: hover) {
+/* The arrow moves toward the reading direction. "translate" is separate
+   from "transform", so the RTL mirror (scaleX(-1)) is kept. */
+@media (hover: hover) and (pointer: fine) {
   .text-link:hover {
-    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .text-link:hover svg,
+  .tool-link:hover svg {
+    translate: var(--distance-sm) 0;
+  }
+
+  [dir="rtl"] .text-link:hover svg,
+  [dir="rtl"] .tool-link:hover svg {
+    translate: calc(-1 * var(--distance-sm)) 0;
   }
 }
 
@@ -972,17 +988,19 @@ p {
 
 .about-text {
   margin: 0;
-  font-size: 1.0625rem;
-  line-height: 1.8;
+  font-size: var(--font-size-lg);
+  line-height: 1.7;
   color: var(--color-text-muted);
   max-width: 65ch;
 }
 
-/* ---------- Category groups ---------- */
+/* ---------- Category groups ----------
+   White floating cards like the item cards: 28px radius, 8px inner padding,
+   so the photo inside gets 20px (outer radius minus padding). */
 .categories-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-2xl);
 }
 
 .category-groups {
@@ -994,38 +1012,36 @@ p {
 .category-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  padding: var(--space-lg);
+  gap: var(--space-md);
+  padding: var(--space-xs);
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-panel);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
 }
 
 .category-group-img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 8 / 5;
   object-fit: cover;
-  border-radius: 22px;
-  background-color: var(--color-surface-tint);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-muted);
 }
 
 .category-group-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
 }
 
 .category-group-title {
   margin: 0;
-  font-size: 1.375rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: var(--font-size-h3);
 }
 
 .category-group-text {
   margin: 0;
-  font-size: 1.0625rem;
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--color-text-muted);
 }
 
@@ -1035,25 +1051,23 @@ p {
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
 }
 
+/* ink on #f1ebe9 is 15.54:1, on #ffc8b7 12.40:1 */
 .tool-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
   min-height: 52px;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: 18px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-weight: 600;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-muted);
+  color: var(--color-ink);
+  font-weight: 500;
   text-decoration: none;
-  transition:
-    transform 150ms ease-out,
-    border-color 150ms ease-out;
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 .tool-link svg {
@@ -1061,12 +1075,12 @@ p {
   width: 1.125rem;
   height: 1.125rem;
   color: var(--color-accent-text);
+  transition: translate var(--duration-standard) var(--ease-out);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .tool-link:hover {
-    border-color: var(--color-accent-text);
-    transform: translateY(-2px);
+    background-color: var(--color-surface-warm);
   }
 }
 
@@ -1074,7 +1088,7 @@ p {
 .featured-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-2xl);
 }
 
 .featured-header {
@@ -1095,54 +1109,55 @@ p {
 .split-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-2xl);
 }
 
 .split-text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .split-img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
-  border-radius: 28px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface-tint);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface-muted);
 }
 
+/* Four numbered steps, each in a small white card (Nomu's 01-05 pattern) */
 .how-steps {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--space-sm);
-  font-size: 1rem;
-  font-weight: 600;
 }
 
 .how-steps li {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-sm);
+  padding: var(--space-lg);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+  font-weight: 500;
+  line-height: 1.4;
 }
 
+/* Large text: 5.71:1 on white */
 .step-number {
-  flex: none;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-full);
-  background-color: var(--color-accent-fill);
-  color: var(--color-on-accent);
-  box-shadow: 0 0 0 1px var(--color-accent-text);
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--color-accent-text);
+  font-variant-numeric: tabular-nums;
 }
 
 .check-list {
@@ -1151,9 +1166,8 @@ p {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  font-size: 1.0625rem;
-  font-weight: 500;
+  gap: var(--space-sm);
+  font-size: var(--font-size-base);
 }
 
 .check-list li {
@@ -1169,19 +1183,20 @@ p {
   color: var(--color-accent-text);
 }
 
-/* ---------- Why BorrowBox ---------- */
+/* ---------- Why BorrowBox ----------
+   A dark ink panel; orange stays small (the numbers only) */
 .why-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-2xl);
   padding: var(--space-2xl) var(--space-lg);
-  border-radius: 36px;
-  background-color: var(--color-accent-fill);
-  color: var(--color-on-accent);
+  border-radius: var(--radius-panel);
+  background-color: var(--color-dark);
+  color: var(--color-on-dark);
 }
 
 .why-panel .section-title {
-  color: var(--color-on-accent);
+  color: var(--color-on-dark);
 }
 
 .why-grid {
@@ -1190,7 +1205,7 @@ p {
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
 .why-card {
@@ -1199,43 +1214,44 @@ p {
   gap: var(--space-sm);
   padding: var(--space-lg);
   border-radius: var(--radius-card);
-  background-color: var(--color-panel);
-  color: var(--color-panel-text);
+  background-color: var(--color-dark-raised);
+  color: var(--color-on-dark);
 }
 
+/* ink on orange is 6.85:1 */
 .why-number {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  background-color: var(--color-accent-fill);
-  color: var(--color-on-accent);
-  font-weight: 700;
-  font-size: var(--font-size-lg);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 500;
 }
 
 /* The card is dark, so the title needs its own light colour: the global
    heading colour is ink, which is 1:1 on this card */
 .why-title {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-panel-text);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--color-on-dark);
 }
 
 .why-text {
   margin: 0;
   font-size: 0.9375rem;
-  line-height: 1.65;
-  color: var(--color-panel-muted);
+  line-height: 1.6;
+  color: var(--color-on-dark-muted);
 }
 
 /* ---------- Larger screens ---------- */
 @media (min-width: 640px) {
   .featured-grid,
-  .tool-links {
+  .tool-links,
+  .how-steps {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -1247,7 +1263,7 @@ p {
 @media (min-width: 768px) {
   .home-section {
     padding-inline: var(--space-xl);
-    padding-top: var(--space-2xl);
+    padding-top: var(--space-section);
   }
 
   .hero {
@@ -1255,7 +1271,7 @@ p {
   }
 
   .why-panel {
-    padding: 2.5rem 2rem;
+    padding: var(--space-3xl) var(--space-xl);
   }
 }
 
@@ -1289,13 +1305,15 @@ p {
   }
 
   .category-group-body {
-    flex: 2 1 0;
+    flex: 1.4 1 0;
     min-width: 0;
-    padding: var(--space-xs) var(--space-sm);
+    padding: var(--space-lg) var(--space-xl);
   }
 
+  /* As many columns as fit, so a long name like "Outdoor Equipment"
+     keeps one line */
   .tool-links {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
   }
 
   .featured-grid {
@@ -1323,31 +1341,49 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tool-link {
+  .text-link svg,
+  .tool-link svg {
     transition: none;
   }
 
-  .tool-link:hover {
-    transform: none;
+  .text-link:hover svg,
+  .tool-link:hover svg {
+    translate: none;
   }
 }
 
-/* Item Card Component Styling */
+/* Item card: white, 28px radius, 8px inner padding so the photo sits inset
+   with a 20px radius, soft shadow and no border (Nomu card pattern) */
 .item-card {
   background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--space-xs);
+  box-shadow: var(--shadow-raised);
   transition:
-    transform var(--transition-standard),
-    box-shadow var(--transition-standard);
+    transform var(--duration-medium) var(--ease-out),
+    box-shadow var(--duration-medium) var(--ease-out);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .item-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-card);
+    transform: translateY(calc(-1 * var(--distance-sm)));
+    box-shadow: var(--shadow-float);
+  }
+
+  .item-card:hover .item-card-image {
+    transform: scale(var(--scale-image-hover));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item-card,
+  .item-card-image {
+    transition: none;
+  }
+
+  .item-card:hover,
+  .item-card:hover .item-card-image {
+    transform: none;
   }
 }
 
@@ -1357,13 +1393,15 @@ p {
   display: flex;
   flex-direction: column;
   height: 100%;
+  border-radius: var(--radius-lg);
 }
 
 .item-card-image-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  background-color: var(--color-surface-tint);
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-muted);
   overflow: hidden;
 }
 
@@ -1371,13 +1409,14 @@ p {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform var(--duration-reveal) var(--ease-out);
 }
 
 /* Status chip. The word is always shown; colour is a second signal only. */
 .item-card-badge {
   position: absolute;
-  top: var(--space-xs);
-  inset-inline-end: var(--space-xs);
+  top: var(--space-sm);
+  inset-inline-end: var(--space-sm);
   padding: var(--space-2xs) var(--space-sm);
   border-radius: var(--radius-full);
   font-size: 0.8125rem;
@@ -1404,7 +1443,7 @@ p {
 }
 
 .item-card-body {
-  padding: var(--space-md);
+  padding: var(--space-md) var(--space-sm) var(--space-sm);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -1418,48 +1457,48 @@ p {
 }
 
 .item-card-category {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .item-card-rating {
   display: inline-flex;
   align-items: center;
   gap: 0.2rem;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-ink);
 }
 
 .rating-star-icon {
   width: 0.875rem;
   height: 0.875rem;
-  color: #f59e0b;
+  color: var(--color-primary);
 }
 
 .item-card-title {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
   margin: 0 0 var(--space-xs);
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
 .item-card-meta {
   display: flex;
-  justify-content: space-between;
-  font-size: var(--font-size-xs);
+  flex-direction: column;
+  gap: var(--space-2xs);
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
   margin-bottom: var(--space-md);
 }
 
 .item-card-footer {
   margin-top: auto;
-  padding-top: var(--space-xs);
-  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-line);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1471,25 +1510,23 @@ p {
 }
 
 .deposit-label {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
 .deposit-val {
   font-size: var(--font-size-base);
-  font-weight: 700;
-  color: var(--color-text);
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 .borrow-free-tag {
-  font-size: var(--font-size-xs);
-  font-weight: 700;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--color-success-text);
   background-color: var(--color-success-bg);
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-sm);
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-full);
 }
 
 /* Placeholders for secondary routes */

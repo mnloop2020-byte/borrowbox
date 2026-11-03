@@ -406,7 +406,7 @@ Borders are rare.
 | `md`    | 14px   | Observed                           | Inputs, dropdown items                       |
 | `lg`    | 20px   | BorrowBox (`card` minus 8px inset) | Images inside cards                          |
 | `card`  | 28px   | Observed                           | Item cards, form cards, photo frames         |
-| `panel` | 40px   | BorrowBox                          | Large panels (category groups, dark panel)   |
+| `panel` | 40px   | BorrowBox                          | Large panels (the dark "Why" panel, footer)  |
 | `full`  | 9999px | Observed (pill)                    | Buttons, nav bar, search bar, chips, avatars |
 
 - **Nested radius rule:** inner radius = outer radius − padding. A 28px card
@@ -545,8 +545,10 @@ Use in the page:
 
 - Four steps, `01` to `04`, in `step-number` style and `accent-text` colour
   (observed two-digit pattern).
-- Each step: number, `h3`, one `body` sentence, in a white `card`.
-- Mobile 1 column; 768px 2 columns; 1024px 4 columns.
+- Each step: the two-digit number and its short label, in a white `card`.
+- The steps sit next to the section photo, so they form a 2 × 2 grid:
+  1 column on mobile, 2 columns from 640px. The photo stays beside them
+  from 1024px.
 - Markup is an ordered list (`<ol>`).
 - Steps reveal one after another on scroll (see Motion).
 

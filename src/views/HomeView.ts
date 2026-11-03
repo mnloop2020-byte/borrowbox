@@ -141,7 +141,8 @@ function renderHowItWorks(): string {
         <ol class="how-steps">
           ${HOW_STEP_KEYS.map(
             (key, i) =>
-              `<li><span class="step-number" aria-hidden="true">${i + 1}</span>${tx(key)}</li>`,
+              // Two digits ("01"), like Nomu's numbered process; <ol> already gives the order
+              `<li><span class="step-number" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>${tx(key)}</li>`,
           ).join("")}
         </ol>
       </div>
