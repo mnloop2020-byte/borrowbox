@@ -165,8 +165,16 @@ export default {
   // Placeholder pages
   "page.backHome": "العودة إلى الرئيسية",
   "page.catalog.title": "استكشف الكتالوج",
-  "page.catalog.filtering": "التصفية حسب التصنيف:",
-  "page.catalog.searching": "نتائج البحث عن:",
+  "catalog.searchLabel": "ابحث في الكتالوج",
+  "catalog.searchInputLabel": "ابحث عن أداة",
+  "catalog.searchPlaceholder": "ابحث عن مثقاب، سلّم، خيمة…",
+  "catalog.searchButton": "بحث",
+  "catalog.filtersLabel": "التصفية حسب التصنيف",
+  "catalog.all": "الكل",
+  "catalog.count": "عرض {count} من {total}",
+  "catalog.emptyTitle": "لا توجد أدوات مطابقة",
+  "catalog.emptyText": "جرّب كلمة أخرى، أو ابحث في كل التصنيفات.",
+  "catalog.clear": "مسح التصفية",
   "page.catalog.intro":
     "اكتشف الأدوات الكهربائية ومعدات الحديقة والأدوات المنزلية المتاحة في مجتمعك.",
   "page.listItem.title": "اعرض أداة للاستعارة",

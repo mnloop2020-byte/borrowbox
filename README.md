@@ -7,6 +7,7 @@ This is an MVP with a small JSON API (`server/`) for borrow requests. Other data
 ## Features
 
 - **Home page:** a search-first hero with category shortcuts, tool categories, featured items, "how it works" in four steps, and sections that rise into view as you scroll.
+- **Catalog** (`#/catalog`): all 14 items in a grid, with a search box and category chips. Both filters live in the URL (`#/catalog?category=Camping&q=stove`), so a filtered list can be shared.
 - **Item page** (`#/item/item-103`): the photo, condition notes, owner, the refundable deposit, and a working **borrow request**. Requests are checked for valid dates, date overlaps, owners borrowing their own item, and duplicate pending requests.
 - **Registration page** (`#/register`): a sign-up form checked by the browser's own validation (required fields, email format, minimum length).
 - **Arabic and English:** switch from the header without reloading. The layout mirrors for right-to-left, Arabic uses the Tajawal font, and the choice is remembered.
@@ -71,7 +72,7 @@ src/
 │   ├── items/            # Item data, categories, item card, item page, item id check
 │   ├── requests/         # Borrow requests: rules, saving, sending to the API
 │   ├── users/            # Demo users and the current user
-│   ├── catalog/          # Catalog page (placeholder) and its URL filters
+│   ├── catalog/          # Catalog page: search, category chips, item grid
 │   ├── register/         # Registration page
 │   ├── dashboard/        # "My activity" page (placeholder)
 │   └── list-item/        # "List an item" page (placeholder)
@@ -88,7 +89,7 @@ server/                   # The JSON API (npm run api)
 tests/                    # node:test unit tests
 ```
 
-Rules (`requestRules.ts`, `itemId.ts`, `catalogParams.ts`) and everything in `shared/lib/` are pure functions with no DOM, so Node tests them directly. Pages only render and wire events.
+Rules (`requestRules.ts`, `itemId.ts`, `catalogFilter.ts`, `catalogParams.ts`) and everything in `shared/lib/` are pure functions with no DOM, so Node tests them directly. Pages only render and wire events.
 
 ## Translations
 
@@ -103,6 +104,6 @@ To change wording, edit the dictionary only. Category names, statuses and other 
 
 ## Status
 
-Built: home page, item detail page with borrow requests, registration page, Arabic/English support.
+Built: home page, catalog with search and category filters, item detail page with borrow requests, registration page, Arabic/English support.
 
-Planned: the catalog search page (`#/catalog`), the "My activity" dashboard where owners approve requests, and the "List an item" form. These routes show placeholder pages for now.
+Planned: the "My activity" dashboard where owners approve requests, and the "List an item" form. These routes show placeholder pages for now.

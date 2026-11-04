@@ -7,6 +7,7 @@ import {
 } from "../items/categories.ts";
 import {
   CATEGORY_GROUPS,
+  FEATURED_ITEM_IDS,
   HERO_BULLET_KEYS,
   HOW_IMAGE,
   HOW_STEP_KEYS,
@@ -16,7 +17,7 @@ import {
 } from "./homeContent.ts";
 import { t } from "../../shared/i18n/i18n.ts";
 import { escapeHtml } from "../../shared/lib/html.ts";
-import { SEED_ITEMS } from "../items/itemsData.ts";
+import { listItems } from "../items/listItems.ts";
 import type { MountedView } from "../../shared/types.ts";
 import { getElement } from "../../shared/browser/dom.ts";
 import { observeReveals } from "../../shared/browser/reveal.ts";
@@ -127,7 +128,10 @@ function renderFeatured(): string {
         <a href="#/catalog" class="text-link">${tx("home.featured.viewAll")} ${ARROW_ICON}</a>
       </div>
       <div class="featured-grid" data-reveal-group>
-        ${SEED_ITEMS.map((item) => renderItemCard(item)).join("")}
+        ${listItems()
+          .filter((item) => FEATURED_ITEM_IDS.includes(item.id))
+          .map((item) => renderItemCard(item))
+          .join("")}
       </div>
     </section>
   `;

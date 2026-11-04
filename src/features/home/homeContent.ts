@@ -69,3 +69,15 @@ export const WHY_ITEMS = [1, 2, 3, 4, 5].map((n) => ({
   titleKey: `home.why.item${n}.title`,
   descriptionKey: `home.why.item${n}.text`,
 }));
+
+/** The items in "Featured items": one or more from every category */
+export const FEATURED_ITEM_IDS = [
+  "item-101",
+  "item-102",
+  "item-103",
+  "item-104",
+  "item-106",
+  "item-108",
+  "item-112",
+  "item-113",
+];

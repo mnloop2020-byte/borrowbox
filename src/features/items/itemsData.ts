@@ -1,93 +1,43 @@
 import type { Item } from "../../shared/types.ts";
-import drillImg from "../../assets/photos/01-power-tools.webp";
-import gardenImg from "../../assets/photos/02-gardening.webp";
-import campImg from "../../assets/photos/03-camping.webp";
-// No pressure-washer photo yet; the cleaning photo shows a bucket, so the illustration stays
-import cleanImg from "../../assets/images/pressure-washer.svg";
+import { ITEM_RECORDS } from "./itemRecords.ts";
+import drill from "../../assets/photos/items/cordless-drill.webp";
+import mower from "../../assets/photos/items/lawn-mower.webp";
+import tent from "../../assets/photos/items/dome-tent.webp";
+import washer from "../../assets/photos/items/pressure-washer.webp";
+import screwdriver from "../../assets/photos/items/cordless-screwdriver.webp";
+import socketSet from "../../assets/photos/items/socket-set.webp";
+import toolCase from "../../assets/photos/items/tool-case.webp";
+import vacuum from "../../assets/photos/items/stick-vacuum.webp";
+import stove from "../../assets/photos/items/camping-stove.webp";
+import sleepingBag from "../../assets/photos/items/sleeping-bag.webp";
+import table from "../../assets/photos/items/folding-table.webp";
+import ladder from "../../assets/photos/items/step-ladder.webp";
+import bike from "../../assets/photos/items/mountain-bike.webp";
+import scooter from "../../assets/photos/items/electric-scooter.webp";
+
+/** Each item's photo, by item id. Vite gives each file a hashed URL. */
+const PHOTOS: Record<string, string> = {
+  "item-101": drill,
+  "item-102": mower,
+  "item-103": tent,
+  "item-104": washer,
+  "item-105": screwdriver,
+  "item-106": socketSet,
+  "item-107": toolCase,
+  "item-108": vacuum,
+  "item-109": stove,
+  "item-110": sleepingBag,
+  "item-111": table,
+  "item-112": ladder,
+  "item-113": bike,
+  "item-114": scooter,
+};
 
 /**
- * Approved Initial Seed Data for BorrowBox MVP
- * Every entry is a complete Item (see src/shared/types.ts)
+ * All items with their photos: the list the pages use.
+ * An item without a photo gets "", and the card then shows no image.
  */
-export const SEED_ITEMS: Item[] = [
-  {
-    id: "item-101",
-    title: "Bosch Professional Hammer Drill",
-    category: "Power Tools",
-    description:
-      "850W corded hammer drill with keyed chuck, auxiliary handle, and depth gauge.",
-    condition: "Excellent",
-    conditionNotes:
-      "Minor surface scuff on carry case. Motor, chuck, and reverse gear in perfect order.",
-    conditionImages: [drillImg],
-    depositAmount: 45.0,
-    ownerId: "user-1",
-    ownerName: "Sarah Jenkins",
-    ownerVerified: true,
-    ownerRating: 4.9,
-    status: "Available",
-    isManuallyPaused: false,
-    imageUrl: drillImg,
-    createdAt: "2026-10-15T09:00:00Z",
-  },
-  {
-    id: "item-102",
-    title: "Ergonomic Hand Trowel & Shears Set",
-    category: "Gardening",
-    description:
-      "Durable stainless steel hand trowel paired with high-carbon bypass pruning shears.",
-    condition: "Like New",
-    conditionNotes:
-      "Freshly cleaned, oiled blades, no rust. Ideal for planting and hedge trimming.",
-    conditionImages: [gardenImg],
-    depositAmount: 20.0,
-    ownerId: "user-1",
-    ownerName: "Sarah Jenkins",
-    ownerVerified: true,
-    ownerRating: 4.9,
-    status: "Available",
-    isManuallyPaused: false,
-    imageUrl: gardenImg,
-    createdAt: "2026-10-18T11:30:00Z",
-  },
-  {
-    id: "item-103",
-    title: "4-Person Weatherproof Dome Tent",
-    category: "Camping",
-    description:
-      "Spacious double-layer dome tent with waterproof flysheet, fiberglass poles, and pegs.",
-    condition: "Excellent",
-    conditionNotes:
-      "Cleaned and dry-packed. Zippers move freely and ground tarp is intact.",
-    conditionImages: [campImg],
-    depositAmount: 60.0,
-    ownerId: "user-2",
-    ownerName: "Alex Mercer",
-    ownerVerified: true,
-    ownerRating: 4.8,
-    status: "Available",
-    isManuallyPaused: false,
-    imageUrl: campImg,
-    createdAt: "2026-10-20T14:15:00Z",
-  },
-  {
-    id: "item-104",
-    title: "High-Pressure Patio & Deck Washer",
-    category: "Cleaning",
-    description:
-      "140 Bar compact electric pressure washer with variable nozzle and 6m flexible hose.",
-    condition: "Good",
-    conditionNotes:
-      "Normal signs of driveway use. Strong water pressure and motor runs smoothly.",
-    conditionImages: [cleanImg],
-    depositAmount: 50.0,
-    ownerId: "user-2",
-    ownerName: "Alex Mercer",
-    ownerVerified: true,
-    ownerRating: 4.8,
-    status: "Available",
-    isManuallyPaused: false,
-    imageUrl: cleanImg,
-    createdAt: "2026-10-22T16:00:00Z",
-  },
-];
+export const SEED_ITEMS: Item[] = ITEM_RECORDS.map((record) => {
+  const photo = PHOTOS[record.id] ?? "";
+  return { ...record, imageUrl: photo, conditionImages: photo ? [photo] : [] };
+});

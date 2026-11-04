@@ -217,16 +217,17 @@ Applying the plan in the browser found problems that the plan did not
 predict. Each change below was measured, and this document now describes
 the result.
 
-| Planned                               | Built                                         | Why                                                                                  |
-| ------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Glass nav at 80% cream                | 90% cream                                     | Muted nav links over the dark "Why" panel fell to 4.00:1; at 90% they are 5.01:1     |
-| Orange (`primary`) nav underline      | `accent-text` underline                       | As a state indicator `#ff7448` is 2.68:1 on white; `#b93a10` is 5.71:1               |
-| Step numbers 3.5rem                   | 2.5rem                                        | Sized for the small 2 × 2 step cards next to the photo                               |
-| Booking panel sticky on the item page | The photo is sticky                           | The details column is the long one, so the photo is what should stay in view         |
-| Photo carousel hero                   | A search-first hero with no photo             | Nomu's hero has no photo; a carousel needs a Pause control and hides the main action |
-| `button-dark`                         | Removed                                       | No screen needed it; one primary and one ghost button cover every area               |
-| (not planned)                         | `<bdi>` around text that owners write         | English titles such as "4-Person Tent" showed as "Person Tent-4" on the Arabic page  |
-| (not planned)                         | The footer stays at the bottom on short pages | Short pages left a strip of cream under the dark footer                              |
+| Planned                               | Built                                         | Why                                                                                    |
+| ------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Glass nav at 80% cream                | 90% cream                                     | Muted nav links over the dark "Why" panel fell to 4.00:1; at 90% they are 5.01:1       |
+| Orange (`primary`) nav underline      | `accent-text` underline                       | As a state indicator `#ff7448` is 2.68:1 on white; `#b93a10` is 5.71:1                 |
+| Step numbers 3.5rem                   | 2.5rem                                        | Sized for the small 2 × 2 step cards next to the photo                                 |
+| Booking panel sticky on the item page | The photo is sticky                           | The details column is the long one, so the photo is what should stay in view           |
+| Photo carousel hero                   | A search-first hero with no photo             | Nomu's hero has no photo; a carousel needs a Pause control and hides the main action   |
+| `button-dark`                         | Removed                                       | No screen needed it; one primary and one ghost button cover every area                 |
+| (not planned)                         | `<bdi>` around text that owners write         | English titles such as "4-Person Tent" showed as "Person Tent-4" on the Arabic page    |
+| (not planned)                         | The footer stays at the bottom on short pages | Short pages left a strip of cream under the dark footer                                |
+| Item photos 4 : 5                     | Square 1 : 1                                  | The product photos are square; 4 : 5 cut about 12% from each side (bike wheels, mower) |
 
 ### Principles
 
@@ -406,14 +407,14 @@ The catalog grid is set when the catalog is built.
 All pages share the floating nav, the cream canvas, the container and the
 dark footer.
 
-| Page                         | Layout                                                                                                                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Home** `#/`                | Hero → About → Browse by category → Featured items → How it works (steps `01–04`) → Got tools sitting idle? → Why BorrowBox (dark panel) → Footer                                     |
-| **Catalog** `#/catalog`      | `h1`, a pill `search-bar`, category chips (from the existing category list and `?category=`), then the item grid. Empty and "no results" states use the same card shape               |
-| **Item detail** `#/item/:id` | Large 4:5 photo in a white `card` frame (left on desktop, sticky); one column on the right: title, owner and trust details, the booking panel (deposit, status, date form), condition |
-| **List item** `#/list-item`  | `h1` and one centred white form card (`max-width: 42rem`)                                                                                                                             |
-| **Dashboard** `#/dashboard`  | `h1`, then white cards in a single column on mobile and two columns from 1024px                                                                                                       |
-| **Register** `#/register`    | `h1` and one centred white form card                                                                                                                                                  |
+| Page                         | Layout                                                                                                                                                                                   |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Home** `#/`                | Hero → About → Browse by category → Featured items → How it works (steps `01–04`) → Got tools sitting idle? → Why BorrowBox (dark panel) → Footer                                        |
+| **Catalog** `#/catalog`      | `h1`, a pill `search-bar`, category chips (from the existing category list and `?category=`), then the item grid. Empty and "no results" states use the same card shape                  |
+| **Item detail** `#/item/:id` | Large square photo in a white `card` frame (left on desktop, sticky); one column on the right: title, owner and trust details, the booking panel (deposit, status, date form), condition |
+| **List item** `#/list-item`  | `h1` and one centred white form card (`max-width: 42rem`)                                                                                                                                |
+| **Dashboard** `#/dashboard`  | `h1`, then white cards in a single column on mobile and two columns from 1024px                                                                                                          |
+| **Register** `#/register`    | `h1` and one centred white form card                                                                                                                                                     |
 
 The catalog, list item and dashboard pages are placeholders in the current
 app: each shows one centred white card with its `h1`, a short text and a
@@ -563,7 +564,7 @@ Use in the page:
 
 - White `surface`, radius `card` (28px), 8px padding, `raised` shadow, no
   border. (Observed card pattern.)
-- Image first: `aspect-ratio: 4 / 5`, radius `lg` (20px), `object-fit: cover`.
+- Image first: `aspect-ratio: 1 / 1`, radius `lg` (20px), `object-fit: cover`.
   The status chip sits on the image, in the top end corner.
 - Under the image, with `md` padding: category and rating on one row, the
   title, then condition and owner, and a footer row with the deposit and a
@@ -607,8 +608,8 @@ Use in the page:
 
 | Context               | Ratio | Source                                 |
 | --------------------- | ----- | -------------------------------------- |
-| Item card             | 4 / 5 | Observed tile ratio                    |
-| Item detail main      | 4 / 5 | BorrowBox                              |
+| Item card             | 1 / 1 | BorrowBox (square product photos)      |
+| Item detail main      | 1 / 1 | BorrowBox (square product photos)      |
 | Category group photos | 8 / 5 | Observed                               |
 | Section photos        | 4 / 3 | Observed                               |
 | Hero image            | 4 / 5 | BorrowBox (crop of the new hero image) |
@@ -616,10 +617,12 @@ Use in the page:
 - WebP, quality 80, imported in TypeScript so Vite hashes the file name.
 - Content images have a real `alt`; decorative ones have `alt=""`.
 - Only relative or `https:` image URLs (see `CLAUDE.md`).
-- **Known gap (still open):** the current photos are about 380×508px. The
-  item page shows its photo at up to about 560px wide, so it looks soft.
-  Larger source photos (at least 1200px wide) are needed; the item photos
-  come first.
+- **Item photos:** studio product shots, 1024 × 1024, on a light cream
+  background close to `background`, with the item centred. Each is about
+  20–70 KB as WebP. The item page shows them up to about 560px wide, so they
+  stay sharp on 2× screens. New item photos follow the same style.
+- The home section photos (`01`–`07`) are still about 380×508px; larger
+  versions would make the home page sharper.
 
 ### Footer
 

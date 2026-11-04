@@ -171,8 +171,16 @@ export default {
   // Placeholder pages
   "page.backHome": "Back to home",
   "page.catalog.title": "Explore catalog",
-  "page.catalog.filtering": "Filtering by category:",
-  "page.catalog.searching": "Searching for:",
+  "catalog.searchLabel": "Search the catalog",
+  "catalog.searchInputLabel": "Search for a tool",
+  "catalog.searchPlaceholder": "Search drills, ladders, tents…",
+  "catalog.searchButton": "Search",
+  "catalog.filtersLabel": "Filter by category",
+  "catalog.all": "All",
+  "catalog.count": "Showing {count} of {total} items",
+  "catalog.emptyTitle": "No items match",
+  "catalog.emptyText": "Try another word, or look in all categories.",
+  "catalog.clear": "Clear filters",
   "page.catalog.intro":
     "Discover power tools, garden gear and household equipment available in your community.",
   "page.listItem.title": "List an item for borrowing",
