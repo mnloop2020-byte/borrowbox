@@ -4,6 +4,7 @@ import { t } from "../../shared/i18n/i18n.ts";
 import { observeReveals } from "../../shared/browser/reveal.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { ArrowIcon } from "../../shared/ui/ArrowIcon.tsx";
+import { ScrollLink } from "../../shared/ui/ScrollLink.tsx";
 import { SearchIcon } from "../../shared/ui/SearchIcon.tsx";
 import {
   CATEGORIES,
@@ -142,9 +143,9 @@ function About(): ReactElement {
       </div>
       <div className="about-body-col" data-reveal>
         <p className="about-text">{t("home.about.text")}</p>
-        <a href="#/" className="text-link" data-scroll-target="how-it-works">
+        <ScrollLink targetId="how-it-works" className="text-link">
           {t("home.about.link")} <ArrowIcon />
-        </a>
+        </ScrollLink>
       </div>
     </section>
   );

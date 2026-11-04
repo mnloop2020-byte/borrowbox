@@ -2,14 +2,14 @@ import type { ReactElement } from "react";
 import { formatMoney, t, tValue } from "../../shared/i18n/i18n.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { todayISO } from "../../shared/lib/dates.ts";
-import { isSafeImageUrl } from "../../shared/lib/html.ts";
+import { isSafeImageUrl } from "../../shared/lib/imageUrl.ts";
 import { BackIcon } from "../../shared/ui/BackIcon.tsx";
 import { PlaceholderCard } from "../../shared/ui/PlaceholderCard.tsx";
 import type { Item } from "../../shared/types.ts";
 import { BorrowForm } from "../requests/BorrowForm.tsx";
 import { deriveItemStatus } from "../requests/requestRules.ts";
 import { getRequests } from "../requests/requestStore.ts";
-import { userStore } from "../users/userStore.ts";
+import { useCurrentUser } from "../users/useCurrentUser.ts";
 import { SEED_ITEMS } from "./itemsData.ts";
 
 function ItemNotFound(): ReactElement {
@@ -55,9 +55,9 @@ function OwnerCard({ item }: ItemProps): ReactElement {
 
 function ItemDetail({ item }: ItemProps): ReactElement {
   usePageTitle(t("title.item", { title: item.title }));
-  // Read on every draw, so a new request or persona shows at once
+  // Read on every draw, so a new request shows at once
   const status = deriveItemStatus(item, getRequests(), todayISO());
-  const isOwner = userStore.getCurrentUser().id === item.ownerId;
+  const isOwner = useCurrentUser().id === item.ownerId;
 
   return (
     <article className="item-detail" aria-labelledby="item-title">

@@ -2357,7 +2357,7 @@ p {
 }
 
 /* ==========================================================================
-   Toasts (src/shared/ui/toast.ts)
+   Toasts (src/shared/ui/Toasts.tsx)
    Bottom centre on phones, bottom end corner from 640px (right in English,
    left in Arabic). Colours are the status pairs: 5.62:1 and 5.58:1.
    ========================================================================== */

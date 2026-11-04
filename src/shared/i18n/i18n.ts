@@ -51,14 +51,26 @@ export function saveLang(
 }
 
 let currentLang: Lang = readStoredLang();
+const langListeners = new Set<() => void>();
 
 export function getLang(): Lang {
   return currentLang;
 }
 
 /**
+ * Calls `listener` after every language change. useLang() uses it, so
+ * React draws the app again in the new language.
+ *
+ * @returns a function that stops the calls
+ */
+export function subscribeLang(listener: () => void): () => void {
+  langListeners.add(listener);
+  return () => langListeners.delete(listener);
+}
+
+/**
  * Changes the language for the rest of the visit, saves it when possible,
- * updates <html lang dir> and tells the app to re-render.
+ * updates <html lang dir> and tells every subscriber.
  *
  * @returns the language actually set
  */
@@ -69,11 +81,7 @@ export function setLang(lang: unknown): Lang {
     document.documentElement.lang = currentLang;
     document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
   }
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(
-      new CustomEvent("borrowbox:langchange", { detail: currentLang }),
-    );
-  }
+  langListeners.forEach((listener) => listener());
   return currentLang;
 }
 
@@ -100,8 +108,8 @@ export function translate(
 }
 
 /**
- * Interface text in the current language. The result is plain text: insert it
- * with textContent, or with escapeHtml() inside an HTML template.
+ * Interface text in the current language. The result is plain text: show it
+ * with {value} in JSX, which React escapes.
  *
  */
 export function t(key: string, values?: Record<string, unknown>): string {

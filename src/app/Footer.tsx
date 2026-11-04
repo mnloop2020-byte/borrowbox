@@ -5,11 +5,11 @@ import {
   categoryLabel,
 } from "../features/items/categories.ts";
 import { t } from "../shared/i18n/i18n.ts";
+import { ScrollLink } from "../shared/ui/ScrollLink.tsx";
 
 /**
  * Site footer shown on every page. Real content only: no placeholder
- * address, phone, email or social links. React escapes every {value},
- * so no escapeHtml() is needed here.
+ * address, phone, email or social links.
  */
 export function Footer(): ReactElement {
   return (
@@ -35,13 +35,9 @@ export function Footer(): ReactElement {
                 </a>
               </li>
               <li>
-                <a
-                  href="#/"
-                  className="footer-link"
-                  data-scroll-target="how-it-works"
-                >
+                <ScrollLink targetId="how-it-works" className="footer-link">
                   {t("nav.howItWorks")}
-                </a>
+                </ScrollLink>
               </li>
               <li>
                 <a href="#/dashboard" className="footer-link">

@@ -7,7 +7,7 @@
  * checked, and only known statuses reach the class name.
  */
 import { formatMoney } from "../../shared/i18n/i18n.ts";
-import { isSafeImageUrl } from "../../shared/lib/html.ts";
+import { isSafeImageUrl } from "../../shared/lib/imageUrl.ts";
 import type { Item, ItemStatus } from "../../shared/types.ts";
 import { isValidItemId } from "./itemId.ts";
 

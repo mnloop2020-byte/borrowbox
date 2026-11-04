@@ -14,7 +14,7 @@ This is an MVP with a small JSON API (`server/`) for borrow requests. Other data
 - **Demo personas:** switch between Sarah (owner), Alex (borrower) and Elena (new member) from the profile menu.
 - **Accessibility:** semantic HTML, keyboard support, visible focus, colour contrast measured against WCAG AA, and reduced-motion support.
 - **Design:** a warm cream and orange design based on the visual language of [Nomu](https://en.nomu.store), adapted to pass contrast checks. See [DESIGN.md](DESIGN.md).
-- **Security:** text from the URL or from item data is escaped or set with `textContent`, so it is never treated as HTML.
+- **Security:** text from the URL or from item data is shown through React, which escapes it, so it is never treated as HTML. Image URLs and item ids are checked first.
 
 ## Tech stack
 
@@ -80,7 +80,7 @@ src/
 │   ├── api/              # postJson(): fetch with a clear ok / status result
 │   ├── ui/               # Toasts, icons, the placeholder card
 │   ├── i18n/             # en.ts and ar.ts dictionaries, t(), setLang(), formatMoney()
-│   ├── lib/              # Pure functions (escaping, dates), tested with Node
+│   ├── lib/              # Pure functions (image URL check, dates), tested with Node
 │   ├── browser/          # Helpers that use browser features (DOM, storage, scrolling)
 │   └── types.ts          # Shared data shapes (Item, User, BorrowRequest, Lang)
 ├── assets/               # Photos and illustrations

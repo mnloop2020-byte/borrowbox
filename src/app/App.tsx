@@ -11,7 +11,8 @@ import { HomeView } from "../features/home/HomeView.tsx";
 import { ItemDetailView } from "../features/items/ItemDetailView.tsx";
 import { ListItemView } from "../features/list-item/ListItemView.tsx";
 import { RegisterView } from "../features/register/RegisterView.tsx";
-import { scrollToSection } from "../shared/browser/scrollToSection.ts";
+import { useLang } from "../shared/i18n/useLang.ts";
+import { Toasts } from "../shared/ui/Toasts.tsx";
 
 /*
  * App shell and hash router. It draws the page frame, picks the page for
@@ -54,11 +55,10 @@ const currentHash = (): string => window.location.hash || "#/";
 
 export function App(): ReactElement {
   const [hash, setHash] = useState(currentHash);
-  // The language and the persona live in their stores, not in React.
-  // When one changes, this number goes up: new state makes React draw the
-  // header, the page and the footer again, and each one reads the new value.
-  // Only the setter is needed, so the number itself is not named.
-  const [, setVersion] = useState(0);
+  // Every text comes from t(), which reads the current language. Reading
+  // the language here makes App, and so every page inside it, draw again
+  // after a switch. Nothing is rebuilt, so typed values, scroll and focus stay.
+  useLang();
 
   const mainRef = useRef<HTMLElement>(null);
 
@@ -66,52 +66,14 @@ export function App(): ReactElement {
     // After a route change, move focus to <main> so screen-reader and keyboard
     // users start at the new page's content. Not done on first load, where
     // the browser's normal starting point is correct. flushSync draws the new
-    // page right away, so the focus and the scroll below find it.
+    // page right away, so the focus (and a ScrollLink's scroll) find it.
     const onHashChange = (): void => {
       flushSync(() => setHash(currentHash()));
       mainRef.current?.focus();
     };
 
-    // Language or persona switch: draw everything again with the new value.
-    // Nothing is rebuilt, so the route, typed values, scroll and focus stay.
-    const redraw = (): void => setVersion((v) => v + 1);
-
-    // "How it works" style links: scroll to a section on the home page.
-    // From another route, go home first, then scroll once home is drawn.
-    const onClick = (event: MouseEvent): void => {
-      const link =
-        event.target instanceof Element
-          ? event.target.closest<HTMLElement>("[data-scroll-target]")
-          : null;
-      if (!link) return;
-      event.preventDefault();
-
-      const targetId = link.dataset.scrollTarget ?? "";
-      const isHome = ["", "#", "#/"].includes(window.location.hash);
-      if (isHome) {
-        scrollToSection(targetId);
-      } else {
-        // Added after the router's listener, so it runs after home is drawn.
-        // setTimeout (not requestAnimationFrame) so it never waits for a paint.
-        window.addEventListener(
-          "hashchange",
-          () => setTimeout(() => scrollToSection(targetId), 0),
-          { once: true },
-        );
-        window.location.hash = "#/";
-      }
-    };
-
     window.addEventListener("hashchange", onHashChange);
-    window.addEventListener("borrowbox:userchange", redraw);
-    window.addEventListener("borrowbox:langchange", redraw);
-    document.addEventListener("click", onClick);
-    return () => {
-      window.removeEventListener("hashchange", onHashChange);
-      window.removeEventListener("borrowbox:userchange", redraw);
-      window.removeEventListener("borrowbox:langchange", redraw);
-      document.removeEventListener("click", onClick);
-    };
+    return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
   return (
@@ -129,6 +91,7 @@ export function App(): ReactElement {
         {renderRoute(hash)}
       </main>
       <Footer />
+      <Toasts />
     </>
   );
 }

@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
-import { getLang, setLang, t } from "../shared/i18n/i18n.ts";
+import { setLang, t } from "../shared/i18n/i18n.ts";
+import { useLang } from "../shared/i18n/useLang.ts";
+import { ScrollLink } from "../shared/ui/ScrollLink.tsx";
+import { useCurrentUser } from "../features/users/useCurrentUser.ts";
 import { userStore } from "../features/users/userStore.ts";
 
 /**
@@ -49,14 +52,12 @@ interface NavbarProps {
 
 /**
  * The header on every page: logo, menu, "List an item", language switch,
- * demo persona switch and the mobile menu button. The language and the
- * persona live in their stores; changing them sends an event, and App
- * draws everything again.
+ * demo persona switch and the mobile menu button.
  */
 export function Navbar({ hash }: NavbarProps): ReactElement {
   const users = userStore.getUsers();
-  const currentUser = userStore.getCurrentUser();
-  const otherLang = getLang() === "ar" ? "en" : "ar";
+  const currentUser = useCurrentUser();
+  const otherLang = useLang() === "ar" ? "en" : "ar";
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -164,15 +165,13 @@ export function Navbar({ hash }: NavbarProps): ReactElement {
               />
             </li>
             <li>
-              {/* App scrolls to the section (data-scroll-target) */}
-              <a
-                href="#/"
+              <ScrollLink
+                targetId="how-it-works"
                 className="nav-link"
-                data-scroll-target="how-it-works"
                 onClick={closeMenu}
               >
                 {t("nav.howItWorks")}
-              </a>
+              </ScrollLink>
             </li>
             <li>
               <NavLink
@@ -199,8 +198,7 @@ export function Navbar({ hash }: NavbarProps): ReactElement {
         </a>
 
         <div className="nav-controls">
-          {/* Labelled in the language it switches to, so lang is that language.
-              setLang() sends "borrowbox:langchange" and App draws everything again. */}
+          {/* Labelled in the language it switches to, so lang is that language */}
           <button
             type="button"
             className="lang-switch"
@@ -252,7 +250,6 @@ export function Navbar({ hash }: NavbarProps): ReactElement {
                   const selected = user.id === currentUser.id;
                   return (
                     <li key={user.id}>
-                      {/* setCurrentUser() sends "borrowbox:userchange" and App draws everything again */}
                       <button
                         type="button"
                         className={
@@ -264,6 +261,8 @@ export function Navbar({ hash }: NavbarProps): ReactElement {
                         onClick={() => {
                           userStore.setCurrentUser(user.id);
                           setProfileOpen(false);
+                          // The list closes, so focus goes back to its button
+                          profileButtonRef.current?.focus();
                         }}
                       >
                         <span>{user.name}</span>

@@ -1,29 +1,35 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { escapeHtml, isSafeImageUrl } from "../src/shared/lib/html.ts";
+import { readFileSync, readdirSync } from "node:fs";
+import { isSafeImageUrl } from "../src/shared/lib/imageUrl.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
 import { isValidItemId } from "../src/features/items/itemId.ts";
 import { itemCardData } from "../src/features/items/itemCardData.ts";
 import { makeItem } from "./fakes.ts";
 
-// ---------- escapeHtml ----------
+// ---------- no HTML strings ----------
 
-test("escapeHtml escapes all five HTML-special characters", () => {
-  assert.equal(
-    escapeHtml(`<a href="x" title='y'>&</a>`),
-    "&lt;a href=&quot;x&quot; title=&#39;y&#39;&gt;&amp;&lt;/a&gt;",
-  );
-});
-
-test("escapeHtml escapes & first, so existing entities are not left active", () => {
-  assert.equal(escapeHtml("&lt;"), "&amp;lt;");
-});
-
-test("escapeHtml turns non-strings into text", () => {
-  assert.equal(escapeHtml(42), "42");
-  assert.equal(escapeHtml(null), "");
-  assert.equal(escapeHtml(undefined), "");
+// React escapes every {value}, so text can never become HTML. These are the
+// ways around that escaping; none of them may appear in the app.
+test("no source file writes HTML strings into the page", () => {
+  const files = readdirSync("src", { recursive: true, encoding: "utf8" })
+    .filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"))
+    .map((f) => `src/${f.replaceAll("\\", "/")}`);
+  const found = [];
+  for (const file of files) {
+    const source = readFileSync(file, "utf8");
+    for (const name of [
+      "dangerouslySetInnerHTML",
+      "innerHTML",
+      "outerHTML",
+      "insertAdjacentHTML",
+    ]) {
+      if (source.includes(name)) found.push(`${file}: ${name}`);
+    }
+  }
+  assert.ok(files.length > 20, "the scan found the source files");
+  assert.deepEqual(found, []);
 });
 
 // ---------- isSafeImageUrl ----------
