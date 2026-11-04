@@ -2,16 +2,17 @@
 
 ## 1. Technology Stack
 
-- Use Vite with vanilla TypeScript, HTML, and CSS (strict mode, see `tsconfig.json`).
-- Do not use React, Vue, or other frameworks unless explicitly requested.
+- Use Vite with React, TypeScript, HTML, and CSS (strict mode, see `tsconfig.json`).
+- The app is moving to React one page at a time. Pages not moved yet are old `mountXView()` functions that `src/app/LegacyView.tsx` runs inside React. A moved page is a component; when no page uses `LegacyView`, delete it.
+- Do not add other frameworks or a router package unless explicitly requested.
 - Use native browser APIs whenever practical.
 
 ## Architecture
 
 Files are grouped by feature. To fix a bug, open the folder of the feature it is in.
 
-- `src/main.ts`: starts the app and is the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). It picks a view and handles app-wide events; it renders no page itself.
-- `src/app/`: the frame around every page: `Navbar.ts` (with the language and persona switch), `Footer.ts`, `NotFoundView.ts`.
+- `src/main.tsx`: starts React and draws `<App />` into `#app`.
+- `src/app/`: the frame around every page. `App.tsx` is the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`): it picks a page in `mountRoute()` and handles app-wide events. `LegacyView.tsx` (the temporary bridge), `Navbar.ts` (with the language and persona switch), `Footer.ts`, `NotFoundView.ts`.
 - `src/features/<feature>/`: everything for one feature. A page is `XView.ts`: it exports `mountXView(container, ...)` and returns a `MountedView` (`{ title, cleanup }`).
   - `home/`: `HomeView.ts`, `homeContent.ts` (the home sections).
   - `items/`: `itemRecords.ts` (**the one list of items**, no photos, so the server reads it too), `itemsData.ts` (adds each item's photo), `listItems.ts` (all items with today's status), `categories.ts`, `ItemCard.ts`, `ItemDetailView.ts`, `itemId.ts` (the id check, also used by the router and the server).
@@ -37,7 +38,7 @@ Make one folder for it: `src/features/<feature>/`. Example: the "List an item" f
 1. **Data shape:** add or extend the types in `src/shared/types.ts`.
 2. **Rules:** pure logic goes in the feature folder, like `src/features/catalog/catalogFilter.ts` with its tests in `tests/catalog.test.ts`. No DOM in rule files.
 3. **Data access:** saving or loading goes in a store file in the feature (like `requests/requestStore.ts`); calls to the server go in an API file (like `requests/requestsApi.ts`) that uses `shared/api/client.ts`.
-4. **Page:** `ListItemView.ts` is a placeholder, so replace its content; it keeps returning a `MountedView`. A brand new page gets a new `XView.ts` in its folder and one route in `mountRoute()` in `src/main.ts`.
+4. **Page:** `ListItemView.ts` is a placeholder, so replace its content; it keeps returning a `MountedView`. A brand new page gets a new `XView.ts` in its folder and one route in `mountRoute()` in `src/app/App.tsx`.
 5. **Reuse:** use other features through their exports (the catalog reuses `items/ItemCard.ts` and `items/listItems.ts`). A new item is added once, in `items/itemRecords.ts`, with its photo in `items/itemsData.ts`. Move code to `src/shared/` only when it is not about one feature.
 6. **Text:** add every visible string to both `src/shared/i18n/en.ts` and `src/shared/i18n/ar.ts`. `npm test` fails if the keys differ.
 7. **Styles:** add a commented section in `src/style.css` that uses the existing tokens and follows `DESIGN.md`.
@@ -61,7 +62,7 @@ Make one folder for it: `src/features/<feature>/`. Example: the "List an item" f
 
 ## 4. TypeScript
 
-- Write `.ts` files. Import with the `.ts` extension (`from "./dates.ts"`), so Node can run the tests directly.
+- Write `.ts` files, and `.tsx` only for files with JSX (components). Import with the extension (`from "./dates.ts"`), so Node can run the tests directly. Rule files and `src/shared/lib/` stay `.ts` with no React, so Node can test them.
 - Use only erasable syntax (no `enum` or `namespace`); `tsconfig.json` enforces this.
 - Type function parameters and return values. Use `unknown` for untrusted input, never `any`.
 - Use `import type` for imports that are only types.

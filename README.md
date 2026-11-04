@@ -18,7 +18,7 @@ This is an MVP with a small JSON API (`server/`) for borrow requests. Other data
 
 ## Tech stack
 
-- [Vite](https://vite.dev/) with vanilla TypeScript (strict mode, ES modules), HTML and CSS. No framework.
+- [Vite](https://vite.dev/) with [React](https://react.dev/) and TypeScript (strict mode, ES modules), HTML and CSS. The pages are moving to React one at a time.
 - ESLint and Prettier for code quality, run on every commit by husky and lint-staged.
 - Fonts: Inter (Latin) and Tajawal (Arabic) from Google Fonts.
 - Node's built-in test runner (`node:test`) for unit tests. No test libraries.
@@ -65,8 +65,8 @@ Files are grouped by feature: everything about one feature is in one folder.
 
 ```text
 src/
-├── main.ts               # Starts the app and picks the page for the URL (router)
-├── app/                  # The frame around every page: Navbar, Footer, NotFoundView
+├── main.tsx              # Starts React and draws the app
+├── app/                  # The frame around every page: App (shell and router), Navbar, Footer, NotFoundView
 ├── features/             # One folder per feature
 │   ├── home/             # Home page and its content
 │   ├── items/            # Item data, categories, item card, item page, item id check

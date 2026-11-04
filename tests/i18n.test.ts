@@ -140,13 +140,13 @@ test("tValue translates a known value and shows an unknown one as stored", () =>
 import { readFileSync, readdirSync } from "node:fs";
 
 test("pages and UI code contain no hard-coded English interface text", () => {
-  // Every .ts file that renders HTML: the app frame, all features, shared UI
+  // Every .ts and .tsx file that renders HTML: the app frame, all features, shared UI
   const tsFilesIn = (dir: string): string[] =>
     readdirSync(dir, { recursive: true, encoding: "utf8" })
-      .filter((f) => f.endsWith(".ts"))
+      .filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"))
       .map((f) => `${dir}/${f.replaceAll("\\", "/")}`);
   const files = [
-    "src/main.ts",
+    "src/main.tsx",
     ...tsFilesIn("src/app"),
     ...tsFilesIn("src/features"),
     ...tsFilesIn("src/shared/ui"),
