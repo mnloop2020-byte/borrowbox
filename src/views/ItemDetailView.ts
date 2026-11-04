@@ -11,6 +11,8 @@ import {
 import { addRequest, getRequests } from "../store/requestStore.ts";
 import { SEED_ITEMS } from "../store/seedData.ts";
 import { userStore } from "../store/userStore.ts";
+import { API_URLS, postJson } from "../shared/api/client.ts";
+import { showToast } from "../shared/ui/toast.ts";
 import type { Item, ItemStatus, MountedView } from "../types.ts";
 import { getElement } from "../utils/dom.ts";
 
@@ -63,7 +65,6 @@ function renderBookingForm(today: string): string {
         </div>
       </div>
       <button type="submit" class="btn btn-primary borrow-submit">${tx("booking.submit")}</button>
-      <div id="borrow-status" class="form-message" role="status"></div>
       <div id="borrow-alert" class="form-message form-message--error" role="alert"></div>
     </form>
   `;
@@ -145,12 +146,13 @@ function setFieldError(
 function bindBookingForm(container: HTMLElement, item: Item): void {
   const form = container.querySelector<HTMLFormElement>("#borrow-form");
   if (!form) return;
-  const statusBox = getElement(form, "#borrow-status");
   const alertBox = getElement(form, "#borrow-alert");
   const startInput = getElement<HTMLInputElement>(form, "#borrow-start");
   const endInput = getElement<HTMLInputElement>(form, "#borrow-end");
+  const submitButton = getElement<HTMLButtonElement>(form, ".borrow-submit");
 
-  form.addEventListener("submit", (event) => {
+  // async: the handler waits for the API before it shows the result
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const startDate = startInput.value;
     const endDate = endInput.value;
@@ -158,7 +160,6 @@ function bindBookingForm(container: HTMLElement, item: Item): void {
 
     setFieldError(form, "start", "");
     setFieldError(form, "end", "");
-    statusBox.textContent = "";
     alertBox.textContent = "";
 
     const result = validateRequest({
@@ -181,6 +182,24 @@ function bindBookingForm(container: HTMLElement, item: Item): void {
       return;
     }
 
+    // 1. Send to the API. The button is off meanwhile, so a second click
+    //    cannot send the same request twice.
+    submitButton.disabled = true;
+    const response = await postJson(API_URLS.requests, {
+      itemId: item.id,
+      borrowerId: borrower.id,
+      startDate,
+      endDate,
+    });
+    submitButton.disabled = false;
+
+    if (!response.ok) {
+      showToast(t("toast.requestFailed"), "error");
+      return;
+    }
+
+    // 2. The server accepted it: keep a copy here too, so this page's
+    //    availability and duplicate checks know about it
     const saved = addRequest(
       createRequestRecord({
         item,
@@ -196,7 +215,7 @@ function bindBookingForm(container: HTMLElement, item: Item): void {
       return;
     }
     form.reset();
-    statusBox.textContent = t("booking.success");
+    showToast(t("booking.success"));
   });
 }
 

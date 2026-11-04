@@ -2214,3 +2214,73 @@ p {
     transform: translateY(var(--distance-lg));
   }
 }
+
+/* ==========================================================================
+   Toasts (src/shared/ui/toast.ts)
+   Bottom centre on phones, bottom end corner from 640px (right in English,
+   left in Arabic). Colours are the status pairs: 5.62:1 and 5.58:1.
+   ========================================================================== */
+
+.toast-region {
+  position: fixed;
+  inset-inline: var(--space-md);
+  bottom: var(--space-md);
+  z-index: 200; /* above the sticky header (100) and menus (110) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  /* The empty region must not block clicks on the page under it */
+  pointer-events: none;
+}
+
+.toast {
+  width: 100%;
+  max-width: 26rem;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+  box-shadow: var(--shadow-float);
+  font-weight: 500;
+  line-height: 1.4;
+  pointer-events: auto;
+}
+
+.toast--error {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.toast.is-leaving {
+  opacity: 0;
+}
+
+@media (min-width: 640px) {
+  .toast-region {
+    inset-inline: auto var(--space-lg);
+    bottom: var(--space-lg);
+    align-items: flex-end;
+  }
+}
+
+/* Motion: rise in, fade out. With reduced motion they simply appear and go. */
+@media (prefers-reduced-motion: no-preference) {
+  .toast {
+    animation: toast-in var(--duration-medium) var(--ease-out);
+    transition:
+      opacity var(--duration-standard) var(--ease-out),
+      transform var(--duration-standard) var(--ease-out);
+  }
+
+  .toast.is-leaving {
+    transform: translateY(var(--distance-sm));
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-xs));
+  }
+}

@@ -17,6 +17,8 @@
 - `src/logic/`: pure functions only (escaping, validation, dates, borrow requests). No DOM and no `localStorage`, so they can be tested with Node.
 - `src/types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
 - `src/utils/`: small browser helpers. `dom.ts` has `getElement()`, which finds an element that must exist, with the right type; `reveal.ts` reveals sections on scroll; `formFields.ts` keeps typed values when the language changes.
+- `src/shared/`: code shared by every feature. `api/client.ts` sends requests to the API with `fetch` and returns a result (`ok` or a status); `ui/toast.ts` has `showToast()`.
+- `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `tests/`: `node:test` unit tests for requests, security (escaping and validation), storage and translations. `fakes.ts` builds complete test objects.
 

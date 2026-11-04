@@ -160,6 +160,7 @@ export default {
   "booking.error.save-failed":
     "تعذّر حفظ طلبك. تأكد من أن متصفحك يسمح بتخزين بيانات الموقع، ثم حاول مرة أخرى.",
   "booking.success": "أُرسل طلبك. أمام المالك 48 ساعة للرد.",
+  "toast.requestFailed": "تعذّر إرسال طلبك. تحقّق من الاتصال وحاول مرة أخرى.",
 
   // Placeholder pages
   "page.backHome": "العودة إلى الرئيسية",

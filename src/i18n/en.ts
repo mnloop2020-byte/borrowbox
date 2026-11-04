@@ -165,6 +165,8 @@ export default {
   "booking.error.save-failed":
     "Your request couldn't be saved. Check that your browser allows site storage, then try again.",
   "booking.success": "Request sent. The owner has 48 hours to respond.",
+  "toast.requestFailed":
+    "We couldn't send your request. Check your connection and try again.",
 
   // Placeholder pages
   "page.backHome": "Back to home",

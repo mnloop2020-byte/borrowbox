@@ -2,7 +2,7 @@
 
 A peer-to-peer tool-sharing web app. Neighbors borrow tools from each other for free, and each borrow is backed by a **simulated** refundable deposit.
 
-This is a front-end MVP: there is no server. Data lives in the browser (`localStorage`), and three demo personas let you try both the owner and the borrower side in one browser.
+This is an MVP with a small JSON API (`server/`) for borrow requests. Other data lives in the browser (`localStorage`), and three demo personas let you try both the owner and the borrower side in one browser.
 
 ## Features
 
@@ -34,6 +34,12 @@ npm install
 npm run dev
 ```
 
+In a second terminal, start the API, which the borrow form needs:
+
+```bash
+npm run api
+```
+
 Then open http://localhost:5173.
 
 ## Scripts
@@ -41,6 +47,7 @@ Then open http://localhost:5173.
 | Command                | What it does                             |
 | ---------------------- | ---------------------------------------- |
 | `npm run dev`          | Start the development server             |
+| `npm run api`          | Start the API server on port 3000        |
 | `npm run build`        | Build for production into `dist/`        |
 | `npm run preview`      | Serve the production build locally       |
 | `npm test`             | Run the unit tests                       |
