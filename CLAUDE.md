@@ -24,7 +24,7 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
   - `borrow-list/`: the borrow list (works like a cart). `borrowListRules.ts` (pure: add, more/fewer days, remove, the saved-data check), `borrowListStore.ts` (saving in `localStorage`, `subscribe()`), `useBorrowList.ts` (its hook), `AddToListButton.tsx` (passed to `ItemCard` as `action`) and `BorrowListView.tsx` (`#/borrow-list`). The Navbar shows the count.
   - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
 - `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
-  - `api/client.ts`: `postJson()` sends JSON with `fetch` and returns `{ ok: true, data }` or `{ ok: false, status }`.
+  - `api/client.ts`: **the one API client** and the only place that calls `fetch`. `postJson()` sends JSON and returns `{ ok: true, data }` or `{ ok: false, status }`. Every failure is logged to the Console as one line, e.g. `[api] POST /api/requests failed: 500` (never the body). A new request type is added here, not with `fetch` in a page.
   - `ui/`: `toast.ts` (the toast list: `showToast()`), `Toasts.tsx` (draws it), `ScrollLink.tsx` (links to a home section such as "How it works"), `PlaceholderCard.tsx`, and the icons `BackIcon.tsx`, `ArrowIcon.tsx`, `SearchIcon.tsx`.
   - `i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys; `i18n.ts` with `t()`, `setLang()`, `formatMoney()`; `useLang.ts` (its hook).
   - `lib/`: pure functions (`imageUrl.ts`, `dates.ts`). No DOM and no `localStorage`, so Node can test them.
@@ -32,7 +32,7 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
   - `types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
-- `tests/`: `node:test` unit tests for requests, the catalog filter, sort and item list, the borrow list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
+- `tests/`: `node:test` unit tests for the API client (with a fake `fetch`), requests, the catalog filter, sort and item list, the borrow list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes
 
