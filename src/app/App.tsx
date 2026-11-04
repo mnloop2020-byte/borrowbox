@@ -1,20 +1,19 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReactElement } from "react";
 import { flushSync } from "react-dom";
-import { renderFooter } from "./Footer.ts";
+import { Footer } from "./Footer.tsx";
 import { LegacyView } from "./LegacyView.tsx";
 import { renderNavbar, updateActiveNavLink } from "./Navbar.ts";
-import { mountNotFoundView } from "./NotFoundView.ts";
+import { NotFoundView } from "./NotFoundView.tsx";
 import { isValidItemId } from "../features/items/itemId.ts";
-import { mountCatalogView } from "../features/catalog/CatalogView.ts";
-import { mountDashboardView } from "../features/dashboard/DashboardView.ts";
+import { CatalogView } from "../features/catalog/CatalogView.tsx";
+import { DashboardView } from "../features/dashboard/DashboardView.tsx";
 import { mountHomeView } from "../features/home/HomeView.ts";
-import { mountItemDetailView } from "../features/items/ItemDetailView.ts";
-import { mountListItemView } from "../features/list-item/ListItemView.ts";
-import { mountRegisterView } from "../features/register/RegisterView.ts";
+import { ItemDetailView } from "../features/items/ItemDetailView.tsx";
+import { ListItemView } from "../features/list-item/ListItemView.tsx";
+import { RegisterView } from "../features/register/RegisterView.tsx";
 import { restoreFields, snapshotFields } from "../shared/browser/formFields.ts";
 import { scrollToSection } from "../shared/browser/scrollToSection.ts";
-import type { MountedView } from "../shared/types.ts";
 
 /*
  * App shell and hash router. It draws the page frame, picks the page for
@@ -22,32 +21,42 @@ import type { MountedView } from "../shared/types.ts";
  * feature folder (src/features/<feature>/).
  */
 
-/** Picks the page for a hash and mounts it into the container */
-function mountRoute(container: HTMLElement, hash: string): MountedView {
+/**
+ * Picks the page for a hash. A page moved to React is a component;
+ * an old one is a mountXView() function run by LegacyView.
+ *
+ * @param version - goes up on a language or persona change. An old page
+ * gets it as its key, so it is mounted again. A React page is only drawn
+ * again, so it keeps its state (for example the text typed in a field).
+ */
+function renderRoute(hash: string, version: number): ReactElement {
   if (hash === "#/" || hash === "" || hash === "#") {
-    return mountHomeView(container);
+    return <LegacyView key={version} mount={mountHomeView} />;
   }
   // Supports ?q= and ?category=
   if (hash.startsWith("#/catalog")) {
-    return mountCatalogView(container, hash.split("?")[1] || "");
+    const query = hash.split("?")[1] || "";
+    // key: a new URL is a new catalog, so the search box starts again
+    return <CatalogView key={query} queryString={query} />;
   }
   if (hash.startsWith("#/register")) {
-    return mountRegisterView(container);
+    return <RegisterView />;
   }
   if (hash.startsWith("#/list-item")) {
-    return mountListItemView(container);
+    return <ListItemView />;
   }
   if (hash.startsWith("#/dashboard")) {
-    return mountDashboardView(container);
+    return <DashboardView />;
   }
   // An id that is not in the "item-123" format falls through to "not found"
   const itemId = hash.startsWith("#/item/")
     ? hash.replace("#/item/", "").split("?")[0]
     : "";
   if (isValidItemId(itemId)) {
-    return mountItemDetailView(container, itemId);
+    // key: another item is a new page, so the form starts empty
+    return <ItemDetailView key={itemId} itemId={itemId} />;
   }
-  return mountNotFoundView(container);
+  return <NotFoundView />;
 }
 
 const currentHash = (): string => window.location.hash || "#/";
@@ -60,18 +69,14 @@ export function App(): ReactElement {
 
   const navRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
 
-  // A new function only when the hash changes, so LegacyView mounts again
-  const mountPage = useMemo(
-    () => (container: HTMLElement) => mountRoute(container, hash),
-    [hash],
-  );
+  // Built again only when the hash or version changes, so an old page's
+  // mount function stays the same and LegacyView does not mount it twice
+  const page = useMemo(() => renderRoute(hash, version), [hash, version]);
 
-  // Header and footer (still the old functions) depend on language and persona
+  // The header (still the old function) depends on language and persona
   useLayoutEffect(() => {
     if (navRef.current) renderNavbar(navRef.current);
-    if (footerRef.current) footerRef.current.innerHTML = renderFooter();
   }, [version]);
 
   useLayoutEffect(() => {
@@ -161,10 +166,9 @@ export function App(): ReactElement {
         tabIndex={-1}
         ref={mainRef}
       >
-        {/* key: a new language or persona mounts the page again */}
-        <LegacyView key={version} mount={mountPage} />
+        {page}
       </main>
-      <div id="footer-mount" ref={footerRef} />
+      <Footer />
     </>
   );
 }

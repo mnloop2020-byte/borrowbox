@@ -1,5 +1,5 @@
 import { ARROW_ICON } from "../../shared/ui/icons.ts";
-import { renderItemCard } from "../items/ItemCard.ts";
+import { renderItemCard } from "../items/itemCardHtml.ts";
 import {
   CATEGORIES,
   categoryHref,

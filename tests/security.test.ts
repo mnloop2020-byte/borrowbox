@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { escapeHtml, isSafeImageUrl } from "../src/shared/lib/html.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
 import { isValidItemId } from "../src/features/items/itemId.ts";
-import { renderItemCard } from "../src/features/items/ItemCard.ts";
+import { renderItemCard } from "../src/features/items/itemCardHtml.ts";
 import { makeItem } from "./fakes.ts";
 
 // ---------- escapeHtml ----------
@@ -124,4 +124,35 @@ test("renderItemCard only uses known statuses in the class name", () => {
 test("renderItemCard rejects an unsafe item id in the link", () => {
   const html = renderItemCard({ ...baseItem, id: '1" onclick="alert(1)' });
   assert.equal(html.includes("onclick="), false);
+});
+
+// ---------- itemCardData (the checks the React card relies on) ----------
+
+import { itemCardData } from "../src/features/items/itemCardData.ts";
+
+test("itemCardData drops an unsafe image URL", () => {
+  assert.equal(
+    itemCardData({ ...baseItem, imageUrl: "javascript:alert(1)" }).imageUrl,
+    null,
+  );
+  assert.equal(itemCardData(baseItem).imageUrl, "/assets/drill.svg");
+});
+
+test("itemCardData keeps only known statuses", () => {
+  const card = itemCardData(
+    makeItem({
+      ...baseItem,
+      // @ts-expect-error: a hostile status from corrupted storage, outside ItemStatus
+      status: 'x" onmouseover="alert(1)',
+    }),
+  );
+  assert.equal(card.status, null);
+  assert.equal(itemCardData(baseItem).status, "Available");
+});
+
+test("itemCardData sends an unsafe id to the catalog", () => {
+  const card = itemCardData({ ...baseItem, id: '1" onclick="alert(1)' });
+  assert.equal(card.href, "#/catalog");
+  assert.equal(card.id, null);
+  assert.equal(itemCardData(baseItem).href, "#/item/item-101");
 });

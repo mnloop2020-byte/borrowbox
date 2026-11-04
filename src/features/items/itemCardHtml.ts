@@ -1,41 +1,36 @@
-import { formatMoney, t, tValue } from "../../shared/i18n/i18n.ts";
-import { escapeHtml, isSafeImageUrl } from "../../shared/lib/html.ts";
-import { isValidItemId } from "./itemId.ts";
+import { t, tValue } from "../../shared/i18n/i18n.ts";
+import { escapeHtml } from "../../shared/lib/html.ts";
 import type { Item } from "../../shared/types.ts";
-
-const KNOWN_STATUSES = ["Available", "Reserved", "Unavailable"];
+import { itemCardData } from "./itemCardData.ts";
 
 /**
- * Reusable ItemCard Component
- * Implements Airbnb-inspired marketplace card for BorrowBox items.
- *
- * Every item field is treated as untrusted (items will later come from
- * localStorage and the List an Item form): text is escaped, the image URL
- * and id are checked, and only known statuses reach the class name.
+ * The item card as an HTML string, for the pages not moved to React yet
+ * (the home page). The React card is ItemCard.tsx; both get their checked
+ * values from itemCardData(). Delete this file when no page uses it.
  *
  * @param item - An item object conforming to the Item Model
  * @returns HTML string
  */
 export function renderItemCard(item: Item): string {
-  const deposit = Number(item.depositAmount);
-  const depositFormatted = escapeHtml(formatMoney(deposit));
-  const rating = Number(item.ownerRating);
-  const hasRating = Number.isFinite(rating) && rating > 0;
-  const status = KNOWN_STATUSES.includes(item.status) ? item.status : null;
-  const href = isValidItemId(item.id) ? `#/item/${item.id}` : "#/catalog";
+  const card = itemCardData(item);
+  const depositFormatted = escapeHtml(card.deposit);
+  const rating = card.rating ?? 0;
+  const hasRating = card.rating !== null;
+  const status = card.status;
+  const href = card.href;
 
   const title = escapeHtml(item.title);
   // Fixed-list values are shown translated; the stored value stays English
   const condition = escapeHtml(tValue("condition", item.condition));
 
   return `
-    <article class="item-card"${isValidItemId(item.id) ? ` data-item-id="${item.id}"` : ""}>
+    <article class="item-card"${card.id ? ` data-item-id="${card.id}"` : ""}>
       <!-- No aria-label: the link's name is its visible text, so the two always match (WCAG 2.5.3) -->
       <a href="${href}" class="item-card-link">
         <div class="item-card-image-wrap">
           ${
-            isSafeImageUrl(item.imageUrl)
-              ? `<img src="${escapeHtml(item.imageUrl)}" alt="${title}" class="item-card-image" loading="lazy" />`
+            card.imageUrl
+              ? `<img src="${escapeHtml(card.imageUrl)}" alt="${title}" class="item-card-image" loading="lazy" />`
               : ""
           }
           ${

@@ -176,7 +176,7 @@ import {
   categoryLabel,
 } from "../src/features/items/categories.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
-import { renderItemCard } from "../src/features/items/ItemCard.ts";
+import { renderItemCard } from "../src/features/items/itemCardHtml.ts";
 
 test("category data and URLs stay English in Arabic", () => {
   setLang("ar");
