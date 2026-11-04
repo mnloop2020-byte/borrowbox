@@ -7,7 +7,8 @@ This is an MVP with a small JSON API (`server/`) for borrow requests. Other data
 ## Features
 
 - **Home page:** a search-first hero with category shortcuts, tool categories, featured items, "how it works" in four steps, and sections that rise into view as you scroll.
-- **Catalog** (`#/catalog`): all 14 items in a grid, with a search box and category chips. Both filters live in the URL (`#/catalog?category=Camping&q=stove`), so a filtered list can be shared.
+- **Catalog** (`#/catalog`): all 14 items in a grid, with a name search (upper/lower case does not matter), category chips built from the data, and a sort (name, deposit low/high, or the default order). Search, category and sort work together and live in the URL (`#/catalog?category=Camping&q=stove&sort=name`), so a filtered list can be shared.
+- **Borrow list** (`#/borrow-list`): works like a cart. "Add to list" on a card adds the item (again: one more day). On the list page, − and + change the days (− from 1 removes the item), and items can be removed one by one or all at once. The count in the header is always up to date, and the list is saved in `localStorage`, so it is still there after a refresh.
 - **Item page** (`#/item/item-103`): the photo, condition notes, owner, the refundable deposit, and a working **borrow request**. Requests are checked for valid dates, date overlaps, owners borrowing their own item, and duplicate pending requests.
 - **Registration page** (`#/register`): a sign-up form checked by the browser's own validation (required fields, email format, minimum length).
 - **Arabic and English:** switch from the header without reloading. The layout mirrors for right-to-left, Arabic uses the Tajawal font, and the choice is remembered.
@@ -72,7 +73,8 @@ src/
 │   ├── items/            # Item data, categories, item card, item page, item id check
 │   ├── requests/         # Borrow requests: rules, saving, sending to the API
 │   ├── users/            # Demo users and the current user
-│   ├── catalog/          # Catalog page: search, category chips, item grid
+│   ├── catalog/          # Catalog page: search, category chips, sort, item grid
+│   ├── borrow-list/      # The borrow list (cart): rules, saving, the list page
 │   ├── register/         # Registration page
 │   ├── dashboard/        # "My activity" page (placeholder)
 │   └── list-item/        # "List an item" page (placeholder)
@@ -104,6 +106,6 @@ To change wording, edit the dictionary only. Category names, statuses and other 
 
 ## Status
 
-Built: home page, catalog with search and category filters, item detail page with borrow requests, registration page, Arabic/English support.
+Built: home page, catalog with search, category filter and sort, borrow list, item detail page with borrow requests, registration page, Arabic/English support.
 
 Planned: the "My activity" dashboard where owners approve requests, and the "List an item" form. These routes show placeholder pages for now.

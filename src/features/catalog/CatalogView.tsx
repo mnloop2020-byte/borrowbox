@@ -4,6 +4,7 @@ import { t } from "../../shared/i18n/i18n.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { SearchIcon } from "../../shared/ui/SearchIcon.tsx";
 import { categoryLabel } from "../items/categories.ts";
+import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
 import { ItemCard } from "../items/ItemCard.tsx";
 import { listItems } from "../items/listItems.ts";
 import { parseCatalogParams } from "./catalogParams.ts";
@@ -174,7 +175,11 @@ export function CatalogView({ queryString }: CatalogViewProps): ReactElement {
       ) : (
         <div className="catalog-grid">
           {shown.map((item) => (
-            <ItemCard key={item.id} item={item} />
+            <ItemCard
+              key={item.id}
+              item={item}
+              action={<AddToListButton item={item} />}
+            />
           ))}
         </div>
       )}

@@ -39,6 +39,13 @@ export interface User {
   isVerified: boolean;
 }
 
+/** One row in the borrow list (the cart): an item and how many days */
+export interface BorrowListEntry {
+  itemId: string;
+  /** A whole number from 1 to MAX_DAYS (borrow-list/borrowListRules.ts) */
+  days: number;
+}
+
 /** A borrow request. Dates are "YYYY-MM-DD" strings. */
 export interface BorrowRequest {
   id: string;

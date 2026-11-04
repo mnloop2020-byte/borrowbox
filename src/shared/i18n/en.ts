@@ -11,6 +11,7 @@ export default {
   "title.home": "BorrowBox — Peer-to-Peer Community Tool Sharing",
   "title.catalog": "Catalog — BorrowBox",
   "title.listItem": "List an Item — BorrowBox",
+  "title.borrowList": "My borrow list — BorrowBox",
   "title.dashboard": "My Activity — BorrowBox",
   "title.notFound": "Page Not Found — BorrowBox",
   "title.register": "Create an account — BorrowBox",
@@ -27,6 +28,8 @@ export default {
   "nav.listItem": "List an item",
   "nav.profileLabel": "Profile and demo persona switcher for {name}",
   "nav.switchPersona": "Switch demo persona",
+  "nav.myList": "My list",
+  "nav.listCount": "(items: {count})",
   "nav.menuToggle": "Toggle navigation menu",
 
   // Persona roles (stored values stay English)
@@ -170,6 +173,25 @@ export default {
 
   // Placeholder pages
   "page.backHome": "Back to home",
+  "borrowList.title": "My borrow list",
+  "borrowList.intro":
+    "The tools you plan to borrow and for how many days (up to {max}). The list is saved on this device.",
+  "borrowList.emptyTitle": "Your list is empty",
+  "borrowList.emptyText":
+    "Add tools from the catalog, then choose the days here.",
+  "borrowList.browse": "Browse the catalog",
+  "borrowList.add": "Add to list",
+  "borrowList.unavailable": "Not available",
+  "borrowList.added": "{title} added to your list",
+  "borrowList.addedDay": "{title}: one more day (total days: {days})",
+  "borrowList.deposit": "Deposit {amount}",
+  "borrowList.daysLabel": "Days",
+  "borrowList.fewerDays": "One day less: {title}",
+  "borrowList.moreDays": "One more day: {title}",
+  "borrowList.remove": "Remove",
+  "borrowList.clear": "Clear list",
+  "borrowList.summary":
+    "Items: {count} · Total days: {days} · Total deposits: {deposit}",
   "page.catalog.title": "Explore catalog",
   "catalog.searchLabel": "Search the catalog",
   "catalog.searchInputLabel": "Search for a tool",

@@ -39,16 +39,27 @@ test("a category keeps only its items", () => {
   ]);
 });
 
-test("search ignores case and matches title, description or category", () => {
+test("search ignores upper/lower case", () => {
   assert.deepEqual(ids(filterItems(items, { category: "", q: "DRILL" })), [
     "item-1",
   ]);
-  assert.deepEqual(ids(filterItems(items, { category: "", q: "four" })), [
+  assert.deepEqual(ids(filterItems(items, { category: "", q: "dome tent" })), [
     "item-2",
   ]);
-  assert.deepEqual(ids(filterItems(items, { category: "", q: "camping" })), [
-    "item-2",
+});
+
+test("search matches the item name only, not the description or category", () => {
+  const screwdriver = makeItem({
+    id: "item-3",
+    title: "Compact Screwdriver",
+    description: "Lighter than a drill.",
+  });
+  const list = [drill, tent, screwdriver];
+  assert.deepEqual(ids(filterItems(list, { category: "", q: "drill" })), [
+    "item-1",
   ]);
+  assert.deepEqual(ids(filterItems(list, { category: "", q: "four" })), []);
+  assert.deepEqual(ids(filterItems(list, { category: "", q: "camping" })), []);
 });
 
 test("every search word must match, in any order", () => {

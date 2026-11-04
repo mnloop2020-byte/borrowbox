@@ -12,17 +12,17 @@ export interface CatalogFilters {
 }
 
 /**
- * Keeps the items in the category whose title, description or category
- * contains every word of the search text (case does not matter).
+ * Keeps the items in the category whose name contains every word of the
+ * search text (case does not matter). Only the name is searched, so a
+ * screwdriver whose description mentions "drill" is not a drill result.
  * Example: "cordless drill" finds "Cordless Hammer Drill".
  */
 export function filterItems(items: Item[], filters: CatalogFilters): Item[] {
   const words = filters.q.toLowerCase().split(/\s+/).filter(Boolean);
   return items.filter((item) => {
     if (filters.category && item.category !== filters.category) return false;
-    const text =
-      `${item.title} ${item.description} ${item.category}`.toLowerCase();
-    return words.every((word) => text.includes(word));
+    const name = item.title.toLowerCase();
+    return words.every((word) => name.includes(word));
   });
 }
 

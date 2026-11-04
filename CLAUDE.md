@@ -13,14 +13,15 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
 - `src/main.tsx`: starts React and draws `<App />` into `<div id="app">` (in `StrictMode`).
 - `src/react-css.d.ts`: lets a `style` object set CSS variables (`style={{ "--i": 2 }}`).
 - `src/app/`: the frame around every page.
-  - `App.tsx`: the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). `renderRoute()` picks the page; on a route change focus moves to `<main>`.
+  - `App.tsx`: the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/borrow-list`, `#/list-item`, `#/dashboard`, `#/register`). `renderRoute()` picks the page; on a route change focus moves to `<main>`.
   - `Navbar.tsx` (menu, language and persona switch), `Footer.tsx`, `NotFoundView.tsx`.
 - `src/features/<feature>/`: everything for one feature. A page is `XView.tsx`: it exports the component `XView` and sets the tab title with `usePageTitle()`.
   - `home/`: `HomeView.tsx`, `homeContent.ts` (the home sections).
   - `items/`: `itemRecords.ts` (**the one list of items**, no photos, so the server reads it too), `itemsData.ts` (adds each item's photo), `listItems.ts` (all items with today's status), `categories.ts`, `ItemCard.tsx`, `itemCardData.ts` (pure: the checked image, id and status a card shows), `ItemDetailView.tsx`, `itemId.ts` (the id check, also used by the router and the server).
   - `requests/`: borrow requests. `requestRules.ts` (pure rules: dates, overlap, duplicates), `requestStore.ts` (saving in `localStorage`), `requestsApi.ts` (sending to the API), `BorrowForm.tsx` (the dates form on the item page).
   - `users/`: `demoUsers.ts`, `userStore.ts` (the persona in use) and `useCurrentUser.ts` (its hook).
-  - `catalog/`: `CatalogView.tsx` (search, category chips, item grid), `catalogFilter.ts` (pure: which items match) and `catalogParams.ts` (the allowed URL filters).
+  - `catalog/`: `CatalogView.tsx` (search, category chips, sort, item grid), `catalogFilter.ts` (pure: which items match the name search and category, the categories from the data, and `sortItems()`, which sorts a copy) and `catalogParams.ts` (the allowed URL filters: `q`, `category`, `sort`).
+  - `borrow-list/`: the borrow list (works like a cart). `borrowListRules.ts` (pure: add, more/fewer days, remove, the saved-data check), `borrowListStore.ts` (saving in `localStorage`, `subscribe()`), `useBorrowList.ts` (its hook), `AddToListButton.tsx` (passed to `ItemCard` as `action`) and `BorrowListView.tsx` (`#/borrow-list`). The Navbar shows the count.
   - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
 - `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
   - `api/client.ts`: `postJson()` sends JSON with `fetch` and returns `{ ok: true, data }` or `{ ok: false, status }`.
@@ -31,7 +32,7 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
   - `types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
-- `tests/`: `node:test` unit tests for requests, the catalog filter and item list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
+- `tests/`: `node:test` unit tests for requests, the catalog filter, sort and item list, the borrow list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes
 

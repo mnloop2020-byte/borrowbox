@@ -11,6 +11,7 @@ export default {
   "title.home": "BorrowBox — مشاركة الأدوات بين الجيران",
   "title.catalog": "الكتالوج — BorrowBox",
   "title.listItem": "اعرض أداة — BorrowBox",
+  "title.borrowList": "قائمة الاستعارة — BorrowBox",
   "title.dashboard": "نشاطي — BorrowBox",
   "title.notFound": "الصفحة غير موجودة — BorrowBox",
   "title.register": "إنشاء حساب — BorrowBox",
@@ -27,6 +28,8 @@ export default {
   "nav.listItem": "اعرض أداة",
   "nav.profileLabel": "الملف الشخصي وتبديل الحساب التجريبي لـ {name}",
   "nav.switchPersona": "بدّل الحساب التجريبي",
+  "nav.myList": "قائمتي",
+  "nav.listCount": "(عدد الأدوات: {count})",
   "nav.menuToggle": "فتح قائمة التنقل أو إغلاقها",
 
   // Persona roles (stored values stay English)
@@ -164,6 +167,24 @@ export default {
 
   // Placeholder pages
   "page.backHome": "العودة إلى الرئيسية",
+  "borrowList.title": "قائمة الاستعارة",
+  "borrowList.intro":
+    "الأدوات التي تنوي استعارتها وعدد الأيام لكل منها (حتى {max} يومًا). تُحفظ القائمة على هذا الجهاز.",
+  "borrowList.emptyTitle": "قائمتك فارغة",
+  "borrowList.emptyText": "أضف أدوات من الكتالوج، ثم اختر عدد الأيام هنا.",
+  "borrowList.browse": "تصفّح الكتالوج",
+  "borrowList.add": "أضف إلى القائمة",
+  "borrowList.unavailable": "غير متاحة",
+  "borrowList.added": "أُضيفت {title} إلى قائمتك",
+  "borrowList.addedDay": "{title}: يوم إضافي (المجموع {days} أيام)",
+  "borrowList.deposit": "التأمين {amount}",
+  "borrowList.daysLabel": "الأيام",
+  "borrowList.fewerDays": "يوم أقل: {title}",
+  "borrowList.moreDays": "يوم إضافي: {title}",
+  "borrowList.remove": "إزالة",
+  "borrowList.clear": "إفراغ القائمة",
+  "borrowList.summary":
+    "عدد الأدوات: {count} · مجموع الأيام: {days} · مجموع التأمين: {deposit}",
   "page.catalog.title": "استكشف الكتالوج",
   "catalog.searchLabel": "ابحث في الكتالوج",
   "catalog.searchInputLabel": "ابحث عن أداة",

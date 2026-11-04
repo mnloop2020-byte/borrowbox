@@ -11,6 +11,7 @@ import {
   categoryHref,
   categoryLabel,
 } from "../items/categories.ts";
+import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
 import { ItemCard } from "../items/ItemCard.tsx";
 import { listItems } from "../items/listItems.ts";
 import {
@@ -220,7 +221,11 @@ function Featured(): ReactElement {
       </div>
       <div className="featured-grid" data-reveal-group>
         {items.map((item) => (
-          <ItemCard key={item.id} item={item} />
+          <ItemCard
+            key={item.id}
+            item={item}
+            action={<AddToListButton item={item} />}
+          />
         ))}
       </div>
     </section>

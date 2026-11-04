@@ -385,6 +385,8 @@ p {
   color: var(--color-text-muted);
   font-weight: 500;
   font-size: 0.9375rem;
+  /* "How it works" on two lines made the header uneven at 768px */
+  white-space: nowrap;
   border-radius: var(--radius-full);
   transition: color var(--duration-fast) var(--ease-out);
 }
@@ -425,7 +427,8 @@ p {
 .nav-controls {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  /* 4px on narrow phones, so the list link fits next to the others */
+  gap: var(--space-2xs);
 }
 
 .nav-toggle-btn {
@@ -582,7 +585,9 @@ p {
   color: var(--color-text-muted);
 }
 
-@media (min-width: 768px) {
+/* From 900px the links fit in the bar. Below that they stay in the menu:
+   at 768px the links, "My list", language and profile needed ~110px more. */
+@media (min-width: 900px) {
   .nav-toggle-btn {
     display: none;
   }
@@ -2039,10 +2044,10 @@ p {
    Language support
    ========================================================================== */
 
-/* Language switch: a quiet pill in the header */
+/* Language switch: a quiet pill in the header (narrower padding below 450px) */
 .lang-switch {
   min-height: 40px;
-  padding: 0 var(--space-md);
+  padding: 0 var(--space-sm);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-full);
   background: transparent;
@@ -2118,8 +2123,9 @@ p {
 
 /* Mobile first: on narrow phones the logo, language, profile and menu do
    not fit with the brand word, so only the logo icon shows. The link keeps
-   its accessible name from aria-label ("BorrowBox home"). From 420px the
-   word fits and is shown. */
+   its accessible name from aria-label ("BorrowBox home"). From 450px the
+   word fits next to "My list" and is shown (at 420px the menu button was
+   cut off). */
 .brand-name {
   position: absolute;
   width: 1px;
@@ -2129,13 +2135,22 @@ p {
   white-space: nowrap;
 }
 
-@media (min-width: 420px) {
+@media (min-width: 450px) {
   .brand-name {
     position: static;
     width: auto;
     height: auto;
     overflow: visible;
     clip-path: none;
+  }
+
+  /* Room for the normal spacing again (narrow phones: see .nav-controls) */
+  .nav-controls {
+    gap: var(--space-xs);
+  }
+
+  .lang-switch {
+    padding: 0 var(--space-md);
   }
 }
 
@@ -2297,7 +2312,7 @@ p {
   color: var(--color-ink);
 }
 
-/* White like the chips; ink on white is 18.6:1, the grey border 3.4:1 */
+/* White like the chips; ink on white is 18.3:1, the grey border 3.4:1 */
 .catalog-sort-select {
   min-height: 44px; /* touch target */
   padding: 0 var(--space-md);
@@ -2365,6 +2380,289 @@ p {
 @media (min-width: 1280px) {
   .catalog-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Borrow list (features/borrow-list/)
+   The "Add to list" button under a card, the "My list" link with its count
+   in the header, and the list page (#/borrow-list) with a − / + days stepper
+   ========================================================================== */
+
+/* The card is a column, so the button sits at the bottom of every card */
+.item-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-card-link {
+  flex: 1;
+}
+
+.item-card-action {
+  padding: var(--space-xs) var(--space-xs) var(--space-2xs);
+}
+
+/* Ink outline on white (18.3:1); full width for a large touch target */
+.add-to-list-btn {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--color-ink);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.add-to-list-btn:disabled {
+  border-color: var(--color-line);
+  color: var(--color-text-muted); /* 6.4:1 on white */
+  cursor: not-allowed;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .add-to-list-btn:not(:disabled):hover {
+    background-color: var(--color-ink);
+    color: var(--color-on-dark);
+  }
+}
+
+/* Header link: icon and number, and the words "My list" from 1280px.
+   Narrow padding below 450px, like .nav-controls and .lang-switch. */
+.nav-list-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  min-height: 40px;
+  padding: 0 var(--space-2xs);
+  border-radius: var(--radius-full);
+  color: var(--color-ink);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav-list-link.is-active {
+  background-color: var(--color-surface-muted);
+}
+
+.nav-list-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.nav-list-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Ink on orange: 6.85:1 */
+.nav-list-count {
+  min-width: 1.375rem;
+  padding: 0 var(--space-2xs);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  line-height: 1.375rem;
+  text-align: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-list-link:hover {
+    background-color: var(--color-surface-muted);
+  }
+}
+
+@media (min-width: 450px) {
+  .nav-list-link {
+    padding: 0 var(--space-sm);
+  }
+}
+
+/* Below 1280px the menu links need the room (they wrapped at 1024px) */
+@media (min-width: 1280px) {
+  .nav-list-text {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+}
+
+/* The list page */
+.borrow-list-view {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-md) 0;
+}
+
+.borrow-list-title {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--font-size-h1);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-display);
+}
+
+.borrow-list-intro {
+  margin: 0 0 var(--space-xl);
+  max-width: 42rem;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+}
+
+.borrow-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: 0 0 var(--space-lg);
+  padding: 0;
+  list-style: none;
+}
+
+/* Phones: photo and name in a row, the controls below them */
+.borrow-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--space-sm) var(--space-md);
+  align-items: center;
+  padding: var(--space-sm);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.borrow-row-image {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background-color: var(--color-surface-muted);
+}
+
+.borrow-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+.borrow-row-title {
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.borrow-row-deposit {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.borrow-row-controls {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.days-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.days-stepper-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* 44px round buttons: a large touch target */
+.days-stepper-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+
+.days-stepper-btn:disabled {
+  border-color: var(--color-line);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.days-stepper-value {
+  min-width: 2ch;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* The danger red on white is 6.5:1 */
+.borrow-row-remove {
+  min-height: 44px;
+  padding: 0 var(--space-sm);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-danger-text);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.borrow-list-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding-bottom: var(--space-xl);
+}
+
+.borrow-list-total {
+  margin: 0;
+  font-weight: 600;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .days-stepper-btn:not(:disabled):hover,
+  .borrow-row-remove:hover {
+    background-color: var(--color-surface-muted);
+  }
+}
+
+/* From 640px: one row per item, and the summary in one row */
+@media (min-width: 640px) {
+  .borrow-row {
+    grid-template-columns: 4.5rem 1fr auto;
+  }
+
+  .borrow-row-controls {
+    grid-column: auto;
+  }
+
+  .borrow-list-summary {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 768px) {
+  .borrow-list-view {
+    padding-inline: var(--space-xl);
   }
 }
 
