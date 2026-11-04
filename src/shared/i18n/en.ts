@@ -180,6 +180,11 @@ export default {
   "catalog.count": "Showing {count} of {total} items",
   "catalog.emptyTitle": "No items match",
   "catalog.emptyText": "Try another word, or look in all categories.",
+  "catalog.sortLabel": "Sort by",
+  "catalog.sort.default": "Default",
+  "catalog.sort.name": "Name (A–Z)",
+  "catalog.sort.deposit-asc": "Deposit: low to high",
+  "catalog.sort.deposit-desc": "Deposit: high to low",
   "catalog.clear": "Clear filters",
   "page.catalog.intro":
     "Discover power tools, garden gear and household equipment available in your community.",

@@ -174,6 +174,11 @@ export default {
   "catalog.count": "عرض {count} من {total}",
   "catalog.emptyTitle": "لا توجد أدوات مطابقة",
   "catalog.emptyText": "جرّب كلمة أخرى، أو ابحث في كل التصنيفات.",
+  "catalog.sortLabel": "الترتيب حسب",
+  "catalog.sort.default": "الافتراضي",
+  "catalog.sort.name": "الاسم (A–Z)",
+  "catalog.sort.deposit-asc": "التأمين: من الأقل إلى الأعلى",
+  "catalog.sort.deposit-desc": "التأمين: من الأعلى إلى الأقل",
   "catalog.clear": "مسح التصفية",
   "page.catalog.intro":
     "اكتشف الأدوات الكهربائية ومعدات الحديقة والأدوات المنزلية المتاحة في مجتمعك.",

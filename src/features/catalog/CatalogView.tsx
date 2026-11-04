@@ -3,31 +3,39 @@ import type { FormEvent, ReactElement } from "react";
 import { t } from "../../shared/i18n/i18n.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { SearchIcon } from "../../shared/ui/SearchIcon.tsx";
-import { CATEGORIES, categoryLabel } from "../items/categories.ts";
+import { categoryLabel } from "../items/categories.ts";
 import { ItemCard } from "../items/ItemCard.tsx";
 import { listItems } from "../items/listItems.ts";
 import { parseCatalogParams } from "./catalogParams.ts";
-import type { CatalogFilters } from "./catalogFilter.ts";
-import { filterItems } from "./catalogFilter.ts";
+import type { CatalogParams } from "./catalogParams.ts";
+import {
+  SORT_KEYS,
+  categoriesFrom,
+  filterItems,
+  sortItems,
+} from "./catalogFilter.ts";
 
-/** The catalog address for a set of filters; empty filters are left out */
-function catalogHref(filters: CatalogFilters): string {
+/** The catalog address for a set of filters; default values are left out */
+function catalogHref(filters: CatalogParams): string {
   const params = new URLSearchParams();
   if (filters.category) params.set("category", filters.category);
   if (filters.q) params.set("q", filters.q);
+  if (filters.sort !== "default") params.set("sort", filters.sort);
   const query = params.toString();
   return query ? `#/catalog?${query}` : "#/catalog";
 }
 
 interface FilterChipsProps {
-  filters: CatalogFilters;
+  filters: CatalogParams;
+  /** The categories that have items (from the data) */
+  categories: string[];
 }
 
 /** "All" plus one chip per category. The chosen one is marked for screen readers too. */
-function FilterChips({ filters }: FilterChipsProps): ReactElement {
+function FilterChips({ filters, categories }: FilterChipsProps): ReactElement {
   const chips = [
     { category: "", label: t("catalog.all") },
-    ...CATEGORIES.map((name) => ({
+    ...categories.map((name) => ({
       category: name,
       label: categoryLabel(name),
     })),
@@ -36,7 +44,7 @@ function FilterChips({ filters }: FilterChipsProps): ReactElement {
     <ul className="filter-chips" aria-label={t("catalog.filtersLabel")}>
       {chips.map(({ category, label }) => (
         <li key={category || "all"}>
-          {/* A chip changes the category and keeps the search text */}
+          {/* A chip changes the category and keeps the search and the sort */}
           <a
             href={catalogHref({ ...filters, category })}
             className="filter-chip"
@@ -50,14 +58,48 @@ function FilterChips({ filters }: FilterChipsProps): ReactElement {
   );
 }
 
+interface SortSelectProps {
+  filters: CatalogParams;
+}
+
+/**
+ * The sort menu. A change opens the new address at once (no button), and
+ * the router draws the page for it; search and category are kept.
+ */
+function SortSelect({ filters }: SortSelectProps): ReactElement {
+  return (
+    <div className="catalog-sort">
+      <label htmlFor="catalog-sort-select" className="catalog-sort-label">
+        {t("catalog.sortLabel")}
+      </label>
+      <select
+        id="catalog-sort-select"
+        className="catalog-sort-select"
+        value={filters.sort}
+        onChange={(event) => {
+          const sort = SORT_KEYS.find((key) => key === event.target.value);
+          if (sort) window.location.assign(catalogHref({ ...filters, sort }));
+        }}
+      >
+        {SORT_KEYS.map((key) => (
+          <option key={key} value={key}>
+            {t(`catalog.sort.${key}`)}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 interface CatalogViewProps {
   /** The part of the hash after "?", e.g. "category=Camping" */
   queryString: string;
 }
 
 /**
- * Catalog page: every item, filtered by ?category= and ?q= in the URL.
- * Both values are checked by parseCatalogParams before they are used.
+ * Catalog page: every item, filtered by ?category= and ?q= and sorted by
+ * ?sort= in the URL. The values are checked by parseCatalogParams first.
+ * Filter first, then sort the result (sortItems works on a copy).
  */
 export function CatalogView({ queryString }: CatalogViewProps): ReactElement {
   usePageTitle(t("title.catalog"));
@@ -67,11 +109,11 @@ export function CatalogView({ queryString }: CatalogViewProps): ReactElement {
   const [search, setSearch] = useState(filters.q);
 
   const all = listItems();
-  const shown = filterItems(all, filters);
+  const shown = sortItems(filterItems(all, filters), filters.sort);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
-    // A new search keeps the chosen category. A "#/..." address only
+    // A new search keeps the chosen category and sort. A "#/..." address only
     // changes the hash, so the page does not reload; the router draws it.
     window.location.assign(catalogHref({ ...filters, q: search.trim() }));
   }
@@ -112,12 +154,15 @@ export function CatalogView({ queryString }: CatalogViewProps): ReactElement {
             </button>
           </div>
         </form>
-        <FilterChips filters={filters} />
+        <FilterChips filters={filters} categories={categoriesFrom(all)} />
       </div>
 
-      <p className="catalog-count">
-        {t("catalog.count", { count: shown.length, total: all.length })}
-      </p>
+      <div className="catalog-toolbar">
+        <p className="catalog-count">
+          {t("catalog.count", { count: shown.length, total: all.length })}
+        </p>
+        <SortSelect filters={filters} />
+      </div>
       {shown.length === 0 ? (
         <div className="catalog-empty">
           <h2 className="catalog-empty-title">{t("catalog.emptyTitle")}</h2>

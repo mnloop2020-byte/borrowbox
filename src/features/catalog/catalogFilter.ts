@@ -25,3 +25,40 @@ export function filterItems(items: Item[], filters: CatalogFilters): Item[] {
     return words.every((word) => text.includes(word));
   });
 }
+
+/**
+ * The categories that have items, each once, in the order they first
+ * appear. The catalog builds its filter from the data with this.
+ */
+export function categoriesFrom(items: Item[]): string[] {
+  return [...new Set(items.map((item) => item.category))];
+}
+
+/** The catalog sort options. "default" is the order of the item list. */
+export const SORT_KEYS = [
+  "default",
+  "name",
+  "deposit-asc",
+  "deposit-desc",
+] as const;
+
+export type SortKey = (typeof SORT_KEYS)[number];
+
+/**
+ * A sorted copy of the items. The array passed in is never changed, so
+ * "default" can always give back the original order.
+ * Equal values keep their original order (Array.prototype.sort is stable).
+ */
+export function sortItems(items: Item[], sort: SortKey): Item[] {
+  const copy = [...items];
+  if (sort === "name") {
+    copy.sort((a, b) =>
+      a.title.localeCompare(b.title, "en", { sensitivity: "base" }),
+    );
+  } else if (sort === "deposit-asc") {
+    copy.sort((a, b) => a.depositAmount - b.depositAmount);
+  } else if (sort === "deposit-desc") {
+    copy.sort((a, b) => b.depositAmount - a.depositAmount);
+  }
+  return copy;
+}

@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { filterItems } from "../src/features/catalog/catalogFilter.ts";
+import {
+  categoriesFrom,
+  filterItems,
+  sortItems,
+} from "../src/features/catalog/catalogFilter.ts";
+import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
 import { ITEM_RECORDS } from "../src/features/items/itemRecords.ts";
 import { CATEGORIES } from "../src/features/items/categories.ts";
 import { isValidItemId } from "../src/features/items/itemId.ts";
@@ -85,4 +90,104 @@ test("every category has at least one item", () => {
       `no item in ${category}`,
     );
   }
+});
+
+// ---- Categories from the data
+
+test("categories come from the items, once each, in first-seen order", () => {
+  const list = [
+    makeItem({ id: "item-1", category: "Camping" }),
+    makeItem({ id: "item-2", category: "Gardening" }),
+    makeItem({ id: "item-3", category: "Camping" }),
+  ];
+  assert.deepEqual(categoriesFrom(list), ["Camping", "Gardening"]);
+  assert.deepEqual(categoriesFrom([]), []);
+});
+
+// ---- Sort
+
+const ladder = makeItem({ id: "item-3", title: "ladder", depositAmount: 20 });
+const axe = makeItem({ id: "item-4", title: "Axe", depositAmount: 60 });
+const bike = makeItem({ id: "item-5", title: "Bike", depositAmount: 20 });
+const unsorted = [ladder, axe, bike];
+
+test("sort by name ignores upper/lower case", () => {
+  assert.deepEqual(ids(sortItems(unsorted, "name")), [
+    "item-4",
+    "item-5",
+    "item-3",
+  ]);
+});
+
+test("sort by deposit, low to high and high to low; ties keep their order", () => {
+  assert.deepEqual(ids(sortItems(unsorted, "deposit-asc")), [
+    "item-3",
+    "item-5",
+    "item-4",
+  ]);
+  assert.deepEqual(ids(sortItems(unsorted, "deposit-desc")), [
+    "item-4",
+    "item-3",
+    "item-5",
+  ]);
+});
+
+test("sorting returns a copy and never changes the original array", () => {
+  const before = ids(unsorted);
+  const sorted = sortItems(unsorted, "name");
+  assert.notEqual(sorted, unsorted, "a new array");
+  assert.deepEqual(ids(unsorted), before, "original order untouched");
+});
+
+test('"default" brings back the original order after another sort', () => {
+  sortItems(unsorted, "deposit-desc");
+  assert.deepEqual(ids(sortItems(unsorted, "default")), [
+    "item-3",
+    "item-4",
+    "item-5",
+  ]);
+});
+
+test("search, category and sort work together", () => {
+  const list = [
+    makeItem({
+      id: "item-1",
+      title: "Rake",
+      category: "Gardening",
+      depositAmount: 30,
+    }),
+    makeItem({
+      id: "item-2",
+      title: "Hose Pro",
+      category: "Gardening",
+      depositAmount: 10,
+    }),
+    makeItem({
+      id: "item-3",
+      title: "Pro Tent",
+      category: "Camping",
+      depositAmount: 5,
+    }),
+    makeItem({
+      id: "item-4",
+      title: "Shears Pro",
+      category: "Gardening",
+      depositAmount: 50,
+    }),
+  ];
+  const shown = sortItems(
+    filterItems(list, { category: "Gardening", q: "PRO" }),
+    "deposit-desc",
+  );
+  // Rake: no "pro" in its text. Tent: another category.
+  assert.deepEqual(ids(shown), ["item-4", "item-2"]);
+});
+
+// ---- URL filters (untrusted input)
+
+test("the URL sort is read, and an unknown sort becomes default", () => {
+  assert.equal(parseCatalogParams("sort=name").sort, "name");
+  assert.equal(parseCatalogParams("sort=deposit-desc").sort, "deposit-desc");
+  assert.equal(parseCatalogParams("sort=<script>").sort, "default");
+  assert.equal(parseCatalogParams("").sort, "default");
 });

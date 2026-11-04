@@ -71,6 +71,7 @@ test("parseCatalogParams keeps a known category and trims the query", () => {
   assert.deepEqual(parseCatalogParams("category=Gardening&q=%20drill%20"), {
     category: "Gardening",
     q: "drill",
+    sort: "default",
   });
 });
 
