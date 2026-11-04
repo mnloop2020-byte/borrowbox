@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { escapeHtml, isSafeImageUrl } from "../src/logic/html.ts";
-import { isValidItemId, parseCatalogParams } from "../src/logic/validation.ts";
-import { renderItemCard } from "../src/components/ItemCard.ts";
+import { escapeHtml, isSafeImageUrl } from "../src/shared/lib/html.ts";
+import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
+import { isValidItemId } from "../src/features/items/itemId.ts";
+import { renderItemCard } from "../src/features/items/ItemCard.ts";
 import { makeItem } from "./fakes.ts";
 
 // ---------- escapeHtml ----------

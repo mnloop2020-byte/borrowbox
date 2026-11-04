@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import en from "../src/i18n/en.ts";
-import ar from "../src/i18n/ar.ts";
+import en from "../src/shared/i18n/en.ts";
+import ar from "../src/shared/i18n/ar.ts";
 import {
   formatMoney,
   getLang,
@@ -11,7 +11,7 @@ import {
   setLang,
   t,
   translate,
-} from "../src/i18n/i18n.ts";
+} from "../src/shared/i18n/i18n.ts";
 import { fakeStorage, makeItem, throwingStorage } from "./fakes.ts";
 
 // ---------- Phase 1: stored language ----------
@@ -124,7 +124,7 @@ test("formatMoney treats non-numbers as 0", () => {
 
 // ---------- Phase 5: display of fixed data values ----------
 
-import { tValue } from "../src/i18n/i18n.ts";
+import { tValue } from "../src/shared/i18n/i18n.ts";
 
 test("tValue translates a known value and shows an unknown one as stored", () => {
   setLang("ar");
@@ -139,11 +139,17 @@ test("tValue translates a known value and shows an unknown one as stored", () =>
 
 import { readFileSync, readdirSync } from "node:fs";
 
-test("views and components contain no hard-coded English interface text", () => {
+test("pages and UI code contain no hard-coded English interface text", () => {
+  // Every .ts file that renders HTML: the app frame, all features, shared UI
+  const tsFilesIn = (dir: string): string[] =>
+    readdirSync(dir, { recursive: true, encoding: "utf8" })
+      .filter((f) => f.endsWith(".ts"))
+      .map((f) => `${dir}/${f.replaceAll("\\", "/")}`);
   const files = [
     "src/main.ts",
-    ...readdirSync("src/components").map((f) => `src/components/${f}`),
-    ...readdirSync("src/views").map((f) => `src/views/${f}`),
+    ...tsFilesIn("src/app"),
+    ...tsFilesIn("src/features"),
+    ...tsFilesIn("src/shared/ui"),
   ];
   const ALLOWED = new Set(["BorrowBox"]); // brand name
   const patterns = [
@@ -168,9 +174,9 @@ import {
   CATEGORIES,
   categoryHref,
   categoryLabel,
-} from "../src/content/categories.ts";
-import { parseCatalogParams } from "../src/logic/validation.ts";
-import { renderItemCard } from "../src/components/ItemCard.ts";
+} from "../src/features/items/categories.ts";
+import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
+import { renderItemCard } from "../src/features/items/ItemCard.ts";
 
 test("category data and URLs stay English in Arabic", () => {
   setLang("ar");

@@ -2189,7 +2189,7 @@ p {
 }
 
 /* ==========================================================================
-   Scroll reveal (src/utils/reveal.ts)
+   Scroll reveal (src/shared/browser/reveal.ts)
    Elements rise 40px and fade in over 800ms (Nomu's scroll fade-up), once.
    The hiding rule needs .js-reveal, which the script adds, so the page is
    complete without JavaScript. "animation ... backwards" only holds the

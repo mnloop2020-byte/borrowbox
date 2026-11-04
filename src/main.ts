@@ -1,23 +1,23 @@
-import { renderFooter } from "./components/Footer.ts";
-import { renderNavbar, updateActiveNavLink } from "./components/Navbar.ts";
-import { isValidItemId } from "./logic/validation.ts";
-import type { MountedView } from "./types.ts";
-import { getElement } from "./utils/dom.ts";
-import { restoreFields, snapshotFields } from "./utils/formFields.ts";
-import { scrollToSection } from "./utils/scrollToSection.ts";
-import { mountCatalogView } from "./views/CatalogView.ts";
-import { mountDashboardView } from "./views/DashboardView.ts";
-import { mountHomeView } from "./views/HomeView.ts";
-import { mountItemDetailView } from "./views/ItemDetailView.ts";
-import { mountListItemView } from "./views/ListItemView.ts";
-import { mountNotFoundView } from "./views/NotFoundView.ts";
-import { mountRegisterView } from "./views/RegisterView.ts";
+import { renderFooter } from "./app/Footer.ts";
+import { renderNavbar, updateActiveNavLink } from "./app/Navbar.ts";
+import { isValidItemId } from "./features/items/itemId.ts";
+import type { MountedView } from "./shared/types.ts";
+import { getElement } from "./shared/browser/dom.ts";
+import { restoreFields, snapshotFields } from "./shared/browser/formFields.ts";
+import { scrollToSection } from "./shared/browser/scrollToSection.ts";
+import { mountCatalogView } from "./features/catalog/CatalogView.ts";
+import { mountDashboardView } from "./features/dashboard/DashboardView.ts";
+import { mountHomeView } from "./features/home/HomeView.ts";
+import { mountItemDetailView } from "./features/items/ItemDetailView.ts";
+import { mountListItemView } from "./features/list-item/ListItemView.ts";
+import { mountNotFoundView } from "./app/NotFoundView.ts";
+import { mountRegisterView } from "./features/register/RegisterView.ts";
 import "./style.css";
 
 /*
  * App shell and hash router. This file builds the page frame, picks the view
- * for the current hash and handles app-wide events. Each page lives in
- * src/views/.
+ * for the current hash and handles app-wide events. Each page lives in its
+ * feature folder (src/features/<feature>/XView.ts).
  */
 
 const app = getElement(document, "#app");

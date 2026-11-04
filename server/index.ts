@@ -12,7 +12,7 @@
  */
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { isValidItemId } from "../src/logic/validation.ts";
+import { isValidItemId } from "../src/features/items/itemId.ts";
 import { ITEMS } from "./data.ts";
 
 const PORT = 3000;

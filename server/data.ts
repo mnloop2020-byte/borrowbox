@@ -1,4 +1,4 @@
-import type { Item } from "../src/types.ts";
+import type { Item } from "../src/shared/types.ts";
 
 /** The fields the API sends for each item (no photos yet) */
 export type ItemSummary = Pick<

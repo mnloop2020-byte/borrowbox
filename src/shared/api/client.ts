@@ -1,14 +1,10 @@
 /**
- * Talks to the BorrowBox API (server/index.ts).
+ * Sends JSON to the BorrowBox API (server/index.ts). Features keep their own
+ * addresses, e.g. features/requests/requestsApi.ts.
  *
  * Returns a result instead of throwing, like validateRequest() does, so the
  * caller must handle both cases.
  */
-
-/** The API addresses the app uses. Change one to "/api/fail/500" to test errors. */
-export const API_URLS = {
-  requests: "/api/requests",
-};
 
 export type ApiResult =
   | { ok: true; data: unknown }

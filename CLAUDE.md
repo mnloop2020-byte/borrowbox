@@ -8,30 +8,38 @@
 
 ## Architecture
 
-- `src/main.ts`: app shell and hash router only (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). It picks a view and handles app-wide events; it renders no page itself.
-- `src/views/`: one module per route. Each exports `mountXView(container, ...)` and returns a `MountedView` (`{ title, cleanup }`). The catalog, list item and dashboard views are placeholders for now.
-- `src/components/`: reusable UI. Functions return HTML strings, plus `bindX()` functions for events. `icons.ts` holds the shared arrow icons; `Placeholder.ts` is the card that placeholder and "not found" pages share.
-- `src/content/`: fixed page content (the category list, home page sections).
-- `src/i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys, and `t()`, `setLang()`, `formatMoney()`.
-- `src/store/`: data and `localStorage` persistence (seed data, demo users, request store).
-- `src/logic/`: pure functions only (escaping, validation, dates, borrow requests). No DOM and no `localStorage`, so they can be tested with Node.
-- `src/types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
-- `src/utils/`: small browser helpers. `dom.ts` has `getElement()`, which finds an element that must exist, with the right type; `reveal.ts` reveals sections on scroll; `formFields.ts` keeps typed values when the language changes.
-- `src/shared/`: code shared by every feature. `api/client.ts` sends requests to the API with `fetch` and returns a result (`ok` or a status); `ui/toast.ts` has `showToast()`.
-- `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
+Files are grouped by feature. To fix a bug, open the folder of the feature it is in.
+
+- `src/main.ts`: starts the app and is the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). It picks a view and handles app-wide events; it renders no page itself.
+- `src/app/`: the frame around every page: `Navbar.ts` (with the language and persona switch), `Footer.ts`, `NotFoundView.ts`.
+- `src/features/<feature>/`: everything for one feature. A page is `XView.ts`: it exports `mountXView(container, ...)` and returns a `MountedView` (`{ title, cleanup }`).
+  - `home/`: `HomeView.ts`, `homeContent.ts` (the home sections).
+  - `items/`: `itemsData.ts` (the items), `categories.ts`, `ItemCard.ts`, `ItemDetailView.ts`, `itemId.ts` (the id check, also used by the router and the server).
+  - `requests/`: borrow requests. `requestRules.ts` (pure rules: dates, overlap, duplicates), `requestStore.ts` (saving in `localStorage`), `requestsApi.ts` (sending to the API).
+  - `users/`: `demoUsers.ts` and `userStore.ts` (the current user).
+  - `catalog/`: `CatalogView.ts` (placeholder) and `catalogParams.ts` (the allowed URL filters).
+  - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
+- `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
+  - `api/client.ts`: `postJson()` sends JSON with `fetch` and returns `{ ok: true, data }` or `{ ok: false, status }`.
+  - `ui/`: `toast.ts` (`showToast()`), `icons.ts`, `Placeholder.ts` (the card of placeholder and "not found" pages).
+  - `i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys, and `t()`, `setLang()`, `formatMoney()`.
+  - `lib/`: pure functions (`html.ts` escaping, `dates.ts`). No DOM and no `localStorage`, so Node can test them.
+  - `browser/`: helpers that use browser features: `dom.ts` (`getElement()`), `storage.ts`, `formFields.ts`, `reveal.ts`, `scrollToSection.ts`.
+  - `types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`, `MountedView`). Types only, no runtime code.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
-- `tests/`: `node:test` unit tests for requests, security (escaping and validation), storage and translations. `fakes.ts` builds complete test objects.
+- `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
+- `tests/`: `node:test` unit tests for requests, security (escaping and URL checks), storage and translations. `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes
 
-Example: the catalog page (`#/catalog`).
+Make one folder for it: `src/features/<feature>/`. Example: the catalog page (`#/catalog`), whose folder already exists.
 
-1. **Data shape:** add or extend the types in `src/types.ts`.
-2. **Rules:** put the pure logic in `src/logic/` (for example `catalog.ts` for filtering), with tests in `tests/catalog.test.ts`.
-3. **Data access:** reading or saving data goes in `src/store/`.
-4. **Page:** the page goes in `src/views/`. The catalog already has `src/views/CatalogView.ts` as a placeholder, so replace its content; it keeps returning a `MountedView`. A brand new page gets a new `XView.ts` and one route in `mountRoute()` in `src/main.ts`.
-5. **Reusable parts:** UI used on more than one page goes in `src/components/` (the catalog reuses `ItemCard.ts`).
-6. **Text:** add every visible string to both `src/i18n/en.ts` and `src/i18n/ar.ts`. `npm test` fails if the keys differ.
+1. **Data shape:** add or extend the types in `src/shared/types.ts`.
+2. **Rules:** pure logic goes in the feature folder, for example `src/features/catalog/catalogFilter.ts`, with tests in `tests/catalog.test.ts`. No DOM in rule files.
+3. **Data access:** saving or loading goes in a store file in the feature (like `requests/requestStore.ts`); calls to the server go in an API file (like `requests/requestsApi.ts`) that uses `shared/api/client.ts`.
+4. **Page:** `CatalogView.ts` is a placeholder, so replace its content; it keeps returning a `MountedView`. A brand new page gets a new `XView.ts` in its folder and one route in `mountRoute()` in `src/main.ts`.
+5. **Reuse:** use other features through their exports (the catalog reuses `items/ItemCard.ts`). Move code to `src/shared/` only when it is not about one feature.
+6. **Text:** add every visible string to both `src/shared/i18n/en.ts` and `src/shared/i18n/ar.ts`. `npm test` fails if the keys differ.
 7. **Styles:** add a commented section in `src/style.css` that uses the existing tokens and follows `DESIGN.md`.
 8. **Check:** run `npm test`, `npm run lint` and `npm run typecheck`, then check the page in the browser at 320px, 768px and 1280px, in English and Arabic.
 
@@ -78,7 +86,7 @@ Example: the catalog page (`#/catalog`).
 - Use Prettier to format code.
 - Avoid unnecessary packages and configuration changes.
 - Keep the project compatible with the existing Vite setup.
-- Pure logic in `src/logic/` has tests run with `npm test` (Node's built-in `node:test`; no test packages).
+- Pure logic (rule files and `src/shared/lib/`) has tests run with `npm test` (Node's built-in `node:test`; no test packages).
 - `npm run typecheck` (`tsc --noEmit`) must pass. The pre-commit hook runs it.
 
 ## 6. Development Workflow

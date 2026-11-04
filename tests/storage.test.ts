@@ -1,8 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { getJSON, setJSON } from "../src/store/storage.ts";
-import { addRequest, getRequests } from "../src/store/requestStore.ts";
+import { getJSON, setJSON } from "../src/shared/browser/storage.ts";
+import {
+  addRequest,
+  getRequests,
+} from "../src/features/requests/requestStore.ts";
 import {
   fakeStorage,
   makeRequest,

@@ -60,27 +60,39 @@ A pre-commit hook (husky and lint-staged) runs ESLint and Prettier on staged fil
 
 ## Project structure
 
+Files are grouped by feature: everything about one feature is in one folder.
+
 ```text
 src/
-├── main.ts            # App shell and hash router (#/, #/catalog, #/item/:id, ...)
-├── types.ts           # Shared data shapes (Item, User, BorrowRequest, Lang)
-├── views/             # One module per page; mountXView(container) returns a cleanup
-├── components/        # Reusable UI that returns HTML strings (Navbar, Footer, ItemCard, icons)
-├── content/           # Page structure and the list of categories
-├── i18n/              # en.ts and ar.ts dictionaries, and t() / setLang() / formatMoney()
-├── logic/             # Pure functions with no DOM access (escaping, validation, dates, requests)
-├── store/             # Seed data, demo users and localStorage access
-├── utils/             # Small browser helpers (element lookup, scrolling, scroll reveal)
-├── assets/            # Photos and illustrations
-└── style.css          # All styles, mobile-first, built on colour tokens
-tests/                 # node:test unit tests
+├── main.ts               # Starts the app and picks the page for the URL (router)
+├── app/                  # The frame around every page: Navbar, Footer, NotFoundView
+├── features/             # One folder per feature
+│   ├── home/             # Home page and its content
+│   ├── items/            # Item data, categories, item card, item page, item id check
+│   ├── requests/         # Borrow requests: rules, saving, sending to the API
+│   ├── users/            # Demo users and the current user
+│   ├── catalog/          # Catalog page (placeholder) and its URL filters
+│   ├── register/         # Registration page
+│   ├── dashboard/        # "My activity" page (placeholder)
+│   └── list-item/        # "List an item" page (placeholder)
+├── shared/               # Used by many features; never imports from features/
+│   ├── api/              # postJson(): fetch with a clear ok / status result
+│   ├── ui/               # Toasts, icons, the placeholder card
+│   ├── i18n/             # en.ts and ar.ts dictionaries, t(), setLang(), formatMoney()
+│   ├── lib/              # Pure functions (escaping, dates), tested with Node
+│   ├── browser/          # Helpers that use browser features (DOM, storage, scrolling)
+│   └── types.ts          # Shared data shapes (Item, User, BorrowRequest, Lang)
+├── assets/               # Photos and illustrations
+└── style.css             # All styles, mobile-first, built on colour tokens
+server/                   # The JSON API (npm run api)
+tests/                    # node:test unit tests
 ```
 
-Logic that can be tested without a browser lives in `src/logic/` and `src/i18n/`. Views only render and wire events.
+Rules (`requestRules.ts`, `itemId.ts`, `catalogParams.ts`) and everything in `shared/lib/` are pure functions with no DOM, so Node tests them directly. Pages only render and wire events.
 
 ## Translations
 
-All interface text is in `src/i18n/en.ts` and `src/i18n/ar.ts`. Both files must have exactly the same keys; `npm test` fails if they differ, if an Arabic entry is empty, or if a component contains hard-coded English text.
+All interface text is in `src/shared/i18n/en.ts` and `src/shared/i18n/ar.ts`. Both files must have exactly the same keys; `npm test` fails if they differ, if an Arabic entry is empty, or if a page contains hard-coded English text.
 
 To change wording, edit the dictionary only. Category names, statuses and other stored values stay in English in the data and in URLs; only their displayed text is translated.
 
