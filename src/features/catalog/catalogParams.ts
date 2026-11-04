@@ -2,7 +2,7 @@
  * Reads the catalog filters from the URL, keeping only allowed values.
  * Pure function: no DOM, so Node can test it.
  */
-import { CATEGORIES } from "../items/categories.ts";
+import { CATEGORIES } from "../cards/categories.ts";
 import { SORT_KEYS } from "./catalogFilter.ts";
 import type { CatalogFilters, SortKey } from "./catalogFilter.ts";
 

@@ -4,7 +4,7 @@
  * (tests/borrowList.test.ts). Each one returns a new list and never
  * changes the one passed in, so React sees every change.
  */
-import { isValidItemId } from "../items/itemId.ts";
+import { isValidItemId } from "../cards/itemId.ts";
 import type { BorrowListEntry } from "../../shared/types.ts";
 
 /** The longest a tool can be borrowed for */

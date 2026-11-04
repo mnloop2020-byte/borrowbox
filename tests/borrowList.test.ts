@@ -13,7 +13,7 @@ import {
   KNOWN_ITEM_IDS,
   createBorrowListStore,
 } from "../src/features/borrow-list/borrowListStore.ts";
-import { ITEM_RECORDS } from "../src/features/items/itemRecords.ts";
+import { ITEM_RECORDS } from "../src/features/cards/itemRecords.ts";
 import type { BorrowListEntry } from "../src/shared/types.ts";
 import { fakeStorage, throwingStorage } from "./fakes.ts";
 

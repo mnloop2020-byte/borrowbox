@@ -70,7 +70,7 @@ src/
 ├── app/                  # The frame around every page: App (shell and router), Navbar, Footer, NotFoundView
 ├── features/             # One folder per feature
 │   ├── home/             # Home page and its content
-│   ├── items/            # Item data, categories, item card, item page, item id check
+│   ├── cards/            # Item data, categories, item card, item page, item id check
 │   ├── requests/         # Borrow requests: rules, saving, sending to the API
 │   ├── users/            # Demo users and the current user
 │   ├── catalog/          # Catalog page: search, category chips, sort, item grid

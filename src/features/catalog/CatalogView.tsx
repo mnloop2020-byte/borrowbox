@@ -3,10 +3,10 @@ import type { FormEvent, ReactElement } from "react";
 import { t } from "../../shared/i18n/i18n.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { SearchIcon } from "../../shared/ui/SearchIcon.tsx";
-import { categoryLabel } from "../items/categories.ts";
+import { categoryLabel } from "../cards/categories.ts";
 import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
-import { ItemCard } from "../items/ItemCard.tsx";
-import { listItems } from "../items/listItems.ts";
+import { ItemCard } from "../cards/ItemCard.tsx";
+import { listCards } from "../cards/listCards.ts";
 import { parseCatalogParams } from "./catalogParams.ts";
 import type { CatalogParams } from "./catalogParams.ts";
 import {
@@ -109,7 +109,7 @@ export function CatalogView({ queryString }: CatalogViewProps): ReactElement {
   // the router gives each URL a new CatalogView (key), so it starts again.
   const [search, setSearch] = useState(filters.q);
 
-  const all = listItems();
+  const all = listCards();
   const shown = sortItems(filterItems(all, filters), filters.sort);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {

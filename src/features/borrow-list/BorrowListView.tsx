@@ -3,8 +3,8 @@ import type { ReactElement } from "react";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { formatMoney, t } from "../../shared/i18n/i18n.ts";
 import type { BorrowListEntry, Item } from "../../shared/types.ts";
-import { itemCardData } from "../items/itemCardData.ts";
-import { listItems } from "../items/listItems.ts";
+import { itemCardData } from "../cards/itemCardData.ts";
+import { listCards } from "../cards/listCards.ts";
 import { MAX_DAYS, listCount } from "./borrowListRules.ts";
 import { borrowListStore } from "./borrowListStore.ts";
 import { useBorrowList } from "./useBorrowList.ts";
@@ -96,7 +96,7 @@ export function BorrowListView(): ReactElement {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const focusHeading = (): void => headingRef.current?.focus();
 
-  const items = listItems();
+  const items = listCards();
   const rows = list.flatMap((entry) => {
     const item = items.find((candidate) => candidate.id === entry.itemId);
     return item ? [{ entry, item }] : [];

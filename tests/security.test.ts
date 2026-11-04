@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { isSafeImageUrl } from "../src/shared/lib/imageUrl.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
-import { isValidItemId } from "../src/features/items/itemId.ts";
-import { itemCardData } from "../src/features/items/itemCardData.ts";
+import { isValidItemId } from "../src/features/cards/itemId.ts";
+import { itemCardData } from "../src/features/cards/itemCardData.ts";
 import { makeItem } from "./fakes.ts";
 
 // ---------- no HTML strings ----------

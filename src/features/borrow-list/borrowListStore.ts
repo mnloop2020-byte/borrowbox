@@ -5,7 +5,7 @@
  */
 import { getJSON, setJSON } from "../../shared/browser/storage.ts";
 import type { BorrowListEntry } from "../../shared/types.ts";
-import { ITEM_RECORDS } from "../items/itemRecords.ts";
+import { ITEM_RECORDS } from "../cards/itemRecords.ts";
 import {
   addToList,
   decreaseDays,
