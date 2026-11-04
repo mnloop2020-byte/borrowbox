@@ -176,7 +176,7 @@ import {
   categoryLabel,
 } from "../src/features/items/categories.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
-import { renderItemCard } from "../src/features/items/itemCardHtml.ts";
+import { itemCardData } from "../src/features/items/itemCardData.ts";
 
 test("category data and URLs stay English in Arabic", () => {
   setLang("ar");
@@ -201,21 +201,19 @@ test("category data and URLs stay English in Arabic", () => {
 
 test("an Arabic item card keeps its English link and status class", () => {
   setLang("ar");
-  const html = renderItemCard(
+  const card = itemCardData(
     makeItem({
       id: "item-101",
       title: "Bosch Drill",
       category: "Power Tools",
-      condition: "Excellent",
       depositAmount: 45,
-      ownerName: "Sarah",
       status: "Available",
       imageUrl: "/a.png",
     }),
   );
-  assert.ok(html.includes('href="#/item/item-101"'));
-  assert.ok(html.includes("status-available"));
-  assert.ok(html.includes("متاح"));
-  assert.ok(html.includes("Bosch Drill"), "item title is not translated");
+  assert.equal(card.href, "#/item/item-101");
+  // ItemCard.tsx builds the class from this English value
+  assert.equal(card.status, "Available");
+  assert.equal(tValue("status", "Available"), "متاح");
   setLang("en");
 });

@@ -18,7 +18,7 @@ This is an MVP with a small JSON API (`server/`) for borrow requests. Other data
 
 ## Tech stack
 
-- [Vite](https://vite.dev/) with [React](https://react.dev/) and TypeScript (strict mode, ES modules), HTML and CSS. The pages are moving to React one at a time.
+- [Vite](https://vite.dev/) with [React](https://react.dev/) and TypeScript (strict mode, ES modules), HTML and CSS.
 - ESLint and Prettier for code quality, run on every commit by husky and lint-staged.
 - Fonts: Inter (Latin) and Tajawal (Arabic) from Google Fonts.
 - Node's built-in test runner (`node:test`) for unit tests. No test libraries.

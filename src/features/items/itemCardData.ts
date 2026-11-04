@@ -1,6 +1,5 @@
 /**
- * The safe values an item card shows. Used by the React card (ItemCard.tsx)
- * and the old string card (itemCardHtml.ts), so both check items the same way.
+ * The safe values an item card shows (ItemCard.tsx).
  * Pure: no DOM, so Node can test it (tests/security.test.ts).
  *
  * Every item field is treated as untrusted (items will later come from

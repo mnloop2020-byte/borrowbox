@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { escapeHtml, isSafeImageUrl } from "../src/shared/lib/html.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
 import { isValidItemId } from "../src/features/items/itemId.ts";
-import { renderItemCard } from "../src/features/items/itemCardHtml.ts";
+import { itemCardData } from "../src/features/items/itemCardData.ts";
 import { makeItem } from "./fakes.ts";
 
 // ---------- escapeHtml ----------
@@ -80,7 +80,10 @@ test("parseCatalogParams limits the query to 100 characters", () => {
   assert.equal(parseCatalogParams("q=" + "a".repeat(150)).q.length, 100);
 });
 
-// ---------- renderItemCard ----------
+// ---------- item cards ----------
+
+// React escapes every text value it draws, so the card needs no escapeHtml().
+// The checks left to us are in itemCardData(), tested here.
 
 const baseItem = makeItem({
   id: "item-101",
@@ -93,42 +96,6 @@ const baseItem = makeItem({
   status: "Available",
   imageUrl: "/assets/drill.svg",
 });
-
-test("renderItemCard escapes text fields, including inside attributes", () => {
-  const html = renderItemCard({
-    ...baseItem,
-    title: '"><img src=x onerror=alert(1)>',
-    ownerName: "<script>alert(1)</script>",
-  });
-  assert.equal(html.includes("<img src=x"), false);
-  assert.equal(html.includes("<script>"), false);
-  assert.ok(html.includes("&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"));
-});
-
-test("renderItemCard drops an unsafe image URL", () => {
-  const html = renderItemCard({ ...baseItem, imageUrl: "javascript:alert(1)" });
-  assert.equal(html.includes("javascript:"), false);
-});
-
-test("renderItemCard only uses known statuses in the class name", () => {
-  const html = renderItemCard(
-    makeItem({
-      ...baseItem,
-      // @ts-expect-error: a hostile status from corrupted storage, outside ItemStatus
-      status: 'x" onmouseover="alert(1)',
-    }),
-  );
-  assert.equal(html.includes("onmouseover="), false);
-});
-
-test("renderItemCard rejects an unsafe item id in the link", () => {
-  const html = renderItemCard({ ...baseItem, id: '1" onclick="alert(1)' });
-  assert.equal(html.includes("onclick="), false);
-});
-
-// ---------- itemCardData (the checks the React card relies on) ----------
-
-import { itemCardData } from "../src/features/items/itemCardData.ts";
 
 test("itemCardData drops an unsafe image URL", () => {
   assert.equal(

@@ -3,7 +3,7 @@
 ## 1. Technology Stack
 
 - Use Vite with React, TypeScript, HTML, and CSS (sةct mode, see `tsconfig.json`).
-- The app is moving to React one page at a time. Pages not moved yet are old `mountXView()` functions that `src/app/LegacyView.tsx` runs inside React. A moved page is a component; when no page uses `LegacyView`, delete it.
+- Every page and the frame (header, footer) are React components. The language (`shared/i18n/`) and the persona (`users/userStore.ts`) live in their stores; changing one sends an event, and `App.tsx` draws everything again.
 - Do not add other frameworks or a router package unless explicitly requested.
 - Use native browser APIs whenever practical.
 
@@ -12,21 +12,22 @@
 Files are grouped by feature. To fix a bug, open the folder of the feature it is in.
 
 - `src/main.tsx`: starts React and draws `<App />` into `#app`.
-- `src/app/`: the frame around every page. `App.tsx` is the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`): it picks a page in `renderRoute()` and handles app-wide events. `LegacyView.tsx` (the temporary bridge), `Navbar.ts` (with the language and persona switch), `Footer.tsx`, `NotFoundView.tsx`.
-- `src/features/<feature>/`: everything for one feature. A React page is `XView.tsx`: it exports the component `XView` and sets the tab title with `usePageTitle()`. A page not moved yet is `XView.ts`: it exports `mountXView(container, ...)` and returns a `MountedView` (`{ title, cleanup }`).
-  - `home/`: `HomeView.ts`, `homeContent.ts` (the home sections).
-  - `items/`: `itemRecords.ts` (**the one list of items**, no photos, so the server reads it too), `itemsData.ts` (adds each item's photo), `listItems.ts` (all items with today's status), `categories.ts`, `ItemCard.tsx` (the card), `itemCardData.ts` (pure: the checked image, id and status a card shows), `itemCardHtml.ts` (the old string card, kept until the home page moves to React), `ItemDetailView.tsx` (the item page), `itemId.ts` (the id check, also used by the router and the server).
+- `src/react-css.d.ts`: a type file that lets a `style` object set CSS variables (`style={{ "--i": 2 }}`).
+- `src/app/`: the frame around every page. `App.tsx` is the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`): it picks a page in `renderRoute()` and handles app-wide events. `Navbar.tsx` (with the language and persona switch), `Footer.tsx`, `NotFoundView.tsx`.
+- `src/features/<feature>/`: everything for one feature. A page is `XView.tsx`: it exports the component `XView` and sets the tab title with `usePageTitle()`.
+  - `home/`: `HomeView.tsx`, `homeContent.ts` (the home sections).
+  - `items/`: `itemRecords.ts` (**the one list of items**, no photos, so the server reads it too), `itemsData.ts` (adds each item's photo), `listItems.ts` (all items with today's status), `categories.ts`, `ItemCard.tsx` (the card), `itemCardData.ts` (pure: the checked image, id and status a card shows), `ItemDetailView.tsx` (the item page), `itemId.ts` (the id check, also used by the router and the server).
   - `requests/`: borrow requests. `requestRules.ts` (pure rules: dates, overlap, duplicates), `requestStore.ts` (saving in `localStorage`), `requestsApi.ts` (sending to the API), `BorrowForm.tsx` (the dates form on the item page).
   - `users/`: `demoUsers.ts` and `userStore.ts` (the current user).
   - `catalog/`: `CatalogView.tsx` (search, category chips, item grid), `catalogFilter.ts` (pure: which items match) and `catalogParams.ts` (the allowed URL filters).
   - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
 - `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
   - `api/client.ts`: `postJson()` sends JSON with `fetch` and returns `{ ok: true, data }` or `{ ok: false, status }`.
-  - `ui/`: `toast.ts` (`showToast()`), `PlaceholderCard.tsx` (the card of placeholder and "not found" pages) and `BackIcon.tsx`. `icons.ts` is the old string arrow, kept until the home page moves to React.
+  - `ui/`: `toast.ts` (`showToast()`), `PlaceholderCard.tsx` (the card of placeholder and "not found" pages) and the icons `BackIcon.tsx`, `ArrowIcon.tsx`, `SearchIcon.tsx`.
   - `i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys, and `t()`, `setLang()`, `formatMoney()`.
   - `lib/`: pure functions (`html.ts` escaping, `dates.ts`). No DOM and no `localStorage`, so Node can test them.
-  - `browser/`: helpers that use browser features: `dom.ts` (`getElement()`), `storage.ts`, `formFields.ts`, `reveal.ts`, `scrollToSection.ts`, `usePageTitle.ts` (a React hook that sets the tab title).
-  - `types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`, `MountedView`). Types only, no runtime code.
+  - `browser/`: helpers that use browser features: `dom.ts` (`getElement()`), `storage.ts`, `reveal.ts`, `scrollToSection.ts`, `usePageTitle.ts` (a React hook that sets the tab title).
+  - `types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
 - `tests/`: `node:test` unit tests for requests, the catalog filter and item list, security (escaping and URL checks), storage and translations. `fakes.ts` builds complete test objects.
@@ -77,7 +78,7 @@ Make one folder for it: `src/features/<feature>/`. Example: the "List an item" f
 ## 4a. Security
 
 - Treat URL parameters, `localStorage` data and form input as untrusted.
-- Never put untrusted text into `innerHTML` without escaping it. Use `textContent` for single values and `escapeHtml()` inside HTML templates.
+- Show untrusted text with `{value}` in JSX: React escapes it. Never use `dangerouslySetInnerHTML` or `innerHTML` with it.
 - Validate URL parameters against an allowlist (known categories and statuses, a pattern for item IDs).
 - Only allow image URLs that are relative or use `https:`.
 

@@ -68,9 +68,3 @@ export interface BorrowRequest {
   issueDescription: string | null;
   issueImages: string[];
 }
-
-/** What a view's mount function hands back to the router */
-export interface MountedView {
-  title: string;
-  cleanup: () => void;
-}

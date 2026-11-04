@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent, ReactElement } from "react";
 import { t } from "../../shared/i18n/i18n.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
+import { SearchIcon } from "../../shared/ui/SearchIcon.tsx";
 import { CATEGORIES, categoryLabel } from "../items/categories.ts";
 import { ItemCard } from "../items/ItemCard.tsx";
 import { listItems } from "../items/listItems.ts";
@@ -16,23 +17,6 @@ function catalogHref(filters: CatalogFilters): string {
   if (filters.q) params.set("q", filters.q);
   const query = params.toString();
   return query ? `#/catalog?${query}` : "#/catalog";
-}
-
-function SearchIcon(): ReactElement {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <circle cx="11" cy="11" r="7"></circle>
-      <path d="m21 21-4.3-4.3"></path>
-    </svg>
-  );
 }
 
 interface FilterChipsProps {

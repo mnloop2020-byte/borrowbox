@@ -1,18 +1,16 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
 import { flushSync } from "react-dom";
 import { Footer } from "./Footer.tsx";
-import { LegacyView } from "./LegacyView.tsx";
-import { renderNavbar, updateActiveNavLink } from "./Navbar.ts";
+import { Navbar } from "./Navbar.tsx";
 import { NotFoundView } from "./NotFoundView.tsx";
 import { isValidItemId } from "../features/items/itemId.ts";
 import { CatalogView } from "../features/catalog/CatalogView.tsx";
 import { DashboardView } from "../features/dashboard/DashboardView.tsx";
-import { mountHomeView } from "../features/home/HomeView.ts";
+import { HomeView } from "../features/home/HomeView.tsx";
 import { ItemDetailView } from "../features/items/ItemDetailView.tsx";
 import { ListItemView } from "../features/list-item/ListItemView.tsx";
 import { RegisterView } from "../features/register/RegisterView.tsx";
-import { restoreFields, snapshotFields } from "../shared/browser/formFields.ts";
 import { scrollToSection } from "../shared/browser/scrollToSection.ts";
 
 /*
@@ -21,17 +19,10 @@ import { scrollToSection } from "../shared/browser/scrollToSection.ts";
  * feature folder (src/features/<feature>/).
  */
 
-/**
- * Picks the page for a hash. A page moved to React is a component;
- * an old one is a mountXView() function run by LegacyView.
- *
- * @param version - goes up on a language or persona change. An old page
- * gets it as its key, so it is mounted again. A React page is only drawn
- * again, so it keeps its state (for example the text typed in a field).
- */
-function renderRoute(hash: string, version: number): ReactElement {
+/** Picks the page component for a hash */
+function renderRoute(hash: string): ReactElement {
   if (hash === "#/" || hash === "" || hash === "#") {
-    return <LegacyView key={version} mount={mountHomeView} />;
+    return <HomeView />;
   }
   // Supports ?q= and ?category=
   if (hash.startsWith("#/catalog")) {
@@ -63,25 +54,13 @@ const currentHash = (): string => window.location.hash || "#/";
 
 export function App(): ReactElement {
   const [hash, setHash] = useState(currentHash);
-  // Goes up by one when the language or the persona changes,
-  // so the header, the page and the footer are drawn again
-  const [version, setVersion] = useState(0);
+  // The language and the persona live in their stores, not in React.
+  // When one changes, this number goes up: new state makes React draw the
+  // header, the page and the footer again, and each one reads the new value.
+  // Only the setter is needed, so the number itself is not named.
+  const [, setVersion] = useState(0);
 
-  const navRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
-
-  // Built again only when the hash or version changes, so an old page's
-  // mount function stays the same and LegacyView does not mount it twice
-  const page = useMemo(() => renderRoute(hash, version), [hash, version]);
-
-  // The header (still the old function) depends on language and persona
-  useLayoutEffect(() => {
-    if (navRef.current) renderNavbar(navRef.current);
-  }, [version]);
-
-  useLayoutEffect(() => {
-    if (navRef.current) updateActiveNavLink(navRef.current);
-  }, [hash, version]);
 
   useEffect(() => {
     // After a route change, move focus to <main> so screen-reader and keyboard
@@ -93,26 +72,9 @@ export function App(): ReactElement {
       mainRef.current?.focus();
     };
 
-    // Demo persona switch: the header and the page show the new persona
-    const onUserChange = (): void => setVersion((v) => v + 1);
-
-    // Language switch: draw everything again in the new language without a
-    // reload, keeping the route, persona, typed values, scroll and focus
-    const onLangChange = (): void => {
-      const main = mainRef.current;
-      if (!main) return;
-      const fields = snapshotFields(main);
-      const scrollY = window.scrollY;
-
-      flushSync(() => setVersion((v) => v + 1));
-
-      restoreFields(main, fields);
-      // Focus first without scrolling, then put the page back where it was
-      navRef.current
-        ?.querySelector<HTMLButtonElement>(".lang-switch")
-        ?.focus({ preventScroll: true });
-      window.scrollTo(0, scrollY);
-    };
+    // Language or persona switch: draw everything again with the new value.
+    // Nothing is rebuilt, so the route, typed values, scroll and focus stay.
+    const redraw = (): void => setVersion((v) => v + 1);
 
     // "How it works" style links: scroll to a section on the home page.
     // From another route, go home first, then scroll once home is drawn.
@@ -123,11 +85,6 @@ export function App(): ReactElement {
           : null;
       if (!link) return;
       event.preventDefault();
-
-      // Close the mobile menu if the link was inside it
-      if (document.querySelector(".nav-menu.is-open")) {
-        document.querySelector<HTMLButtonElement>(".nav-toggle-btn")?.click();
-      }
 
       const targetId = link.dataset.scrollTarget ?? "";
       const isHome = ["", "#", "#/"].includes(window.location.hash);
@@ -146,27 +103,30 @@ export function App(): ReactElement {
     };
 
     window.addEventListener("hashchange", onHashChange);
-    window.addEventListener("borrowbox:userchange", onUserChange);
-    window.addEventListener("borrowbox:langchange", onLangChange);
+    window.addEventListener("borrowbox:userchange", redraw);
+    window.addEventListener("borrowbox:langchange", redraw);
     document.addEventListener("click", onClick);
     return () => {
       window.removeEventListener("hashchange", onHashChange);
-      window.removeEventListener("borrowbox:userchange", onUserChange);
-      window.removeEventListener("borrowbox:langchange", onLangChange);
+      window.removeEventListener("borrowbox:userchange", redraw);
+      window.removeEventListener("borrowbox:langchange", redraw);
       document.removeEventListener("click", onClick);
     };
   }, []);
 
   return (
     <>
-      <div id="nav-mount" ref={navRef} />
+      {/* The sticky wrapper (style.css, #nav-mount) */}
+      <div id="nav-mount">
+        <Navbar hash={hash} />
+      </div>
       <main
         id="main-content"
         className="main-content"
         tabIndex={-1}
         ref={mainRef}
       >
-        {page}
+        {renderRoute(hash)}
       </main>
       <Footer />
     </>
