@@ -1,4 +1,4 @@
-import type { Item } from "../../shared/types.ts";
+import type { Item } from "./types.ts";
 
 /**
  * Every item, without photos. This is the one list of items: the app adds

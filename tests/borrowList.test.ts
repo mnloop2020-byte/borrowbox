@@ -14,7 +14,7 @@ import {
   createBorrowListStore,
 } from "../src/features/borrow-list/borrowListStore.ts";
 import { ITEM_RECORDS } from "../src/features/cards/itemRecords.ts";
-import type { BorrowListEntry } from "../src/shared/types.ts";
+import type { BorrowListEntry } from "../src/features/borrow-list/types.ts";
 import { fakeStorage, throwingStorage } from "./fakes.ts";
 
 const entry = (itemId: string, days: number): BorrowListEntry => ({

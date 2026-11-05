@@ -5,7 +5,7 @@ import { todayISO } from "../../shared/lib/dates.ts";
 import { isSafeImageUrl } from "../../shared/lib/imageUrl.ts";
 import { BackIcon } from "../../shared/ui/BackIcon.tsx";
 import { PlaceholderCard } from "../../shared/ui/PlaceholderCard.tsx";
-import type { Item } from "../../shared/types.ts";
+import type { Item } from "./types.ts";
 import { BorrowForm } from "../requests/BorrowForm.tsx";
 import { deriveItemStatus } from "../requests/requestRules.ts";
 import { getRequests } from "../requests/requestStore.ts";

@@ -1,7 +1,7 @@
 /**
  * Borrow requests persisted in localStorage under "borrowbox_requests".
  */
-import type { BorrowRequest } from "../../shared/types.ts";
+import type { BorrowRequest } from "./types.ts";
 import { getJSON, setJSON } from "../../shared/browser/storage.ts";
 
 const REQUESTS_KEY = "borrowbox_requests";

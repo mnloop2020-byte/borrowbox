@@ -4,7 +4,7 @@
  * No DOM, so Node can test it with a fake storage (tests/borrowList.test.ts).
  */
 import { getJSON, setJSON } from "../../shared/browser/storage.ts";
-import type { BorrowListEntry } from "../../shared/types.ts";
+import type { BorrowListEntry } from "./types.ts";
 import { ITEM_RECORDS } from "../cards/itemRecords.ts";
 import {
   addToList,

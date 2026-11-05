@@ -2,12 +2,9 @@
  * Borrow request rules.
  * Pure functions: no DOM and no storage, so Node can test them.
  */
-import type {
-  BorrowRequest,
-  Item,
-  ItemStatus,
-  User,
-} from "../../shared/types.ts";
+import type { BorrowRequest } from "./types.ts";
+import type { Item, ItemStatus } from "../cards/types.ts";
+import type { User } from "../users/types.ts";
 import { rangesOverlap } from "../../shared/lib/dates.ts";
 
 /** The result of checking a new request: ok, or which field failed and why */

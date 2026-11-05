@@ -2,11 +2,12 @@
  * Which items the catalog shows for a category and a search text.
  * Pure function: no DOM, so Node can test it (tests/catalog.test.ts).
  */
-import type { Item } from "../../shared/types.ts";
+import type { Category } from "../cards/categories.ts";
+import type { Item } from "../cards/types.ts";
 
 export interface CatalogFilters {
   /** One of CATEGORIES, or "" for all */
-  category: string;
+  category: Category | "";
   /** Search text, or "" for none */
   q: string;
 }
@@ -30,7 +31,7 @@ export function filterItems(items: Item[], filters: CatalogFilters): Item[] {
  * The categories that have items, each once, in the order they first
  * appear. The catalog builds its filter from the data with this.
  */
-export function categoriesFrom(items: Item[]): string[] {
+export function categoriesFrom(items: Item[]): Category[] {
   return [...new Set(items.map((item) => item.category))];
 }
 

@@ -1,4 +1,4 @@
-import type { Item } from "../../shared/types.ts";
+import type { Item } from "./types.ts";
 import { ITEM_RECORDS } from "./itemRecords.ts";
 import drill from "../../assets/photos/cards/cordless-drill.webp";
 import mower from "../../assets/photos/cards/lawn-mower.webp";

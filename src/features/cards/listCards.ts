@@ -1,5 +1,5 @@
 import { todayISO } from "../../shared/lib/dates.ts";
-import type { Item } from "../../shared/types.ts";
+import type { Item } from "./types.ts";
 import { deriveItemStatus } from "../requests/requestRules.ts";
 import { getRequests } from "../requests/requestStore.ts";
 import { SEED_CARDS } from "./cardsData.ts";

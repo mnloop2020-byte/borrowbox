@@ -1,7 +1,8 @@
 /**
  * Test helpers shared by the test files (not a test file itself).
  */
-import type { BorrowRequest, Item } from "../src/shared/types.ts";
+import type { BorrowRequest } from "../src/features/requests/types.ts";
+import type { Item } from "../src/features/cards/types.ts";
 
 /** In-memory stand-in for localStorage; `data` lets a test look inside */
 export function fakeStorage(

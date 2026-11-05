@@ -1,4 +1,4 @@
-import type { User } from "../../shared/types.ts";
+import type { User } from "./types.ts";
 
 /**
  * Pre-configured Demo Personas for BorrowBox MVP

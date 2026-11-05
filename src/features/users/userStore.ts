@@ -1,4 +1,4 @@
-import type { User } from "../../shared/types.ts";
+import type { User } from "./types.ts";
 import { DEMO_USERS } from "./demoUsers.ts";
 
 const CURRENT_USER_KEY = "borrowbox_current_user_id";

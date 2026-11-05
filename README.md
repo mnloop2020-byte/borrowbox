@@ -84,7 +84,7 @@ src/
 │   ├── i18n/             # en.ts and ar.ts dictionaries, t(), setLang(), formatMoney()
 │   ├── lib/              # Pure functions (image URL check, dates), tested with Node
 │   ├── browser/          # Helpers that use browser features (DOM, storage, scrolling)
-│   └── types.ts          # Shared data shapes (Item, User, BorrowRequest, Lang)
+│   └── types.ts          # Only Lang; each feature keeps its own types.ts
 ├── assets/               # Photos and illustrations
 └── style.css             # All styles, mobile-first, built on colour tokens
 server/                   # The JSON API (npm run api)
