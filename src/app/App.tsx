@@ -4,11 +4,12 @@ import { flushSync } from "react-dom";
 import { Footer } from "./Footer.tsx";
 import { Navbar } from "./Navbar.tsx";
 import { NotFoundView } from "./NotFoundView.tsx";
-import { isValidItemId } from "../features/items/itemId.ts";
+import { isValidItemId } from "../features/cards/itemId.ts";
+import { BorrowListView } from "../features/borrow-list/BorrowListView.tsx";
 import { CatalogView } from "../features/catalog/CatalogView.tsx";
 import { DashboardView } from "../features/dashboard/DashboardView.tsx";
 import { HomeView } from "../features/home/HomeView.tsx";
-import { ItemDetailView } from "../features/items/ItemDetailView.tsx";
+import { ItemDetailView } from "../features/cards/ItemDetailView.tsx";
 import { ListItemView } from "../features/list-item/ListItemView.tsx";
 import { RegisterView } from "../features/register/RegisterView.tsx";
 import { useLang } from "../shared/i18n/useLang.ts";
@@ -36,6 +37,9 @@ function renderRoute(hash: string): ReactElement {
   }
   if (hash.startsWith("#/list-item")) {
     return <ListItemView />;
+  }
+  if (hash.startsWith("#/borrow-list")) {
+    return <BorrowListView />;
   }
   if (hash.startsWith("#/dashboard")) {
     return <DashboardView />;

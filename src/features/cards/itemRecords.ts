@@ -2,7 +2,7 @@ import type { Item } from "../../shared/types.ts";
 
 /**
  * Every item, without photos. This is the one list of items: the app adds
- * the photos in itemsData.ts, and the API (server/data.ts) reads this file
+ * the photos in cardsData.ts, and the API (server/data.ts) reads this file
  * directly. It has no image imports, so Node can load it.
  */
 export type ItemRecord = Omit<Item, "imageUrl" | "conditionImages">;

@@ -10,7 +10,7 @@ import { BorrowForm } from "../requests/BorrowForm.tsx";
 import { deriveItemStatus } from "../requests/requestRules.ts";
 import { getRequests } from "../requests/requestStore.ts";
 import { useCurrentUser } from "../users/useCurrentUser.ts";
-import { SEED_ITEMS } from "./itemsData.ts";
+import { SEED_CARDS } from "./cardsData.ts";
 
 function ItemNotFound(): ReactElement {
   usePageTitle(t("title.itemNotFound"));
@@ -140,6 +140,6 @@ interface ItemDetailViewProps {
 
 /** The item page: one item, or "not found" when no item has this id */
 export function ItemDetailView({ itemId }: ItemDetailViewProps): ReactElement {
-  const item = SEED_ITEMS.find((candidate) => candidate.id === itemId);
+  const item = SEED_CARDS.find((candidate) => candidate.id === itemId);
   return item ? <ItemDetail item={item} /> : <ItemNotFound />;
 }

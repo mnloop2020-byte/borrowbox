@@ -10,9 +10,10 @@ import {
   CATEGORIES,
   categoryHref,
   categoryLabel,
-} from "../items/categories.ts";
-import { ItemCard } from "../items/ItemCard.tsx";
-import { listItems } from "../items/listItems.ts";
+} from "../cards/categories.ts";
+import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
+import { ItemCard } from "../cards/ItemCard.tsx";
+import { listCards } from "../cards/listCards.ts";
 import {
   CATEGORY_GROUPS,
   FEATURED_ITEM_IDS,
@@ -202,7 +203,7 @@ function Categories(): ReactElement {
 }
 
 function Featured(): ReactElement {
-  const items = listItems().filter((item) =>
+  const items = listCards().filter((item) =>
     FEATURED_ITEM_IDS.includes(item.id),
   );
   return (
@@ -220,7 +221,11 @@ function Featured(): ReactElement {
       </div>
       <div className="featured-grid" data-reveal-group>
         {items.map((item) => (
-          <ItemCard key={item.id} item={item} />
+          <ItemCard
+            key={item.id}
+            item={item}
+            action={<AddToListButton item={item} />}
+          />
         ))}
       </div>
     </section>

@@ -1,10 +1,16 @@
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { t, tValue } from "../../shared/i18n/i18n.ts";
 import type { Item } from "../../shared/types.ts";
 import { itemCardData } from "./itemCardData.ts";
 
 interface ItemCardProps {
   item: Item;
+  /**
+   * A button under the card, outside its link (a button inside a link is
+   * not allowed). The page chooses it, e.g. "Add to list", so this card
+   * does not need to know about the borrow list.
+   */
+  action?: ReactNode;
 }
 
 /**
@@ -12,7 +18,7 @@ interface ItemCardProps {
  * owner and deposit. Text is escaped by React; the image URL, id and
  * status are checked by itemCardData().
  */
-export function ItemCard({ item }: ItemCardProps): ReactElement {
+export function ItemCard({ item, action }: ItemCardProps): ReactElement {
   const card = itemCardData(item);
 
   return (
@@ -84,6 +90,7 @@ export function ItemCard({ item }: ItemCardProps): ReactElement {
           </div>
         </div>
       </a>
+      {action && <div className="item-card-action">{action}</div>}
     </article>
   );
 }

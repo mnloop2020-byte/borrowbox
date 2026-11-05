@@ -3,7 +3,7 @@ import {
   CATEGORIES,
   categoryHref,
   categoryLabel,
-} from "../features/items/categories.ts";
+} from "../features/cards/categories.ts";
 import { t } from "../shared/i18n/i18n.ts";
 import { ScrollLink } from "../shared/ui/ScrollLink.tsx";
 

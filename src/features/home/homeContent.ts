@@ -10,7 +10,7 @@ import cleaningPhoto from "../../assets/photos/04-cleaning.webp";
 import sharingPhoto from "../../assets/photos/05-neighbor-tool-sharing.webp";
 import garagePhoto from "../../assets/photos/06-garage-tools.webp";
 import outdoorPhoto from "../../assets/photos/07-outdoor-equipment.webp";
-import { CATEGORIES } from "../items/categories.ts";
+import { CATEGORIES } from "../cards/categories.ts";
 
 const [POWER_TOOLS, HAND_TOOLS, GARDENING, CLEANING, CAMPING, OUTDOOR] =
   CATEGORIES;

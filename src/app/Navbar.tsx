@@ -3,6 +3,8 @@ import type { ReactElement } from "react";
 import { setLang, t } from "../shared/i18n/i18n.ts";
 import { useLang } from "../shared/i18n/useLang.ts";
 import { ScrollLink } from "../shared/ui/ScrollLink.tsx";
+import { listCount } from "../features/borrow-list/borrowListRules.ts";
+import { useBorrowList } from "../features/borrow-list/useBorrowList.ts";
 import { useCurrentUser } from "../features/users/useCurrentUser.ts";
 import { userStore } from "../features/users/userStore.ts";
 
@@ -58,6 +60,9 @@ export function Navbar({ hash }: NavbarProps): ReactElement {
   const users = userStore.getUsers();
   const currentUser = useCurrentUser();
   const otherLang = useLang() === "ar" ? "en" : "ar";
+  // Read from the store, so the number changes after every add or remove
+  const listItemCount = listCount(useBorrowList());
+  const onListPage = isCurrentRoute(hash, "#/borrow-list");
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -198,6 +203,33 @@ export function Navbar({ hash }: NavbarProps): ReactElement {
         </a>
 
         <div className="nav-controls">
+          {/* Name: "My list (3 items)". The text is hidden on phones, the icon and number stay */}
+          <a
+            href="#/borrow-list"
+            className={onListPage ? "nav-list-link is-active" : "nav-list-link"}
+            aria-current={onListPage ? "page" : undefined}
+          >
+            <svg
+              className="nav-list-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+              <path d="M3 6h18M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            <span className="nav-list-text">{t("nav.myList")}</span>
+            <span className="nav-list-count" aria-hidden="true">
+              {listItemCount}
+            </span>
+            <span className="visually-hidden">
+              {t("nav.listCount", { count: listItemCount })}
+            </span>
+          </a>
           {/* Labelled in the language it switches to, so lang is that language */}
           <button
             type="button"

@@ -13,17 +13,18 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
 - `src/main.tsx`: starts React and draws `<App />` into `<div id="app">` (in `StrictMode`).
 - `src/react-css.d.ts`: lets a `style` object set CSS variables (`style={{ "--i": 2 }}`).
 - `src/app/`: the frame around every page.
-  - `App.tsx`: the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). `renderRoute()` picks the page; on a route change focus moves to `<main>`.
+  - `App.tsx`: the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/borrow-list`, `#/list-item`, `#/dashboard`, `#/register`). `renderRoute()` picks the page; on a route change focus moves to `<main>`.
   - `Navbar.tsx` (menu, language and persona switch), `Footer.tsx`, `NotFoundView.tsx`.
 - `src/features/<feature>/`: everything for one feature. A page is `XView.tsx`: it exports the component `XView` and sets the tab title with `usePageTitle()`.
   - `home/`: `HomeView.tsx`, `homeContent.ts` (the home sections).
-  - `items/`: `itemRecords.ts` (**the one list of items**, no photos, so the server reads it too), `itemsData.ts` (adds each item's photo), `listItems.ts` (all items with today's status), `categories.ts`, `ItemCard.tsx`, `itemCardData.ts` (pure: the checked image, id and status a card shows), `ItemDetailView.tsx`, `itemId.ts` (the id check, also used by the router and the server).
+  - `cards/`: the tools people lend (the data type is still `Item`, and links stay `#/item/:id`). `itemRecords.ts` (**the one list of items**, no photos, so the server reads it too), `cardsData.ts` (adds each item's photo: `SEED_CARDS`), `listCards.ts` (`listCards()`: all items with today's status), `categories.ts`, `ItemCard.tsx`, `itemCardData.ts` (pure: the checked image, id and status a card shows), `ItemDetailView.tsx`, `itemId.ts` (the id check, also used by the router and the server).
   - `requests/`: borrow requests. `requestRules.ts` (pure rules: dates, overlap, duplicates), `requestStore.ts` (saving in `localStorage`), `requestsApi.ts` (sending to the API), `BorrowForm.tsx` (the dates form on the item page).
   - `users/`: `demoUsers.ts`, `userStore.ts` (the persona in use) and `useCurrentUser.ts` (its hook).
-  - `catalog/`: `CatalogView.tsx` (search, category chips, item grid), `catalogFilter.ts` (pure: which items match) and `catalogParams.ts` (the allowed URL filters).
+  - `catalog/`: `CatalogView.tsx` (search, category chips, sort, item grid), `catalogFilter.ts` (pure: which items match the name search and category, the categories from the data, and `sortItems()`, which sorts a copy) and `catalogParams.ts` (the allowed URL filters: `q`, `category`, `sort`).
+  - `borrow-list/`: the borrow list (works like a cart). `borrowListRules.ts` (pure: add, more/fewer days, remove, the saved-data check), `borrowListStore.ts` (saving in `localStorage`, `subscribe()`), `useBorrowList.ts` (its hook), `AddToListButton.tsx` (passed to `ItemCard` as `action`) and `BorrowListView.tsx` (`#/borrow-list`). The Navbar shows the count.
   - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
 - `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
-  - `api/client.ts`: `postJson()` sends JSON with `fetch` and returns `{ ok: true, data }` or `{ ok: false, status }`.
+  - `api/client.ts`: **the one API client** and the only place that calls `fetch`. `postJson()` sends JSON and returns `{ ok: true, data }` or `{ ok: false, status }`. Every failure is logged to the Console as one line, e.g. `[api] POST /api/requests failed: 500` (never the body). A new request type is added here, not with `fetch` in a page.
   - `ui/`: `toast.ts` (the toast list: `showToast()`), `Toasts.tsx` (draws it), `ScrollLink.tsx` (links to a home section such as "How it works"), `PlaceholderCard.tsx`, and the icons `BackIcon.tsx`, `ArrowIcon.tsx`, `SearchIcon.tsx`.
   - `i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys; `i18n.ts` with `t()`, `setLang()`, `formatMoney()`; `useLang.ts` (its hook).
   - `lib/`: pure functions (`imageUrl.ts`, `dates.ts`). No DOM and no `localStorage`, so Node can test them.
@@ -31,7 +32,7 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
   - `types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
-- `tests/`: `node:test` unit tests for requests, the catalog filter and item list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
+- `tests/`: `node:test` unit tests for the API client (with a fake `fetch`), requests, the catalog filter, sort and item list, the borrow list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes
 
@@ -41,7 +42,7 @@ Make one folder for it: `src/features/<feature>/`. Example: the "List an item" f
 2. **Rules:** pure logic goes in a `.ts` file in the feature folder, like `catalog/catalogFilter.ts`, with its tests in `tests/`. No React and no DOM in rule files.
 3. **Data access:** saving or loading goes in a store file (like `requests/requestStore.ts`); calls to the server go in an API file (like `requests/requestsApi.ts`) that uses `shared/api/client.ts`. If components must redraw when the data changes, give the store a `subscribe()` and read it with a hook built on `useSyncExternalStore` (like `users/useCurrentUser.ts`).
 4. **Page:** `ListItemView.tsx` is a placeholder component, so replace its content. A brand new page gets a new `XView.tsx` in its folder and one route in `renderRoute()` in `src/app/App.tsx`. Split a large page into small components; a form with its own logic gets its own file (like `requests/BorrowForm.tsx`).
-5. **Reuse:** use other features through their exports (the catalog reuses `items/ItemCard.tsx` and `items/listItems.ts`). A new item is added once, in `items/itemRecords.ts`, with its photo in `items/itemsData.ts`. Move code to `src/shared/` only when it is not about one feature.
+5. **Reuse:** use other features through their exports (the catalog reuses `cards/ItemCard.tsx` and `cards/listCards.ts`). A new item is added once, in `cards/itemRecords.ts`, with its photo in `cards/cardsData.ts` (photos in `src/assets/photos/cards/`). Move code to `src/shared/` only when it is not about one feature.
 6. **Text:** add every visible string to both `src/shared/i18n/en.ts` and `src/shared/i18n/ar.ts`. `npm test` fails if the keys differ or a component has hard-coded English.
 7. **Styles:** add a commented section in `src/style.css` that uses the existing tokens and follows `DESIGN.md`.
 8. **Check:** run `npm test`, `npm run lint`, `npm run typecheck` and `npm run build`, then check the page in the browser at 320px, 768px and 1280px, in English and Arabic.
