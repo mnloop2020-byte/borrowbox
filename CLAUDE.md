@@ -32,6 +32,7 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
   - `types.ts`: only `Lang`, the one shape `shared/` itself needs. Every other type lives in its feature's `types.ts`. Types only, no runtime code.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
+- `.claude/skills/`: two Claude Code skills, `vercel-react-best-practices` (React performance rules) and `vercel-composition-patterns` (component design), copied unchanged from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (commit `1a2c79d`). Use them when writing or reviewing React code.
 - `tests/`: `node:test` unit tests for the API client (with a fake `fetch`), requests, the catalog filter, sort and item list, the borrow list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes

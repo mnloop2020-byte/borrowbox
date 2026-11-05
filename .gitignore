@@ -22,7 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.claude/
+
+# Claude Code: local settings stay private; the project skills are shared
+.claude/*
+!.claude/skills/
 
 # Environment variables and secrets
 .env

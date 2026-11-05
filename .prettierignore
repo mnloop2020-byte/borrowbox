@@ -1,3 +1,5 @@
 dist
 node_modules
 package-lock.json
+# Skills copied from vercel-labs/agent-skills, kept exactly as published
+.claude/skills

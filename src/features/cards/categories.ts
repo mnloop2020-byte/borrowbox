@@ -43,7 +43,7 @@ export function categoryHref(name: Category): string {
  * The category name to show in the current language. Data and URLs keep the
  * English name; only this display text changes.
  * @param name - One of CATEGORIES
- * @returns e.g. "أدوات كهربائية" in Arabic
+ * @returns e.g. the Arabic name for "Power Tools" when the page is in Arabic
  */
 export function categoryLabel(name: Category): string {
   return tValue("category", name);
