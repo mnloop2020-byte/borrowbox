@@ -49,9 +49,3 @@ export interface ApiItem {
   isManuallyPaused: boolean;
   createdAt: string;
 }
-
-/** The answer of GET /api/items */
-export interface ApiItemList {
-  items: ApiItem[];
-  total: number;
-}
