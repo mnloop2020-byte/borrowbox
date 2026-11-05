@@ -66,7 +66,7 @@ Stopping `npm run api` also shows the error: "The server did not answer".
 | `npm run build`        | Build for production into `dist/`        |
 | `npm run preview`      | Serve the production build locally       |
 | `npm test`             | Run the unit tests                       |
-| `npm run lint`         | Check the code with ESLint               |
+| `npm run lint`         | Check the code with ESLint (0 warnings)  |
 | `npm run typecheck`    | Check types with the TypeScript compiler |
 | `npm run format`       | Format all files with Prettier           |
 | `npm run format:check` | Check formatting without changing files  |
