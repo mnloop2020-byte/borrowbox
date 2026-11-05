@@ -5,7 +5,7 @@
     <script>
       // Set the saved language before anything is drawn, so Arabic visitors
       // never see an English/left-to-right flash.
-      // Must stay in sync with src/i18n/i18n.ts (key "borrowbox_lang").
+      // Must stay in sync with src/shared/i18n/i18n.ts (key "borrowbox_lang").
       try {
         if (localStorage.getItem("borrowbox_lang") === "ar") {
           document.documentElement.lang = "ar";

@@ -1,7 +1,7 @@
 /**
  * Structure and images for the home page.
  * The words live in src/shared/i18n/en.ts and ar.ts; these entries hold the keys,
- * which HomeView.ts passes to t() at render time.
+ * which the home sections (Hero.tsx, Categories.tsx, ...) pass to t() when they draw.
  *
  * Photos supplied by the user (src/assets/photos).
  */
