@@ -146,3 +146,9 @@ Implement only the features explicitly requested. Keep the solution simple and s
 **The mistake:** In the lab, the + button in the cart did nothing on screen. The code did `item.qty = item.qty + 1`, then `setCart(cart)` with the same array, so React saw no change and did not draw again. "Featured" broke the same way: `.sort()` changed the original list, so the first order was gone.
 
 **The rule:** Do not change state, props or a list you were given. Make a new one: `[...list].sort()`, and `list.map()` with `{ ...item, qty: item.qty + 1 }` for the changed item. `sortItems()` and `borrowListRules.ts` already work like this.
+
+### Check the setup before blaming the code
+
+**The mistake:** While checking the component tree, every page showed "We couldn't load the tools". The code was fine: an old `npm run dev` was still open and did not forward `/api` to the API, so `/api/items` sent back the HTML page instead of the items. Earlier the same day, a command to stop the API did not stop it, so a check of the "API is off" message tested the wrong thing.
+
+**The rule:** When a page cannot load data, check the setup first: is the API running (`npm run api`), and does `/api/items` through the dev server return JSON, not HTML? If not, close the old servers and start `npm run dev` and `npm run api` again. After stopping a server, confirm that its port is really free. Only then look for the bug in the code.
