@@ -133,3 +133,15 @@ Implement only the features explicitly requested. Keep the solution simple and s
 **The mistake:** To make TypeScript errors go away, the AI used `as` casts and `!` (for example `e.target as Node`). The code compiled, but the casts only told the compiler to trust us. If the value was wrong at runtime, the app would still break.
 
 **The rule:** Do not use `any`, `as` or `!` (`as const` is fine). Check the value instead, for example `if (!(target instanceof Node)) return;`, or use a typed `useRef<HTMLInputElement>(null)` with a null check. In tests, build complete objects with a factory such as `makeItem()` instead of casting partial objects.
+
+### Use the id as the key, not the index
+
+**The mistake:** In the debug lab I saved a bag with the heart, then sorted by price, and the heart jumped to another product. The list used `key={index}`. React keeps a component's state by its key, so the heart stayed in the first position instead of staying with the bag.
+
+**The rule:** In every `.map()`, the key comes from the data and never changes, like `item.id`. Never the index when the list can be sorted, filtered or changed.
+
+### Make a copy, never change the original
+
+**The mistake:** In the lab, the + button in the cart did nothing on screen. The code did `item.qty = item.qty + 1`, then `setCart(cart)` with the same array, so React saw no change and did not draw again. "Featured" broke the same way: `.sort()` changed the original list, so the first order was gone.
+
+**The rule:** Do not change state, props or a list you were given. Make a new one: `[...list].sort()`, and `list.map()` with `{ ...item, qty: item.qty + 1 }` for the changed item. `sortItems()` and `borrowListRules.ts` already work like this.
