@@ -3,7 +3,7 @@ import type { FormEvent, ReactElement } from "react";
 import { t } from "../../shared/i18n/i18n.ts";
 import { todayISO } from "../../shared/lib/dates.ts";
 import { showToast } from "../../shared/ui/toast.ts";
-import type { Item } from "../../shared/types.ts";
+import type { Item } from "../cards/types.ts";
 import { userStore } from "../users/userStore.ts";
 import { createRequestRecord, validateRequest } from "./requestRules.ts";
 import { addRequest, getRequests } from "./requestStore.ts";

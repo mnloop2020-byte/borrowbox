@@ -4,6 +4,7 @@ import { t } from "../../shared/i18n/i18n.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { SearchIcon } from "../../shared/ui/SearchIcon.tsx";
 import { categoryLabel } from "../cards/categories.ts";
+import type { Category } from "../cards/categories.ts";
 import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
 import { ItemCard } from "../cards/ItemCard.tsx";
 import { listCards } from "../cards/listCards.ts";
@@ -29,12 +30,13 @@ function catalogHref(filters: CatalogParams): string {
 interface FilterChipsProps {
   filters: CatalogParams;
   /** The categories that have items (from the data) */
-  categories: string[];
+  categories: Category[];
 }
 
 /** "All" plus one chip per category. The chosen one is marked for screen readers too. */
 function FilterChips({ filters, categories }: FilterChipsProps): ReactElement {
-  const chips = [
+  // "" is "All". The type keeps "" and the category names exact (not string).
+  const chips: { category: Category | ""; label: string }[] = [
     { category: "", label: t("catalog.all") },
     ...categories.map((name) => ({
       category: name,

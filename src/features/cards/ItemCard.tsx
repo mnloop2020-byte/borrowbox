@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { t, tValue } from "../../shared/i18n/i18n.ts";
-import type { Item } from "../../shared/types.ts";
+import type { Item } from "./types.ts";
 import { itemCardData } from "./itemCardData.ts";
 
 interface ItemCardProps {

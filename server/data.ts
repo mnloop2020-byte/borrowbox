@@ -1,4 +1,4 @@
-import type { Item } from "../src/shared/types.ts";
+import type { Item } from "../src/features/cards/types.ts";
 import { ITEM_RECORDS } from "../src/features/cards/itemRecords.ts";
 
 /** The fields the API sends for each item (no photos) */

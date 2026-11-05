@@ -5,7 +5,7 @@
  * changes the one passed in, so React sees every change.
  */
 import { isValidItemId } from "../cards/itemId.ts";
-import type { BorrowListEntry } from "../../shared/types.ts";
+import type { BorrowListEntry } from "./types.ts";
 
 /** The longest a tool can be borrowed for */
 export const MAX_DAYS = 14;

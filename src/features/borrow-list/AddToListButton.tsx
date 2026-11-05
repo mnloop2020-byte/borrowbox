@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { t } from "../../shared/i18n/i18n.ts";
-import type { Item } from "../../shared/types.ts";
+import type { Item } from "../cards/types.ts";
 import { showToast } from "../../shared/ui/toast.ts";
 import { borrowListStore } from "./borrowListStore.ts";
 

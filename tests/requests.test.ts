@@ -7,7 +7,7 @@ import {
   deriveItemStatus,
   validateRequest,
 } from "../src/features/requests/requestRules.ts";
-import type { BorrowRequest } from "../src/shared/types.ts";
+import type { BorrowRequest } from "../src/features/requests/types.ts";
 import { makeItem, makeRequest } from "./fakes.ts";
 
 const item = makeItem({
