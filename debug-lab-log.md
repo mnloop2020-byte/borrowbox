@@ -2,6 +2,8 @@
 
 The 5 bugs from the ShopBoard debug lab (https://shopboard-api.vercel.app/debug-lab/).
 
+I went through the lab myself and found each bug on the page with the Console, React DevTools and Sources. Then I asked AI (Claude) to explain the cause to me and to help me write it down here.
+
 ## Bug 1
 
 - **What I saw:** As soon as the page loaded, the Console showed a red React warning: "Each child in a list should have a unique "key" prop. Check the render method of `CategoryChips`." The page looked fine.
