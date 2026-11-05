@@ -11,45 +11,8 @@ import { useBorrowList } from "../features/borrow-list/useBorrowList.ts";
 import { useItems } from "../features/cards/useItems.ts";
 import { useCurrentUser } from "../features/users/useCurrentUser.ts";
 import { userStore } from "../features/users/userStore.ts";
-
-/**
- * True when the hash is this route or inside it,
- * e.g. "#/catalog?q=drill" keeps "Explore" active. Home matches no link.
- */
-function isCurrentRoute(hash: string, route: string): boolean {
-  return (
-    hash === route ||
-    hash.startsWith(`${route}?`) ||
-    hash.startsWith(`${route}/`)
-  );
-}
-
-interface NavLinkProps {
-  hash: string;
-  route: string;
-  label: string;
-  onNavigate: () => void;
-}
-
-/** A menu link that is marked as the current page when its route is open */
-function NavLink({
-  hash,
-  route,
-  label,
-  onNavigate,
-}: NavLinkProps): ReactElement {
-  const current = isCurrentRoute(hash, route);
-  return (
-    <a
-      href={route}
-      className={current ? "nav-link is-active" : "nav-link"}
-      aria-current={current ? "page" : undefined}
-      onClick={onNavigate}
-    >
-      {label}
-    </a>
-  );
-}
+import { isCurrentRoute } from "./isCurrentRoute.ts";
+import { NavLink } from "./NavLink.tsx";
 
 interface NavbarProps {
   /** The current route, e.g. "#/catalog?q=drill" */
