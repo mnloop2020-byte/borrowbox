@@ -4,7 +4,9 @@
  * from the app to it (see vite.config.ts).
  *
  * Endpoints:
- *   GET  /api/items         all items
+ *   GET  /api/items         all items: { "items": [...], "total": 14 }
+ *                           Test switches: ?delay=3000, ?fail=500, ?empty=1
+ *                           (server/testSwitches.ts)
  *   GET  /api/items/:id     one item, e.g. /api/items/item-103
  *   POST /api/requests      a new borrow request (JSON body)
  *   ANY  /api/fail/:status  always fails with that status, e.g. /api/fail/500,
@@ -14,6 +16,7 @@ import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { isValidItemId } from "../src/features/cards/itemId.ts";
 import { ITEMS } from "./data.ts";
+import { readTestSwitches } from "./testSwitches.ts";
 
 const PORT = 3000;
 
@@ -82,10 +85,25 @@ function isRequestBody(value: unknown): value is RequestBody {
   );
 }
 
-/** GET /api/items and GET /api/items/:id */
-function handleItems(pathname: string, res: ServerResponse): void {
+/** Waits, so the app's loading state can be seen */
+const wait = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+/** GET /api/items (with the test switches) and GET /api/items/:id */
+async function handleItems(
+  pathname: string,
+  params: URLSearchParams,
+  res: ServerResponse,
+): Promise<void> {
   if (pathname === "/api/items") {
-    sendJson(res, 200, ITEMS);
+    const { delayMs, empty, failStatus } = readTestSwitches(params);
+    if (delayMs > 0) await wait(delayMs);
+    if (failStatus !== null) {
+      sendJson(res, failStatus, { error: "Simulated failure" });
+      return;
+    }
+    const items = empty ? [] : ITEMS;
+    sendJson(res, 200, { items, total: items.length });
     return;
   }
   const id = pathname.slice("/api/items/".length);
@@ -127,7 +145,10 @@ async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> {
-  const { pathname } = new URL(req.url ?? "/", `http://localhost:${PORT}`);
+  const { pathname, searchParams } = new URL(
+    req.url ?? "/",
+    `http://localhost:${PORT}`,
+  );
   console.log(req.method, pathname);
 
   if (pathname.startsWith("/api/fail/")) {
@@ -143,7 +164,7 @@ async function handleRequest(
       sendJson(res, 405, { error: "Method not allowed" });
       return;
     }
-    handleItems(pathname, res);
+    await handleItems(pathname, searchParams, res);
     return;
   }
 

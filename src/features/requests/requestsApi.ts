@@ -5,8 +5,8 @@
 import { postJson } from "../../shared/api/client.ts";
 import type { ApiResult } from "../../shared/api/client.ts";
 
-/** Where requests go. Change it to "/api/fail/500" to test the error toast. */
-const REQUESTS_URL = "/api/requests";
+/** Where requests go, after BASE_URL. Change it to "/fail/500" to test the error toast. */
+const REQUESTS_PATH = "/requests";
 
 /** What the server needs for a new request */
 export interface NewBorrowRequest {
@@ -19,5 +19,5 @@ export interface NewBorrowRequest {
 export function sendBorrowRequest(
   request: NewBorrowRequest,
 ): Promise<ApiResult> {
-  return postJson(REQUESTS_URL, request);
+  return postJson(REQUESTS_PATH, request);
 }

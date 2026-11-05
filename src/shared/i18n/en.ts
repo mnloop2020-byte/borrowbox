@@ -207,6 +207,18 @@ export default {
   "catalog.sort.name": "Name (A–Z)",
   "catalog.sort.deposit-asc": "Deposit: low to high",
   "catalog.sort.deposit-desc": "Deposit: high to low",
+  "title.itemLoading": "Tool — BorrowBox",
+  "item.pageHeading": "Tool details",
+  "items.loading": "Loading tools…",
+  "items.errorTitle": "We couldn't load the tools",
+  "items.errorCode":
+    "The server answered with error {status}. Please try again.",
+  "items.errorNoAnswer":
+    "The server did not answer. Check that the API is running, then try again.",
+  "state.retry": "Try again",
+  "catalog.noItemsTitle": "No tools listed yet",
+  "catalog.noItemsText":
+    "When neighbours list their tools, they will show up here.",
   "catalog.clear": "Clear filters",
   "page.catalog.intro":
     "Discover power tools, garden gear and household equipment available in your community.",

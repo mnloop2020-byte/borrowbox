@@ -1,9 +1,12 @@
-import type { Item } from "./types.ts";
+import type { Item } from "../src/features/cards/types.ts";
 
 /**
- * Every item, without photos. This is the one list of items: the app adds
- * the photos in cardsData.ts, and the API (server/data.ts) reads this file
- * directly. It has no image imports, so Node can load it.
+ * Every item, without photos: the server's data. The app never imports this
+ * file; it gets the items with GET /api/items (tests/architecture.test.ts
+ * checks that). Photos stay in the app (features/cards/cardPhotos.ts).
+ *
+ * Typed with the app's Item, so a typo such as category "Gardenning" is a
+ * TypeScript error here too.
  */
 export type ItemRecord = Omit<Item, "imageUrl" | "conditionImages">;
 

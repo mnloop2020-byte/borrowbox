@@ -6,7 +6,7 @@ import {
   sortItems,
 } from "../src/features/catalog/catalogFilter.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
-import { ITEM_RECORDS } from "../src/features/cards/itemRecords.ts";
+import { ITEM_RECORDS } from "../server/itemRecords.ts";
 import { CATEGORIES } from "../src/features/cards/categories.ts";
 import { isValidItemId } from "../src/features/cards/itemId.ts";
 import { makeItem } from "./fakes.ts";

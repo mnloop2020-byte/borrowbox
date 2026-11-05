@@ -13,7 +13,9 @@ import {
 } from "../cards/categories.ts";
 import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
 import { ItemCard } from "../cards/ItemCard.tsx";
+import { ItemsStatus } from "../cards/ItemsStatus.tsx";
 import { listCards } from "../cards/listCards.ts";
+import { useItems } from "../cards/useItems.ts";
 import {
   CATEGORY_GROUPS,
   FEATURED_ITEM_IDS,
@@ -202,10 +204,15 @@ function Categories(): ReactElement {
   );
 }
 
+/** Four items from the API; the loading or error state until they arrive */
 function Featured(): ReactElement {
-  const items = listCards().filter((item) =>
-    FEATURED_ITEM_IDS.includes(item.id),
-  );
+  const state = useItems();
+  const items =
+    state.status === "success"
+      ? listCards(state.items).filter((item) =>
+          FEATURED_ITEM_IDS.includes(item.id),
+        )
+      : [];
   return (
     <section
       className="home-section featured-section"
@@ -219,15 +226,19 @@ function Featured(): ReactElement {
           {t("home.featured.viewAll")} <ArrowIcon />
         </a>
       </div>
-      <div className="featured-grid" data-reveal-group>
-        {items.map((item) => (
-          <ItemCard
-            key={item.id}
-            item={item}
-            action={<AddToListButton item={item} />}
-          />
-        ))}
-      </div>
+      {state.status !== "success" ? (
+        <ItemsStatus state={state} />
+      ) : (
+        <div className="featured-grid" data-reveal-group>
+          {items.map((item) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              action={<AddToListButton item={item} />}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

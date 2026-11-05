@@ -5,15 +5,12 @@ import {
   addToList,
   decreaseDays,
   increaseDays,
+  knownEntries,
   listCount,
   parseBorrowList,
   removeFromList,
 } from "../src/features/borrow-list/borrowListRules.ts";
-import {
-  KNOWN_ITEM_IDS,
-  createBorrowListStore,
-} from "../src/features/borrow-list/borrowListStore.ts";
-import { ITEM_RECORDS } from "../src/features/cards/itemRecords.ts";
+import { createBorrowListStore } from "../src/features/borrow-list/borrowListStore.ts";
 import type { BorrowListEntry } from "../src/features/borrow-list/types.ts";
 import { fakeStorage, throwingStorage } from "./fakes.ts";
 
@@ -192,14 +189,13 @@ test("items that do not exist are dropped, so the count matches the page", () =>
   assert.equal(listCount(store.getList()), 1);
 });
 
-test("the app's list knows the real items", () => {
-  const storage = fakeStorage({
-    borrowbox_borrow_list: JSON.stringify([entry(ITEM_RECORDS[0].id, 1)]),
-  });
-  assert.equal(
-    listCount(createBorrowListStore(storage, KNOWN_ITEM_IDS).getList()),
-    1,
-  );
-  assert.ok(KNOWN_ITEM_IDS.has(ITEM_RECORDS[0].id));
-  assert.equal(KNOWN_ITEM_IDS.size, ITEM_RECORDS.length);
+test("knownEntries keeps only the rows whose item the API sent", () => {
+  // The header count uses it, so it matches the rows on the list page
+  const list = [entry("item-1", 1), entry("item-999", 2), entry("item-3", 1)];
+  const items = [{ id: "item-1" }, { id: "item-3" }];
+  assert.deepEqual(knownEntries(list, items), [
+    entry("item-1", 1),
+    entry("item-3", 1),
+  ]);
+  assert.deepEqual(knownEntries(list, []), []);
 });

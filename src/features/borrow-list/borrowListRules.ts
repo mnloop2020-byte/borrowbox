@@ -61,6 +61,19 @@ export function listCount(list: readonly BorrowListEntry[]): number {
   return list.length;
 }
 
+/**
+ * The rows whose item the API sent. Saved data can name an item that no
+ * longer exists; the header count and the list page both use this, so they
+ * always agree.
+ */
+export function knownEntries(
+  list: readonly BorrowListEntry[],
+  items: readonly { id: string }[],
+): BorrowListEntry[] {
+  const ids = new Set(items.map((item) => item.id));
+  return list.filter((entry) => ids.has(entry.itemId));
+}
+
 /** True for { itemId: "item-1", days: 1..MAX_DAYS } */
 function isEntry(value: unknown): value is BorrowListEntry {
   if (typeof value !== "object" || value === null) return false;

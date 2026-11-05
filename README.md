@@ -2,7 +2,7 @@
 
 A peer-to-peer tool-sharing web app. Neighbors borrow tools from each other for free, and each borrow is backed by a **simulated** refundable deposit.
 
-This is an MVP with a small JSON API (`server/`) for borrow requests. Other data lives in the browser (`localStorage`), and three demo personas let you try both the owner and the borrower side in one browser.
+This is an MVP with a small JSON API (`server/`): the items come from `GET /api/items`, and borrow requests go to `POST /api/requests`. The borrow list and the demo persona live in the browser (`localStorage`), and three demo personas let you try both the owner and the borrower side in one browser.
 
 ## Features
 
@@ -36,13 +36,26 @@ npm install
 npm run dev
 ```
 
-In a second terminal, start the API, which the borrow form needs:
+In a second terminal, start the API. The app gets every item from it, so without it the pages show "We couldn't load the tools" with a **Try again** button:
 
 ```bash
 npm run api
 ```
 
 Then open http://localhost:5173.
+
+### See every state
+
+The pages show a message for each state of the items. To see one, change `ITEMS_PATH` in `src/features/cards/itemsApi.ts` for a moment:
+
+| State    | `ITEMS_PATH`              | What you see                                   |
+| -------- | ------------------------- | ---------------------------------------------- |
+| Loading  | `"/items?delay=3000"`     | "Loading tools…" for 3 seconds                 |
+| Error    | `"/items?fail=500"`       | "We couldn't load the tools" and **Try again** |
+| Empty    | `"/items?empty=1"`        | "No tools listed yet"                          |
+| No match | (normal) search for `zzz` | "No items match" and **Clear filters**         |
+
+Stopping `npm run api` also shows the error: "The server did not answer".
 
 ## Scripts
 
