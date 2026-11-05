@@ -16,3 +16,20 @@ test("no file in src/ imports the item list or anything else from server/", () =
   );
   assert.deepEqual(found, []);
 });
+
+// One component per file: a .tsx file declares exactly one function whose
+// name starts with a capital letter (a component). It is exported and has
+// the file's name, so ItemCard is in ItemCard.tsx. Small helpers with
+// lowercase names are fine.
+test("every .tsx file in src/ has one component, named like the file", () => {
+  const wrong = filesIn("src")
+    .filter((file) => file.endsWith(".tsx") && !file.endsWith("main.tsx"))
+    .filter((file) => {
+      const code = readFileSync(file, "utf8");
+      const all = code.match(/^(export )?function [A-Z]/gm) ?? [];
+      const exported = /^export function ([A-Z]\w*)/m.exec(code)?.[1];
+      const fileName = file.split("/").at(-1)?.replace(".tsx", "");
+      return all.length !== 1 || exported !== fileName;
+    });
+  assert.deepEqual(wrong, []);
+});

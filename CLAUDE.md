@@ -14,9 +14,9 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
 - `src/react-css.d.ts`: lets a `style` object set CSS variables (`style={{ "--i": 2 }}`).
 - `src/app/`: the frame around every page.
   - `App.tsx`: the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/borrow-list`, `#/list-item`, `#/dashboard`, `#/register`). `renderRoute()` picks the page; on a route change focus moves to `<main>`.
-  - `Navbar.tsx` (menu, language and persona switch), `Footer.tsx`, `NotFoundView.tsx`.
+  - `Navbar.tsx` (menu, language and persona switch), `NavLink.tsx` (a menu link marked when its page is open), `isCurrentRoute.ts`, `Footer.tsx`, `NotFoundView.tsx`.
 - `src/features/<feature>/`: everything for one feature: its types (`types.ts`), rules, store and UI. A page is `XView.tsx`: it exports the component `XView` and sets the tab title with `usePageTitle()`.
-  - `home/`: `HomeView.tsx`, `homeContent.ts` (the home sections).
+  - `home/`: `HomeView.tsx` (the page and the scroll reveal), one file per section (`Hero.tsx`, `About.tsx`, `Categories.tsx`, `Featured.tsx`, `HowItWorks.tsx`, `IdleTools.tsx`, `Why.tsx`) and `homeContent.ts` (their texts, images and the featured ids).
   - `cards/`: the tools people lend (the data type is still `Item`, and links stay `#/item/:id`). **The items come from the API** (`GET /api/items`): `itemsApi.ts` (`fetchItems()`, the only file that knows the address), `itemMapper.ts` (pure: `toItems()` checks every field of the answer and turns `ApiItem` into `Item`), `itemsStore.ts` (the `ItemsState`: loading, error or success, with `load()` and `retry()`; one request for every page), `useItems.ts` (the store the app uses and its hook), `ItemsStatus.tsx` (the loading or error card with "Try again"), `cardPhotos.ts` (the photos, by id; the API sends none), `listCards.ts` (`listCards(items)`: the items with today's status), `itemStatus.ts` (`isItemStatus()`), `categories.ts` (`CATEGORIES`, the `Category` union type built from it, and `isCategory()` for text from outside), `types.ts` (`Item`, `ItemStatus`, and `ApiItem`, the exact shape the API sends), `ItemCard.tsx`, `itemCardData.ts` (pure: the checked image, id and status a card shows), the item page `ItemDetailView.tsx` with `ItemDetail.tsx`, `OwnerCard.tsx`, `ItemNotFound.tsx` and `ItemPageStatus.tsx`, `itemId.ts` (the id check, also used by the router and the server).
   - `requests/`: borrow requests. `types.ts` (`BorrowRequest`), `requestRules.ts` (pure rules: dates, overlap, duplicates), `requestStore.ts` (saving in `localStorage`), `requestsApi.ts` (sending to the API), `BorrowForm.tsx` (the dates form on the item page).
   - `users/`: `types.ts` (`User`, `UserRole`), `demoUsers.ts`, `userStore.ts` (the persona in use) and `useCurrentUser.ts` (its hook).
@@ -25,7 +25,7 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
   - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
 - `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
   - `api/client.ts`: **the one API client** and the only place that calls `fetch`. `BASE_URL = "/api"` is the one place the address is written. `getJson("/items")` and `postJson("/requests", body)` return `{ ok: true, data }` or `{ ok: false, status }`. Every failure is logged to the Console as one line, e.g. `[api] POST /api/requests failed: 500` (never the body). A new request type is added here, not with `fetch` in a page.
-  - `ui/`: `toast.ts` (the toast list: `showToast()`), `Toasts.tsx` (draws it), `ScrollLink.tsx` (links to a home section such as "How it works"), `PlaceholderCard.tsx`, the screen states `LoadingState.tsx`, `ErrorState.tsx` (with "Try again") and `EmptyState.tsx`, and the icons `BackIcon.tsx`, `ArrowIcon.tsx`, `SearchIcon.tsx`.
+  - `ui/`: `toast.ts` (the toast list: `showToast()`), `Toasts.tsx` (draws it), `ScrollLink.tsx` (links to a home section such as "How it works"), `PlaceholderCard.tsx`, the screen states `LoadingState.tsx`, `ErrorState.tsx` (with "Try again") and `EmptyState.tsx`, and the icons `BackIcon.tsx`, `ArrowIcon.tsx`, `SearchIcon.tsx`, `CheckIcon.tsx`.
   - `i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys; `i18n.ts` with `t()`, `setLang()`, `formatMoney()`; `useLang.ts` (its hook).
   - `lib/`: pure functions (`imageUrl.ts`, `dates.ts`). No DOM and no `localStorage`, so Node can test them.
   - `browser/`: helpers that use browser features: `storage.ts`, `reveal.ts` (scroll reveal), `scrollToSection.ts`, `usePageTitle.ts`.
@@ -33,7 +33,7 @@ Files are grouped by feature. To fix a bug, open the folder of the feature it is
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
 - `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). `itemRecords.ts` is **the one list of items**: only the server reads it, and `tests/architecture.test.ts` fails if a file in `src/` imports it. `GET /api/items` answers `{ items, total }`; the test switches `?delay=3000`, `?fail=500` and `?empty=1` (`testSwitches.ts`) show the loading, error and empty states. Requests are kept in memory.
 - `.claude/skills/`: two Claude Code skills, `vercel-react-best-practices` (React performance rules) and `vercel-composition-patterns` (component design), copied unchanged from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (commit `1a2c79d`). Use them when writing or reviewing React code.
-- `tests/`: `node:test` unit tests for the API client (with a fake `fetch`), requests, the catalog filter, sort and item list, the borrow list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
+- `tests/`: `node:test` unit tests for the API client (with a fake `fetch`), requests, the catalog filter, sort and item list, the borrow list, security (URL checks, no HTML strings), storage, toasts and translations. `architecture.test.ts` checks the structure: `src/` never imports `server/`, and every `.tsx` file has exactly one component. `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes
 
@@ -58,7 +58,7 @@ Make one folder for it: `src/features/<feature>/`. Example: the "List an item" f
 
 ## 3. React
 
-- **Components:** one component per job, typed props in an `interface`, and a `ReactElement` return type.
+- **Components:** one component per job and **one component per file** (the file has its name; `npm test` checks this), typed props in an `interface`, and a `ReactElement` return type. The tree is in the README; update it when a component is added or moved.
 - **State:** keep what changes on screen in `useState`. Do not change the DOM by hand (no `classList`, `setAttribute` or `textContent` from code): change state and let React draw it. The one exception is `shared/browser/reveal.ts`, which only adds the animation class `is-visible` to elements React already drew.
 - **Forms:** a controlled input (`value` plus `onChange`) when the value is needed while typing; an uncontrolled one read with `FormData` on submit when the browser's own validation is enough (like `RegisterView.tsx`).
 - **Lists:** every `.map()` result has a stable `key` from the data (an id, never the index when the list can change).

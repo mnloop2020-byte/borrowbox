@@ -92,8 +92,8 @@ src/
 │   ├── dashboard/        # "My activity" page (placeholder)
 │   └── list-item/        # "List an item" page (placeholder)
 ├── shared/               # Used by many features; never imports from features/
-│   ├── api/              # postJson(): fetch with a clear ok / status result
-│   ├── ui/               # Toasts, icons, the placeholder card
+│   ├── api/              # The one API client: getJson(), postJson(), BASE_URL
+│   ├── ui/               # Loading, error and empty states, toasts, icons
 │   ├── i18n/             # en.ts and ar.ts dictionaries, t(), setLang(), formatMoney()
 │   ├── lib/              # Pure functions (image URL check, dates), tested with Node
 │   ├── browser/          # Helpers that use browser features (DOM, storage, scrolling)
@@ -105,6 +105,99 @@ tests/                    # node:test unit tests
 ```
 
 Rules (`requestRules.ts`, `itemId.ts`, `catalogFilter.ts`, `catalogParams.ts`) and everything in `shared/lib/` are pure functions with no DOM, so Node tests them directly. Pages only render and wire events.
+
+## Component tree
+
+Every component is in its own file, named like the component (`npm test` checks this). Next to each component: the props it gets. **State** marks the components that own state.
+
+The tree was checked against the running app with the Components tab of React DevTools, page by page.
+
+```text
+App                                    state: hash (useState) · language (store)
+├── Navbar { hash }                    state: menuOpen, profileOpen, scrolled (useState)
+│   │                                         · user, language, borrow list, items (stores)
+│   ├── NavLink { hash, route, label, onNavigate }      ×3
+│   └── ScrollLink { targetId, className, onClick }
+├── <main>: one page, picked by renderRoute(hash)
+│   │
+│   ├── #/             HomeView
+│   │   ├── Hero                       (the search reads the form on submit: no state)
+│   │   │   ├── CheckIcon              ×3
+│   │   │   └── SearchIcon
+│   │   ├── About
+│   │   │   └── ScrollLink { targetId, className }
+│   │   ├── Categories
+│   │   ├── Featured                   state: items (store)
+│   │   │   ├── ItemsStatus { state }                    while loading or on error
+│   │   │   └── ItemCard { item, action }   key=item.id   ×8
+│   │   │       └── AddToListButton { item }
+│   │   ├── HowItWorks
+│   │   ├── IdleTools
+│   │   │   └── CheckIcon              ×3
+│   │   └── Why
+│   │
+│   ├── #/catalog      CatalogView { queryString }   key=queryString
+│   │   │                              state: search (useState) · items (store)
+│   │   ├── SearchIcon
+│   │   ├── ItemsStatus { state }                        while loading or on error
+│   │   └── CatalogResults { items, filters }
+│   │       ├── EmptyState { title, text }               no items at all
+│   │       ├── FilterChips { filters, categories }
+│   │       ├── SortSelect { filters }
+│   │       ├── EmptyState { title, text, action }       no match
+│   │       └── ItemCard { item, action }   key=item.id   ×14
+│   │           └── AddToListButton { item }
+│   │
+│   ├── #/item/:id     ItemDetailView { itemId }   key=itemId
+│   │   │                              state: items (store)
+│   │   ├── ItemPageStatus { state }                     while loading or on error
+│   │   │   └── ItemsStatus { state }
+│   │   ├── ItemNotFound                                 unknown id
+│   │   │   └── PlaceholderCard { title, text, action }
+│   │   └── ItemDetail { item }        state: user (store)
+│   │       ├── BackIcon
+│   │       ├── OwnerCard { item }
+│   │       └── BorrowForm { item }    state: startDate, endDate, errors, isSending (useState)
+│   │
+│   ├── #/borrow-list  BorrowListView  state: borrow list, items (stores)
+│   │   ├── ItemsStatus { state }                        while loading or on error
+│   │   ├── EmptyState { title, text, action }           empty list
+│   │   └── BorrowListRow { entry, item, onRowRemoved }   key=entry.itemId
+│   │
+│   ├── #/register     RegisterView    state: createdName (useState)
+│   ├── #/dashboard    DashboardView   state: user (store)
+│   │   └── PlaceholderCard { title, text }
+│   │       └── BackIcon
+│   ├── #/list-item    ListItemView
+│   │   └── PlaceholderCard { title, text }
+│   │       └── BackIcon
+│   └── anything else  NotFoundView
+│       └── PlaceholderCard { title, text }
+│           └── BackIcon
+├── Footer
+│   └── ScrollLink { targetId, className }
+└── Toasts                             state: toasts (store)
+```
+
+`ItemsStatus { state }` draws `LoadingState { label }` or `ErrorState { title, text, onRetry }`.
+
+### Who owns the state
+
+| State                             | Owner                                                        | Why there                                                                                                  |
+| --------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| The current page (`hash`)         | `App` (`useState`)                                           | It picks the page and is passed to `Navbar` for the active link.                                           |
+| Menu open, profile open, scrolled | `Navbar` (`useState`)                                        | Only the header uses them.                                                                                 |
+| Search text while typing          | `CatalogView` (`useState`)                                   | A controlled input; the URL holds the search after submit.                                                 |
+| Filters and sort                  | The URL (`#/catalog?q=&category=&sort=`)                     | Read with `parseCatalogParams()` and passed down as `filters`, so a link or refresh keeps them.            |
+| Dates, errors, sending            | `BorrowForm` (`useState`)                                    | Only the form uses them.                                                                                   |
+| Account just created              | `RegisterView` (`useState`)                                  | Only the page uses it.                                                                                     |
+| Items from the API                | `itemsStore` (`cards/itemsStore.ts`), read with `useItems()` | One request shared by every page. Loading, error or success.                                               |
+| Borrow list (the cart)            | `borrowListStore`, read with `useBorrowList()`               | Saved in `localStorage`, so it survives a refresh; the Navbar count and the list page read the same store. |
+| Language                          | `i18n.ts`, read with `useLang()`                             | `App` reads it, so every page draws again after a switch.                                                  |
+| Current persona                   | `userStore`, read with `useCurrentUser()`                    | Used by the Navbar, the item page (owner check) and the dashboard.                                         |
+| Toasts                            | `toast.ts`, read in `Toasts`                                 | Any feature can call `showToast()`.                                                                        |
+
+A "store" is a small module outside React: one function returns the current value (such as `itemsStore.getState()` or `getLang()`) and a `subscribe` function tells React when it changes. Components read it with `useSyncExternalStore`, so every component that reads the same store draws again when it changes.
 
 ## Translations
 
