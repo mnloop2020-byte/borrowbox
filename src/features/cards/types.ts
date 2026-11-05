@@ -26,3 +26,32 @@ export interface Item {
   imageUrl: string;
   createdAt: string;
 }
+
+/**
+ * One item exactly as the API sends it (GET /api/items). It is kept apart
+ * from Item on purpose: the API is outside the app, so its text fields are
+ * plain strings here, and toItem() (itemMapper.ts) checks every field before
+ * the app trusts it. The API sends no photos; the app adds them.
+ */
+export interface ApiItem {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  condition: string;
+  conditionNotes: string;
+  depositAmount: number;
+  ownerId: string;
+  ownerName: string;
+  ownerVerified: boolean;
+  ownerRating: number;
+  status: string;
+  isManuallyPaused: boolean;
+  createdAt: string;
+}
+
+/** The answer of GET /api/items */
+export interface ApiItemList {
+  items: ApiItem[];
+  total: number;
+}

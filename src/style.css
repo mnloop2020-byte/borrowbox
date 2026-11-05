@@ -2330,28 +2330,8 @@ p {
   gap: var(--space-lg);
 }
 
-/* No results: the same white card shape as everything else */
-.catalog-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-2xl) var(--space-lg);
-  border-radius: var(--radius-card);
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-raised);
-  text-align: center;
-}
-
-.catalog-empty-title {
-  margin: 0;
-  font-size: var(--font-size-h3);
-}
-
-.catalog-empty p {
-  margin: 0;
-  color: var(--color-text-muted);
-}
+/* No items, no match, loading and error: features use the shared state
+   cards (shared/ui: EmptyState, LoadingState, ErrorState, "Screen states") */
 
 @media (min-width: 640px) {
   .catalog-toolbar {
@@ -2663,6 +2643,63 @@ p {
 @media (min-width: 768px) {
   .borrow-list-view {
     padding-inline: var(--space-xl);
+  }
+}
+
+/* ==========================================================================
+   Screen states (shared/ui: LoadingState, ErrorState, EmptyState)
+   One white card for loading, error, "no items" and "no match"
+   ========================================================================== */
+
+.state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl) var(--space-lg);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+  text-align: center;
+}
+
+.state-title {
+  margin: 0;
+  font-size: var(--font-size-h3);
+}
+
+/* Muted grey on white is 6.4:1 */
+.state-card p {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--color-text-muted);
+}
+
+/* A red line on the start side marks the error card, not colour alone:
+   the title says what happened */
+.state-error {
+  border-inline-start: 4px solid var(--color-danger-text);
+}
+
+.state-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--color-line);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: state-spin 800ms linear infinite;
+}
+
+@keyframes state-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Without motion the spinner stands still; the text still says "Loading" */
+@media (prefers-reduced-motion: reduce) {
+  .state-spinner {
+    animation: none;
   }
 }
 

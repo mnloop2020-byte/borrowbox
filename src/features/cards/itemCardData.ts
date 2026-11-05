@@ -10,16 +10,7 @@ import { formatMoney } from "../../shared/i18n/i18n.ts";
 import { isSafeImageUrl } from "../../shared/lib/imageUrl.ts";
 import type { Item, ItemStatus } from "./types.ts";
 import { isValidItemId } from "./itemId.ts";
-
-const KNOWN_STATUSES: readonly string[] = [
-  "Available",
-  "Reserved",
-  "Unavailable",
-] satisfies ItemStatus[];
-
-function isKnownStatus(value: string): value is ItemStatus {
-  return KNOWN_STATUSES.includes(value);
-}
+import { isItemStatus } from "./itemStatus.ts";
 
 export interface ItemCardData {
   /** The item page, or the catalog when the id is not valid */
@@ -43,7 +34,7 @@ export function itemCardData(item: Item): ItemCardData {
     href: validId ? `#/item/${item.id}` : "#/catalog",
     id: validId ? item.id : null,
     imageUrl: isSafeImageUrl(item.imageUrl) ? item.imageUrl : null,
-    status: isKnownStatus(item.status) ? item.status : null,
+    status: isItemStatus(item.status) ? item.status : null,
     rating: Number.isFinite(rating) && rating > 0 ? rating : null,
     deposit: formatMoney(item.depositAmount),
   };

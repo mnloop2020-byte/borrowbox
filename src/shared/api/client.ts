@@ -30,17 +30,29 @@ function logFailure(
 }
 
 /**
- * Sends body as JSON with POST and waits for the answer.
- * The data is `unknown`: it comes from outside the app, so the caller checks it.
+ * Where the API lives. The one place the address is written: every path
+ * below is joined to it, e.g. "/items" -> "/api/items". During `npm run dev`
+ * Vite forwards /api to the API server (vite.config.ts).
  */
-export async function postJson(url: string, body: unknown): Promise<ApiResult> {
-  const method = "POST";
+export const BASE_URL = "/api";
+
+/**
+ * Sends one request and checks the answer. GET and POST both use it, so
+ * every request is checked and logged the same way.
+ */
+async function requestJson(
+  method: "GET" | "POST",
+  path: string,
+  body?: unknown,
+): Promise<ApiResult> {
+  const url = `${BASE_URL}${path}`;
   let res: Response;
   try {
     res = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      headers:
+        method === "POST" ? { "Content-Type": "application/json" } : undefined,
+      body: method === "POST" ? JSON.stringify(body) : undefined,
     });
   } catch {
     // fetch only throws when there is no answer at all
@@ -60,4 +72,21 @@ export async function postJson(url: string, body: unknown): Promise<ApiResult> {
     logFailure(method, url, "the answer is not JSON");
     return { ok: false, status: 0 };
   }
+}
+
+/**
+ * Gets JSON with GET, e.g. getJson("/items").
+ * The data is `unknown`: it comes from outside the app, so the caller checks
+ * it (for items: toItems() in features/cards/itemMapper.ts).
+ */
+export function getJson(path: string): Promise<ApiResult> {
+  return requestJson("GET", path);
+}
+
+/**
+ * Sends body as JSON with POST, e.g. postJson("/requests", request).
+ * The data is `unknown`: it comes from outside the app, so the caller checks it.
+ */
+export function postJson(path: string, body: unknown): Promise<ApiResult> {
+  return requestJson("POST", path, body);
 }

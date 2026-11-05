@@ -3,8 +3,12 @@ import type { ReactElement } from "react";
 import { setLang, t } from "../shared/i18n/i18n.ts";
 import { useLang } from "../shared/i18n/useLang.ts";
 import { ScrollLink } from "../shared/ui/ScrollLink.tsx";
-import { listCount } from "../features/borrow-list/borrowListRules.ts";
+import {
+  knownEntries,
+  listCount,
+} from "../features/borrow-list/borrowListRules.ts";
 import { useBorrowList } from "../features/borrow-list/useBorrowList.ts";
+import { useItems } from "../features/cards/useItems.ts";
 import { useCurrentUser } from "../features/users/useCurrentUser.ts";
 import { userStore } from "../features/users/userStore.ts";
 
@@ -60,8 +64,14 @@ export function Navbar({ hash }: NavbarProps): ReactElement {
   const users = userStore.getUsers();
   const currentUser = useCurrentUser();
   const otherLang = useLang() === "ar" ? "en" : "ar";
-  // Read from the store, so the number changes after every add or remove
-  const listItemCount = listCount(useBorrowList());
+  // Read from the stores, so the number changes after every add or remove.
+  // Once the items arrive, count only rows whose item exists (like the list page).
+  const borrowList = useBorrowList();
+  const items = useItems();
+  const listItemCount =
+    items.status === "success"
+      ? knownEntries(borrowList, items.items).length
+      : listCount(borrowList);
   const onListPage = isCurrentRoute(hash, "#/borrow-list");
 
   const [menuOpen, setMenuOpen] = useState(false);

@@ -200,6 +200,16 @@ export default {
   "catalog.sort.name": "الاسم (A–Z)",
   "catalog.sort.deposit-asc": "التأمين: من الأقل إلى الأعلى",
   "catalog.sort.deposit-desc": "التأمين: من الأعلى إلى الأقل",
+  "title.itemLoading": "أداة — BorrowBox",
+  "item.pageHeading": "تفاصيل الأداة",
+  "items.loading": "جارٍ تحميل الأدوات…",
+  "items.errorTitle": "تعذّر تحميل الأدوات",
+  "items.errorCode": "ردّ الخادم بالخطأ {status}. حاول مرة أخرى.",
+  "items.errorNoAnswer":
+    "لم يردّ الخادم. تأكّد من تشغيل الـ API ثم حاول مرة أخرى.",
+  "state.retry": "حاول مرة أخرى",
+  "catalog.noItemsTitle": "لا توجد أدوات بعد",
+  "catalog.noItemsText": "عندما يعرض الجيران أدواتهم ستظهر هنا.",
   "catalog.clear": "مسح التصفية",
   "page.catalog.intro":
     "اكتشف الأدوات الكهربائية ومعدات الحديقة والأدوات المنزلية المتاحة في مجتمعك.",

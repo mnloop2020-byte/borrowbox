@@ -2,92 +2,19 @@ import { useRef } from "react";
 import type { ReactElement } from "react";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
 import { formatMoney, t } from "../../shared/i18n/i18n.ts";
-import type { BorrowListEntry } from "./types.ts";
-import type { Item } from "../cards/types.ts";
-import { itemCardData } from "../cards/itemCardData.ts";
+import { EmptyState } from "../../shared/ui/EmptyState.tsx";
+import { ItemsStatus } from "../cards/ItemsStatus.tsx";
 import { listCards } from "../cards/listCards.ts";
-import { MAX_DAYS, listCount } from "./borrowListRules.ts";
+import { useItems } from "../cards/useItems.ts";
+import { BorrowListRow } from "./BorrowListRow.tsx";
+import { MAX_DAYS, knownEntries } from "./borrowListRules.ts";
 import { borrowListStore } from "./borrowListStore.ts";
 import { useBorrowList } from "./useBorrowList.ts";
 
-interface BorrowListRowProps {
-  entry: BorrowListEntry;
-  item: Item;
-  /** Called after a change that takes the row off the page */
-  onRowRemoved: () => void;
-}
-
-/** One item in the list: photo, name, deposit, days (− and +) and Remove */
-function BorrowListRow({
-  entry,
-  item,
-  onRowRemoved,
-}: BorrowListRowProps): ReactElement {
-  const card = itemCardData(item);
-  const daysId = `days-${item.id}`;
-
-  function decrease(): void {
-    borrowListStore.decrease(item.id);
-    // From 1 day, "−" removes the row together with the focused button
-    if (entry.days === 1) onRowRemoved();
-  }
-
-  function remove(): void {
-    borrowListStore.remove(item.id);
-    onRowRemoved();
-  }
-
-  return (
-    <li className="borrow-row">
-      {card.imageUrl && (
-        <img src={card.imageUrl} alt="" className="borrow-row-image" />
-      )}
-      <div className="borrow-row-info">
-        <a href={card.href} className="borrow-row-title">
-          <bdi>{item.title}</bdi>
-        </a>
-        <span className="borrow-row-deposit">
-          {t("borrowList.deposit", { amount: card.deposit })}
-        </span>
-      </div>
-
-      <div className="borrow-row-controls">
-        <div className="days-stepper" role="group" aria-labelledby={daysId}>
-          <span id={daysId} className="days-stepper-label">
-            {t("borrowList.daysLabel")}
-          </span>
-          <button
-            type="button"
-            className="days-stepper-btn"
-            aria-label={t("borrowList.fewerDays", { title: item.title })}
-            onClick={decrease}
-          >
-            −
-          </button>
-          {/* <output> is read out by screen readers when the number changes */}
-          <output className="days-stepper-value">{entry.days}</output>
-          <button
-            type="button"
-            className="days-stepper-btn"
-            aria-label={t("borrowList.moreDays", { title: item.title })}
-            disabled={entry.days >= MAX_DAYS}
-            onClick={() => borrowListStore.increase(item.id)}
-          >
-            +
-          </button>
-        </div>
-        <button type="button" className="borrow-row-remove" onClick={remove}>
-          {t("borrowList.remove")}
-          <span className="visually-hidden">: {item.title}</span>
-        </button>
-      </div>
-    </li>
-  );
-}
-
 /**
  * "My borrow list" page (#/borrow-list): the cart. Change the days, remove
- * one item or clear all. The list is saved, so it survives a refresh.
+ * one item or clear all. The list is saved, so it survives a refresh. The
+ * item details (name, photo, deposit) come from the API.
  */
 export function BorrowListView(): ReactElement {
   usePageTitle(t("title.borrowList"));
@@ -97,8 +24,9 @@ export function BorrowListView(): ReactElement {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const focusHeading = (): void => headingRef.current?.focus();
 
-  const items = listCards();
-  const rows = list.flatMap((entry) => {
+  const state = useItems();
+  const items = state.status === "success" ? listCards(state.items) : [];
+  const rows = knownEntries(list, items).flatMap((entry) => {
     const item = items.find((candidate) => candidate.id === entry.itemId);
     return item ? [{ entry, item }] : [];
   });
@@ -122,14 +50,18 @@ export function BorrowListView(): ReactElement {
         {t("borrowList.intro", { max: MAX_DAYS })}
       </p>
 
-      {rows.length === 0 ? (
-        <div className="catalog-empty">
-          <h2 className="catalog-empty-title">{t("borrowList.emptyTitle")}</h2>
-          <p>{t("borrowList.emptyText")}</p>
-          <a href="#/catalog" className="btn btn-primary">
-            {t("borrowList.browse")}
-          </a>
-        </div>
+      {state.status !== "success" ? (
+        <ItemsStatus state={state} />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          title={t("borrowList.emptyTitle")}
+          text={t("borrowList.emptyText")}
+          action={
+            <a href="#/catalog" className="btn btn-primary">
+              {t("borrowList.browse")}
+            </a>
+          }
+        />
       ) : (
         <>
           <ul className="borrow-list">
@@ -145,7 +77,7 @@ export function BorrowListView(): ReactElement {
           <div className="borrow-list-summary">
             <p className="borrow-list-total">
               {t("borrowList.summary", {
-                count: listCount(list),
+                count: rows.length,
                 days: totalDays,
                 deposit: formatMoney(totalDeposit),
               })}

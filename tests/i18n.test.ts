@@ -153,7 +153,7 @@ test("pages and UI code contain no hard-coded English interface text", () => {
   ];
   const ALLOWED = new Set(["BorrowBox"]); // brand name
   const patterns = [
-    />\s*([A-Z][a-z]+(?:[ '][A-Za-z]+)*)\s*</g, // text between tags
+    /(?<!=)>\s*([A-Z][a-z]+(?:[ '][A-Za-z]+)*)\s*</g, // text between tags (not the > of =>)
     /(?:aria-label|placeholder|alt|title)="([A-Z][a-z][^"$]*)"/g, // attributes
   ];
   const found = [];

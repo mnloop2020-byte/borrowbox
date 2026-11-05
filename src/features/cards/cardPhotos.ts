@@ -1,5 +1,7 @@
-import type { Item } from "./types.ts";
-import { ITEM_RECORDS } from "./itemRecords.ts";
+/**
+ * The item photos. The API sends no images, so the app keeps them and adds
+ * them to each item in toItem() (itemMapper.ts).
+ */
 import drill from "../../assets/photos/cards/cordless-drill.webp";
 import mower from "../../assets/photos/cards/lawn-mower.webp";
 import tent from "../../assets/photos/cards/dome-tent.webp";
@@ -34,10 +36,9 @@ const PHOTOS: Record<string, string> = {
 };
 
 /**
- * All items with their photos: the list the pages use.
- * An item without a photo gets "", and the card then shows no image.
+ * The photo for an item, or "" when there is none (the card then shows no
+ * image). Passed to toItems() when the items arrive from the API.
  */
-export const SEED_CARDS: Item[] = ITEM_RECORDS.map((record) => {
-  const photo = PHOTOS[record.id] ?? "";
-  return { ...record, imageUrl: photo, conditionImages: photo ? [photo] : [] };
-});
+export function photoUrl(id: string): string {
+  return PHOTOS[id] ?? "";
+}

@@ -5,7 +5,6 @@
  */
 import { getJSON, setJSON } from "../../shared/browser/storage.ts";
 import type { BorrowListEntry } from "./types.ts";
-import { ITEM_RECORDS } from "../cards/itemRecords.ts";
 import {
   addToList,
   decreaseDays,
@@ -28,14 +27,10 @@ export interface BorrowListStore {
   clear(): void;
 }
 
-/** The ids of the real items; anything else in the saved list is dropped */
-export const KNOWN_ITEM_IDS: ReadonlySet<string> = new Set(
-  ITEM_RECORDS.map((record) => record.id),
-);
-
 /**
  * @param storage - leave it out in the app (localStorage); tests pass a fake
- * @param knownIds - the items that exist; leave it out to accept any valid id
+ * @param knownIds - when given, saved items not in it are dropped (tests use
+ * it); the app leaves it out, because the items come later from the API
  */
 export function createBorrowListStore(
   storage?: Storage,
@@ -75,4 +70,4 @@ export function createBorrowListStore(
 }
 
 /** The one borrow list the app uses */
-export const borrowListStore = createBorrowListStore(undefined, KNOWN_ITEM_IDS);
+export const borrowListStore = createBorrowListStore();
