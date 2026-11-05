@@ -2,84 +2,104 @@
 
 ## 1. Technology Stack
 
-- Use Vite with vanilla TypeScript, HTML, and CSS (strict mode, see `tsconfig.json`).
-- Do not use React, Vue, or other frameworks unless explicitly requested.
-- Use native browser APIs whenever practical.
+- Vite, React 19 and TypeScript in strict mode (see `tsconfig.json`), with plain CSS.
+- No other framework, router or state library unless explicitly requested. The router is a small hash router in `src/app/App.tsx`.
+- Use React and native browser APIs before adding a package.
 
 ## Architecture
 
-- `src/main.ts`: app shell and hash router only (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). It picks a view and handles app-wide events; it renders no page itself.
-- `src/views/`: one module per route. Each exports `mountXView(container, ...)` and returns a `MountedView` (`{ title, cleanup }`). The catalog, list item and dashboard views are placeholders for now.
-- `src/components/`: reusable UI. Functions return HTML strings, plus `bindX()` functions for events. `icons.ts` holds the shared arrow icons; `Placeholder.ts` is the card that placeholder and "not found" pages share.
-- `src/content/`: fixed page content (the category list, home page sections).
-- `src/i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys, and `t()`, `setLang()`, `formatMoney()`.
-- `src/store/`: data and `localStorage` persistence (seed data, demo users, request store).
-- `src/logic/`: pure functions only (escaping, validation, dates, borrow requests). No DOM and no `localStorage`, so they can be tested with Node.
-- `src/types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
-- `src/utils/`: small browser helpers. `dom.ts` has `getElement()`, which finds an element that must exist, with the right type; `reveal.ts` reveals sections on scroll; `formFields.ts` keeps typed values when the language changes.
+Files are grouped by feature. To fix a bug, open the folder of the feature it is in.
+
+- `src/main.tsx`: starts React and draws `<App />` into `<div id="app">` (in `StrictMode`).
+- `src/react-css.d.ts`: lets a `style` object set CSS variables (`style={{ "--i": 2 }}`).
+- `src/app/`: the frame around every page.
+  - `App.tsx`: the shell and the hash router (`#/`, `#/catalog`, `#/item/:id`, `#/list-item`, `#/dashboard`, `#/register`). `renderRoute()` picks the page; on a route change focus moves to `<main>`.
+  - `Navbar.tsx` (menu, language and persona switch), `Footer.tsx`, `NotFoundView.tsx`.
+- `src/features/<feature>/`: everything for one feature. A page is `XView.tsx`: it exports the component `XView` and sets the tab title with `usePageTitle()`.
+  - `home/`: `HomeView.tsx`, `homeContent.ts` (the home sections).
+  - `items/`: `itemRecords.ts` (**the one list of items**, no photos, so the server reads it too), `itemsData.ts` (adds each item's photo), `listItems.ts` (all items with today's status), `categories.ts`, `ItemCard.tsx`, `itemCardData.ts` (pure: the checked image, id and status a card shows), `ItemDetailView.tsx`, `itemId.ts` (the id check, also used by the router and the server).
+  - `requests/`: borrow requests. `requestRules.ts` (pure rules: dates, overlap, duplicates), `requestStore.ts` (saving in `localStorage`), `requestsApi.ts` (sending to the API), `BorrowForm.tsx` (the dates form on the item page).
+  - `users/`: `demoUsers.ts`, `userStore.ts` (the persona in use) and `useCurrentUser.ts` (its hook).
+  - `catalog/`: `CatalogView.tsx` (search, category chips, item grid), `catalogFilter.ts` (pure: which items match) and `catalogParams.ts` (the allowed URL filters).
+  - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
+- `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
+  - `api/client.ts`: `postJson()` sends JSON with `fetch` and returns `{ ok: true, data }` or `{ ok: false, status }`.
+  - `ui/`: `toast.ts` (the toast list: `showToast()`), `Toasts.tsx` (draws it), `ScrollLink.tsx` (links to a home section such as "How it works"), `PlaceholderCard.tsx`, and the icons `BackIcon.tsx`, `ArrowIcon.tsx`, `SearchIcon.tsx`.
+  - `i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys; `i18n.ts` with `t()`, `setLang()`, `formatMoney()`; `useLang.ts` (its hook).
+  - `lib/`: pure functions (`imageUrl.ts`, `dates.ts`). No DOM and no `localStorage`, so Node can test them.
+  - `browser/`: helpers that use browser features: `storage.ts`, `reveal.ts` (scroll reveal), `scrollToSection.ts`, `usePageTitle.ts`.
+  - `types.ts`: shared data shapes (`Item`, `User`, `BorrowRequest`, `Lang`). Types only, no runtime code.
 - `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
-- `tests/`: `node:test` unit tests for requests, security (escaping and validation), storage and translations. `fakes.ts` builds complete test objects.
+- `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). Data is kept in memory.
+- `tests/`: `node:test` unit tests for requests, the catalog filter and item list, security (URL checks, no HTML strings), storage, toasts and translations. `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes
 
-Example: the catalog page (`#/catalog`).
+Make one folder for it: `src/features/<feature>/`. Example: the "List an item" form (`#/list-item`), whose folder already exists.
 
-1. **Data shape:** add or extend the types in `src/types.ts`.
-2. **Rules:** put the pure logic in `src/logic/` (for example `catalog.ts` for filtering), with tests in `tests/catalog.test.ts`.
-3. **Data access:** reading or saving data goes in `src/store/`.
-4. **Page:** the page goes in `src/views/`. The catalog already has `src/views/CatalogView.ts` as a placeholder, so replace its content; it keeps returning a `MountedView`. A brand new page gets a new `XView.ts` and one route in `mountRoute()` in `src/main.ts`.
-5. **Reusable parts:** UI used on more than one page goes in `src/components/` (the catalog reuses `ItemCard.ts`).
-6. **Text:** add every visible string to both `src/i18n/en.ts` and `src/i18n/ar.ts`. `npm test` fails if the keys differ.
+1. **Data shape:** add or extend the types in `src/shared/types.ts`.
+2. **Rules:** pure logic goes in a `.ts` file in the feature folder, like `catalog/catalogFilter.ts`, with its tests in `tests/`. No React and no DOM in rule files.
+3. **Data access:** saving or loading goes in a store file (like `requests/requestStore.ts`); calls to the server go in an API file (like `requests/requestsApi.ts`) that uses `shared/api/client.ts`. If components must redraw when the data changes, give the store a `subscribe()` and read it with a hook built on `useSyncExternalStore` (like `users/useCurrentUser.ts`).
+4. **Page:** `ListItemView.tsx` is a placeholder component, so replace its content. A brand new page gets a new `XView.tsx` in its folder and one route in `renderRoute()` in `src/app/App.tsx`. Split a large page into small components; a form with its own logic gets its own file (like `requests/BorrowForm.tsx`).
+5. **Reuse:** use other features through their exports (the catalog reuses `items/ItemCard.tsx` and `items/listItems.ts`). A new item is added once, in `items/itemRecords.ts`, with its photo in `items/itemsData.ts`. Move code to `src/shared/` only when it is not about one feature.
+6. **Text:** add every visible string to both `src/shared/i18n/en.ts` and `src/shared/i18n/ar.ts`. `npm test` fails if the keys differ or a component has hard-coded English.
 7. **Styles:** add a commented section in `src/style.css` that uses the existing tokens and follows `DESIGN.md`.
-8. **Check:** run `npm test`, `npm run lint` and `npm run typecheck`, then check the page in the browser at 320px, 768px and 1280px, in English and Arabic.
+8. **Check:** run `npm test`, `npm run lint`, `npm run typecheck` and `npm run build`, then check the page in the browser at 320px, 768px and 1280px, in English and Arabic.
 
 ## 2. HTML
 
 - Use semantic HTML elements such as `header`, `nav`, `main`, `section`, `article`, and `footer`.
-- Every form input must have a properly associated `label`.
-- Use native HTML form validation attributes such as `required`, `type`, and `minlength`.
-- Maintain a logical heading hierarchy.
+- One `h1` per page and a logical heading order.
+- Every form input has a `label` (`htmlFor` in JSX).
+- Use native form validation attributes such as `required`, `type`, and `minLength`.
 - Use accessible names for interactive elements.
 
-## 3. CSS
+## 3. React
+
+- **Components:** one component per job, typed props in an `interface`, and a `ReactElement` return type.
+- **State:** keep what changes on screen in `useState`. Do not change the DOM by hand (no `classList`, `setAttribute` or `textContent` from code): change state and let React draw it. The one exception is `shared/browser/reveal.ts`, which only adds the animation class `is-visible` to elements React already drew.
+- **Forms:** a controlled input (`value` plus `onChange`) when the value is needed while typing; an uncontrolled one read with `FormData` on submit when the browser's own validation is enough (like `RegisterView.tsx`).
+- **Lists:** every `.map()` result has a stable `key` from the data (an id, never the index when the list can change).
+- **`key` to reset:** give a page a `key` when a new URL must start it fresh (the router uses `key={itemId}` and `key={query}`).
+- **Effects:** `useEffect` only for things outside React (listeners, timers, observers). Always return a cleanup, because `StrictMode` runs every effect twice in development to find missing ones.
+- **Refs:** `useRef` only for what state cannot do, such as moving focus.
+- **Stores outside React** (language, persona, toasts): read them with `useSyncExternalStore`, not with custom events. A store returns the same value until it changes and a new array or object when it does.
+- **Errors in state:** keep error codes, not translated text, so a language switch translates them.
+- **Navigation:** `window.location.assign("#/...")`, not `location.hash = ...` (the React lint rules forbid changing it directly).
+
+## 4. CSS
 
 - Follow a mobile-first approach.
 - Write base styles for mobile screens first, then use `min-width` media queries for larger screens.
 - Do not use `!important`.
-- Use clear, consistent class names.
+- Use clear, consistent class names (`className` in JSX).
 - Keep styles organized and avoid unnecessary duplication.
 
-## 4. TypeScript
+## 5. TypeScript
 
-- Write `.ts` files. Import with the `.ts` extension (`from "./dates.ts"`), so Node can run the tests directly.
+- `.tsx` for files with JSX, `.ts` for everything else. Import with the extension (`from "./dates.ts"`), so Node can run the tests directly.
 - Use only erasable syntax (no `enum` or `namespace`); `tsconfig.json` enforces this.
 - Type function parameters and return values. Use `unknown` for untrusted input, never `any`.
 - Use `import type` for imports that are only types.
-- Use `getElement<T>()` or `querySelector<T>()` with a null check instead of `!` or `as` on DOM lookups.
-
-- Use ES modules with `import` and `export` when needed.
-- Prefer `const` and use `let` when reassignment is necessary.
-- Avoid global variables and unnecessary dependencies.
-- Validate user input where appropriate.
+- Prefer `const`, use `let` only when reassignment is necessary, and avoid global variables.
 - Keep functions small and focused.
 
-## 4a. Security
+## 6. Security
 
 - Treat URL parameters, `localStorage` data and form input as untrusted.
-- Never put untrusted text into `innerHTML` without escaping it. Use `textContent` for single values and `escapeHtml()` inside HTML templates.
+- Show untrusted text with `{value}` in JSX: React escapes it. Never use `dangerouslySetInnerHTML`, `innerHTML` or `insertAdjacentHTML`; `npm test` fails if any appears in `src/`.
 - Validate URL parameters against an allowlist (known categories and statuses, a pattern for item IDs).
-- Only allow image URLs that are relative or use `https:`.
+- Only allow image URLs that are relative or use `https:` (`isSafeImageUrl()`).
 
-## 5. Code Quality
+## 7. Code Quality
 
-- Follow ESLint rules.
+- Follow ESLint rules, including the React hooks rules (`eslint-plugin-react-hooks`).
 - Use Prettier to format code.
 - Avoid unnecessary packages and configuration changes.
-- Keep the project compatible with the existing Vite setup.
-- Pure logic in `src/logic/` has tests run with `npm test` (Node's built-in `node:test`; no test packages).
+- Pure logic (rule files, stores without React, `src/shared/lib/`) has tests run with `npm test` (Node's built-in `node:test`; no test packages).
 - `npm run typecheck` (`tsc --noEmit`) must pass. The pre-commit hook runs it.
 
-## 6. Development Workflow
+## 8. Development Workflow
 
 - Inspect the existing files before making changes.
 - Explain the purpose of each change in simple English.
@@ -87,13 +107,13 @@ Example: the catalog page (`#/catalog`).
 - After significant changes, run ESLint and Prettier checks.
 - Fix errors introduced by your changes.
 
-## 7. Project Goal
+## 9. Project Goal
 
 Build BorrowBox, an accessible peer-to-peer tool-sharing web app.
 
 Implement only the features explicitly requested. Keep the solution simple and suitable for a beginner-level university assignment.
 
-## 8. Rules From Mistakes
+## 10. Rules From Mistakes
 
 ### Check text color where the text actually sits
 
@@ -111,4 +131,4 @@ Implement only the features explicitly requested. Keep the solution simple and s
 
 **The mistake:** To make TypeScript errors go away, the AI used `as` casts and `!` (for example `e.target as Node`). The code compiled, but the casts only told the compiler to trust us. If the value was wrong at runtime, the app would still break.
 
-**The rule:** Do not use `any`, `as` or `!` (`as const` is fine). Check the value instead, for example `if (!(target instanceof Node)) return;`, or use `getElement<T>()`. In tests, build complete objects with a factory such as `makeItem()` instead of casting partial objects.
+**The rule:** Do not use `any`, `as` or `!` (`as const` is fine). Check the value instead, for example `if (!(target instanceof Node)) return;`, or use a typed `useRef<HTMLInputElement>(null)` with a null check. In tests, build complete objects with a factory such as `makeItem()` instead of casting partial objects.

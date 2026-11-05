@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client"],
+    "jsx": "react-jsx",
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
@@ -13,5 +14,5 @@
     "erasableSyntaxOnly": true,
     "isolatedModules": true
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "server", "vite.config.ts"]
 }

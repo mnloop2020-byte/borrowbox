@@ -1404,7 +1404,7 @@ p {
 .item-card-image-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1; /* square product photos (DESIGN.md, Images) */
   border-radius: var(--radius-lg);
   background-color: var(--color-surface-muted);
   overflow: hidden;
@@ -1718,7 +1718,7 @@ p {
 .item-detail-img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--radius-lg);
   background-color: var(--color-surface-muted);
@@ -2189,7 +2189,148 @@ p {
 }
 
 /* ==========================================================================
-   Scroll reveal (src/utils/reveal.ts)
+   Catalog page (features/catalog/CatalogView.ts)
+   h1, the search bar, category chips, then the item grid (DESIGN.md)
+   ========================================================================== */
+
+.catalog-view {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-md) 0;
+}
+
+.catalog-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.catalog-title {
+  margin: 0;
+  font-size: var(--font-size-h1);
+  line-height: 1.1;
+  letter-spacing: var(--tracking-display);
+}
+
+.catalog-intro {
+  margin: 0;
+  max-width: 42rem;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+}
+
+.catalog-search {
+  max-width: 40rem;
+}
+
+/* On the cream page the search field is white, like the cards */
+.catalog-search .search-input-group {
+  background-color: var(--color-surface);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* touch target */
+  padding: 0 var(--space-md);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+/* The chosen category: cream on ink, 17.58:1 */
+.filter-chip[aria-current="true"] {
+  border-color: var(--color-ink);
+  background-color: var(--color-ink);
+  color: var(--color-on-dark);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* ink on #ffc8b7 is 12.40:1 */
+  .filter-chip:not([aria-current]):hover {
+    background-color: var(--color-surface-warm);
+  }
+}
+
+.catalog-count {
+  margin: 0 0 var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+/* No results: the same white card shape as everything else */
+.catalog-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl) var(--space-lg);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+  text-align: center;
+}
+
+.catalog-empty-title {
+  margin: 0;
+  font-size: var(--font-size-h3);
+}
+
+.catalog-empty p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 640px) {
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .catalog-view {
+    padding-inline: var(--space-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .catalog-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .catalog-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Scroll reveal (src/shared/browser/reveal.ts)
    Elements rise 40px and fade in over 800ms (Nomu's scroll fade-up), once.
    The hiding rule needs .js-reveal, which the script adds, so the page is
    complete without JavaScript. "animation ... backwards" only holds the
@@ -2212,5 +2353,75 @@ p {
   from {
     opacity: 0;
     transform: translateY(var(--distance-lg));
+  }
+}
+
+/* ==========================================================================
+   Toasts (src/shared/ui/Toasts.tsx)
+   Bottom centre on phones, bottom end corner from 640px (right in English,
+   left in Arabic). Colours are the status pairs: 5.62:1 and 5.58:1.
+   ========================================================================== */
+
+.toast-region {
+  position: fixed;
+  inset-inline: var(--space-md);
+  bottom: var(--space-md);
+  z-index: 200; /* above the sticky header (100) and menus (110) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  /* The empty region must not block clicks on the page under it */
+  pointer-events: none;
+}
+
+.toast {
+  width: 100%;
+  max-width: 26rem;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+  box-shadow: var(--shadow-float);
+  font-weight: 500;
+  line-height: 1.4;
+  pointer-events: auto;
+}
+
+.toast--error {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.toast.is-leaving {
+  opacity: 0;
+}
+
+@media (min-width: 640px) {
+  .toast-region {
+    inset-inline: auto var(--space-lg);
+    bottom: var(--space-lg);
+    align-items: flex-end;
+  }
+}
+
+/* Motion: rise in, fade out. With reduced motion they simply appear and go. */
+@media (prefers-reduced-motion: no-preference) {
+  .toast {
+    animation: toast-in var(--duration-medium) var(--ease-out);
+    transition:
+      opacity var(--duration-standard) var(--ease-out),
+      transform var(--duration-standard) var(--ease-out);
+  }
+
+  .toast.is-leaving {
+    transform: translateY(var(--distance-sm));
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-xs));
   }
 }

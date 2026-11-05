@@ -1,13 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { rangesOverlap, todayISO } from "../src/logic/dates.ts";
+import { rangesOverlap, todayISO } from "../src/shared/lib/dates.ts";
 import {
   createRequestRecord,
   deriveItemStatus,
   validateRequest,
-} from "../src/logic/requests.ts";
-import type { BorrowRequest } from "../src/types.ts";
+} from "../src/features/requests/requestRules.ts";
+import type { BorrowRequest } from "../src/shared/types.ts";
 import { makeItem, makeRequest } from "./fakes.ts";
 
 const item = makeItem({

@@ -1,28 +1,35 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { escapeHtml, isSafeImageUrl } from "../src/logic/html.ts";
-import { isValidItemId, parseCatalogParams } from "../src/logic/validation.ts";
-import { renderItemCard } from "../src/components/ItemCard.ts";
+import { readFileSync, readdirSync } from "node:fs";
+import { isSafeImageUrl } from "../src/shared/lib/imageUrl.ts";
+import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
+import { isValidItemId } from "../src/features/items/itemId.ts";
+import { itemCardData } from "../src/features/items/itemCardData.ts";
 import { makeItem } from "./fakes.ts";
 
-// ---------- escapeHtml ----------
+// ---------- no HTML strings ----------
 
-test("escapeHtml escapes all five HTML-special characters", () => {
-  assert.equal(
-    escapeHtml(`<a href="x" title='y'>&</a>`),
-    "&lt;a href=&quot;x&quot; title=&#39;y&#39;&gt;&amp;&lt;/a&gt;",
-  );
-});
-
-test("escapeHtml escapes & first, so existing entities are not left active", () => {
-  assert.equal(escapeHtml("&lt;"), "&amp;lt;");
-});
-
-test("escapeHtml turns non-strings into text", () => {
-  assert.equal(escapeHtml(42), "42");
-  assert.equal(escapeHtml(null), "");
-  assert.equal(escapeHtml(undefined), "");
+// React escapes every {value}, so text can never become HTML. These are the
+// ways around that escaping; none of them may appear in the app.
+test("no source file writes HTML strings into the page", () => {
+  const files = readdirSync("src", { recursive: true, encoding: "utf8" })
+    .filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"))
+    .map((f) => `src/${f.replaceAll("\\", "/")}`);
+  const found = [];
+  for (const file of files) {
+    const source = readFileSync(file, "utf8");
+    for (const name of [
+      "dangerouslySetInnerHTML",
+      "innerHTML",
+      "outerHTML",
+      "insertAdjacentHTML",
+    ]) {
+      if (source.includes(name)) found.push(`${file}: ${name}`);
+    }
+  }
+  assert.ok(files.length > 20, "the scan found the source files");
+  assert.deepEqual(found, []);
 });
 
 // ---------- isSafeImageUrl ----------
@@ -79,7 +86,10 @@ test("parseCatalogParams limits the query to 100 characters", () => {
   assert.equal(parseCatalogParams("q=" + "a".repeat(150)).q.length, 100);
 });
 
-// ---------- renderItemCard ----------
+// ---------- item cards ----------
+
+// React escapes every text value it draws, so the card needs no escapeHtml().
+// The checks left to us are in itemCardData(), tested here.
 
 const baseItem = makeItem({
   id: "item-101",
@@ -93,34 +103,29 @@ const baseItem = makeItem({
   imageUrl: "/assets/drill.svg",
 });
 
-test("renderItemCard escapes text fields, including inside attributes", () => {
-  const html = renderItemCard({
-    ...baseItem,
-    title: '"><img src=x onerror=alert(1)>',
-    ownerName: "<script>alert(1)</script>",
-  });
-  assert.equal(html.includes("<img src=x"), false);
-  assert.equal(html.includes("<script>"), false);
-  assert.ok(html.includes("&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"));
+test("itemCardData drops an unsafe image URL", () => {
+  assert.equal(
+    itemCardData({ ...baseItem, imageUrl: "javascript:alert(1)" }).imageUrl,
+    null,
+  );
+  assert.equal(itemCardData(baseItem).imageUrl, "/assets/drill.svg");
 });
 
-test("renderItemCard drops an unsafe image URL", () => {
-  const html = renderItemCard({ ...baseItem, imageUrl: "javascript:alert(1)" });
-  assert.equal(html.includes("javascript:"), false);
-});
-
-test("renderItemCard only uses known statuses in the class name", () => {
-  const html = renderItemCard(
+test("itemCardData keeps only known statuses", () => {
+  const card = itemCardData(
     makeItem({
       ...baseItem,
       // @ts-expect-error: a hostile status from corrupted storage, outside ItemStatus
       status: 'x" onmouseover="alert(1)',
     }),
   );
-  assert.equal(html.includes("onmouseover="), false);
+  assert.equal(card.status, null);
+  assert.equal(itemCardData(baseItem).status, "Available");
 });
 
-test("renderItemCard rejects an unsafe item id in the link", () => {
-  const html = renderItemCard({ ...baseItem, id: '1" onclick="alert(1)' });
-  assert.equal(html.includes("onclick="), false);
+test("itemCardData sends an unsafe id to the catalog", () => {
+  const card = itemCardData({ ...baseItem, id: '1" onclick="alert(1)' });
+  assert.equal(card.href, "#/catalog");
+  assert.equal(card.id, null);
+  assert.equal(itemCardData(baseItem).href, "#/item/item-101");
 });
