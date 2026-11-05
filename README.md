@@ -103,6 +103,8 @@ To change wording, edit the dictionary only. Category names, statuses and other 
 
 - [Project rules](CLAUDE.md): conventions for contributors and AI coding tools, and where a new feature goes.
 - [Design system](DESIGN.md): colours, type, spacing, components and motion, with measured contrast.
+- [Debug lab log](debug-lab-log.md) and [debugging log](debugging-log.md): real bugs, how they were found and fixed.
+- Claude Code skills in `.claude/skills/`: `vercel-react-best-practices` and `vercel-composition-patterns`, from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills).
 
 ## Status
 
