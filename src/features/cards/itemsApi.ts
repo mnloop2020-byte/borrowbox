@@ -17,3 +17,8 @@ const ITEMS_PATH = "/items";
 export function fetchItems(): Promise<ApiResult> {
   return getJson(ITEMS_PATH);
 }
+
+/** Gets one item by its checked route id from GET /api/items/:id. */
+export function fetchItem(itemId: string): Promise<ApiResult> {
+  return getJson(`/items/${encodeURIComponent(itemId)}`);
+}

@@ -2,14 +2,14 @@
 
 A peer-to-peer tool-sharing web app. Neighbors borrow tools from each other for free, and each borrow is backed by a **simulated** refundable deposit.
 
-This is an MVP with a small JSON API (`server/`): the items come from `GET /api/items`, and borrow requests go to `POST /api/requests`. The borrow list and the demo persona live in the browser (`localStorage`), and three demo personas let you try both the owner and the borrower side in one browser.
+This is an MVP with a small JSON API (`server/`): the catalog loads from `GET /api/items`, item pages load one record from `GET /api/items/:id`, and borrow requests go to `POST /api/requests`. The borrow list, successful local request records, and demo persona live in the browser (`localStorage`), and three demo personas let you try both the owner and the borrower side in one browser.
 
 ## Features
 
 - **Home page:** a search-first hero with category shortcuts, tool categories, featured items, "how it works" in four steps, and sections that rise into view as you scroll.
 - **Catalog** (`#/catalog`): all 14 items in a grid, with a name search (upper/lower case does not matter), category chips built from the data, and a sort (name, deposit low/high, or the default order). Search, category and sort work together and live in the URL (`#/catalog?category=Camping&q=stove&sort=name`), so a filtered list can be shared.
 - **Borrow list** (`#/borrow-list`): works like a cart. "Add to list" on a card adds the item (again: one more day). On the list page, − and + change the days (− from 1 removes the item), and items can be removed one by one or all at once. The count in the header is always up to date, and the list is saved in `localStorage`, so it is still there after a refresh.
-- **Item page** (`#/item/item-103`): the photo, condition notes, owner, the refundable deposit, and a working **borrow request**. Requests are checked for valid dates, date overlaps, owners borrowing their own item, and duplicate pending requests.
+- **Item page** (`#/item/item-103`): loads that item by id from `GET /api/items/:id`, then shows its photo, condition notes, owner, refundable deposit, and a working **borrow request**. Requests are checked for valid dates, date overlaps, owners borrowing their own item, and duplicate pending requests.
 - **Registration page** (`#/register`): a sign-up form checked by the browser's own validation (required fields, email format, minimum length).
 - **Arabic and English:** switch from the header without reloading. The layout mirrors for right-to-left, Arabic uses the Tajawal font, and the choice is remembered.
 - **Demo personas:** switch between Sarah (owner), Alex (borrower) and Elena (new member) from the profile menu.
@@ -19,10 +19,12 @@ This is an MVP with a small JSON API (`server/`): the items come from `GET /api/
 
 ## Tech stack
 
-- [Vite](https://vite.dev/) with [React](https://react.dev/) and TypeScript (strict mode, ES modules), HTML and CSS.
-- ESLint and Prettier for code quality, run on every commit by husky and lint-staged.
+- [Vite](https://vite.dev/), [React 19](https://react.dev/) and TypeScript in strict mode, with a hash-based router implemented in `src/app/App.tsx`.
+- Zustand for the shared borrowing list; a small custom external store for shared item data state; React Hook Form and Zod for the borrow form.
+- Limited shadcn/ui-style integration: `src/shared/ui/Button.tsx` and `src/shared/ui/Input.tsx`, using `@radix-ui/react-slot`, `class-variance-authority`, `clsx`, `tailwind-merge`, and `@hookform/resolvers` for Zod integration. Tailwind CSS v4 through `@tailwindcss/vite` provides theme and utility layers only; the app keeps its existing CSS and does not import Preflight.
+- ESLint, Prettier, Husky and lint-staged for code quality. The pre-commit hook runs all four required project checks; see [Scripts](#scripts).
 - Fonts: Inter (Latin) and Tajawal (Arabic) from Google Fonts.
-- Node's built-in test runner (`node:test`) for unit tests. No test libraries.
+- Node's built-in test runner (`node:test`) with jsdom for the React Error Boundary tests.
 
 ## Getting started
 
@@ -44,9 +46,9 @@ npm run api
 
 Then open http://localhost:5173.
 
-### See every state
+### See data loading, error, empty and no-match states
 
-The pages show a message for each state of the items. To see one, change `ITEMS_PATH` in `src/features/cards/itemsApi.ts` for a moment:
+The server supports test switches on `GET /api/items`. The frontend's default `ITEMS_PATH` is `/items`; to see the list's API states, temporarily change it in `src/features/cards/itemsApi.ts` and restore it afterward:
 
 | State    | `ITEMS_PATH`              | What you see                                   |
 | -------- | ------------------------- | ---------------------------------------------- |
@@ -57,21 +59,23 @@ The pages show a message for each state of the items. To see one, change `ITEMS_
 
 Stopping `npm run api` also shows the error: "The server did not answer".
 
+The catalog distinguishes an API failure from a successful empty collection and from a search with no matches. Route-level code loading uses the translated `page.loading` Suspense fallback. API list loading uses `items.loading`; API failures keep their own error state and a retry that requests the data again. Error Boundaries cover page render and lazy-import failures, with retry behavior. The Featured section has its own boundary so other home content stays visible.
+
 ## Scripts
 
-| Command                | What it does                             |
-| ---------------------- | ---------------------------------------- |
-| `npm run dev`          | Start the development server             |
-| `npm run api`          | Start the API server on port 3000        |
-| `npm run build`        | Build for production into `dist/`        |
-| `npm run preview`      | Serve the production build locally       |
-| `npm test`             | Run the unit tests                       |
-| `npm run lint`         | Check the code with ESLint (0 warnings)  |
-| `npm run typecheck`    | Check types with the TypeScript compiler |
-| `npm run format`       | Format all files with Prettier           |
-| `npm run format:check` | Check formatting without changing files  |
+| Command                | What it does                                    |
+| ---------------------- | ----------------------------------------------- |
+| `npm run dev`          | Start the development server                    |
+| `npm run api`          | Start the API server on port 3000               |
+| `npm run build`        | Build for production into `dist/`               |
+| `npm run preview`      | Serve the production build locally              |
+| `npm test`             | Run the unit tests                              |
+| `npm run lint`         | Check the full project with ESLint (0 warnings) |
+| `npm run typecheck`    | Check types with the TypeScript compiler        |
+| `npm run format`       | Format all files with Prettier                  |
+| `npm run format:check` | Check formatting without changing files         |
 
-A pre-commit hook (husky and lint-staged) runs ESLint and Prettier on staged files and then `npm run typecheck`; a lint or type error blocks the commit.
+The Husky pre-commit hook runs these commands in order: `npx lint-staged`, `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`. It uses `set -e`, so any failed command blocks the commit. `lint-staged` first applies ESLint/Prettier to staged files according to the patterns in `package.json`.
 
 ## Project structure
 
@@ -80,11 +84,11 @@ Files are grouped by feature: everything about one feature is in one folder.
 ```text
 src/
 ├── main.tsx              # Starts React and draws the app
-├── app/                  # The frame around every page: App (shell and router), Navbar, Footer, NotFoundView
+├── app/                  # App hash router/shell, useRetryableLazy, Navbar, Footer, NotFoundView
 ├── features/             # One folder per feature
 │   ├── home/             # Home page and its content
-│   ├── cards/            # Item data, categories, item card, item page, item id check
-│   ├── requests/         # Borrow requests: rules, saving, sending to the API
+│   ├── cards/            # Item API/store/mapper, categories, cards, item details and status
+│   ├── requests/         # Borrow rules/schema/form, local request storage and API submission
 │   ├── users/            # Demo users and the current user
 │   ├── catalog/          # Catalog page: search, category chips, sort, item grid
 │   ├── borrow-list/      # The borrow list (cart): rules, saving, the list page
@@ -93,7 +97,7 @@ src/
 │   └── list-item/        # "List an item" page (placeholder)
 ├── shared/               # Used by many features; never imports from features/
 │   ├── api/              # The one API client: getJson(), postJson(), BASE_URL
-│   ├── ui/               # Loading, error and empty states, toasts, icons
+│   ├── ui/               # Loading/error/empty states, ErrorBoundary, toasts, icons, Button/Input
 │   ├── i18n/             # en.ts and ar.ts dictionaries, t(), setLang(), formatMoney()
 │   ├── lib/              # Pure functions (image URL check, dates), tested with Node
 │   ├── browser/          # Helpers that use browser features (DOM, storage, scrolling)
@@ -104,100 +108,61 @@ server/                   # The JSON API (npm run api)
 tests/                    # node:test unit tests
 ```
 
-Rules (`requestRules.ts`, `itemId.ts`, `catalogFilter.ts`, `catalogParams.ts`) and everything in `shared/lib/` are pure functions with no DOM, so Node tests them directly. Pages only render and wire events.
+Rules (`requestRules.ts`, `itemId.ts`, `catalogFilter.ts`, `catalogParams.ts`) and everything in `shared/lib/` are pure functions with no DOM, so Node tests them directly. `borrowRequestSchema.ts` adapts form values to `validateRequest()`; it does not replace or duplicate the borrowing domain rules.
 
 ## Component tree
 
-Every component is in its own file, named like the component (`npm test` checks this). Next to each component: the props it gets. **State** marks the components that own state.
-
-The tree was checked against the running app with the Components tab of React DevTools, page by page.
+Components live in files named for their exported component (`npm test` checks the `.tsx` component convention). This is the current routing and page composition from `src/app/App.tsx` and the page modules:
 
 ```text
-App                                    state: hash (useState) · language (store)
-├── Navbar { hash }                    state: menuOpen, profileOpen, scrolled (useState)
-│   │                                         · user, language, borrow list, items (stores)
-│   ├── NavLink { hash, route, label, onNavigate }      ×3
-│   └── ScrollLink { targetId, className, onClick }
-├── <main>: one page, picked by renderRoute(hash)
-│   │
-│   ├── #/             HomeView
-│   │   ├── Hero                       (the search reads the form on submit: no state)
-│   │   │   ├── CheckIcon              ×3
-│   │   │   └── SearchIcon
-│   │   ├── About
-│   │   │   └── ScrollLink { targetId, className }
-│   │   ├── Categories
-│   │   ├── Featured                   state: items (store)
-│   │   │   ├── ItemsStatus { state }                    while loading or on error
-│   │   │   └── ItemCard { item, action }   key=item.id   ×8
-│   │   │       └── AddToListButton { item }
-│   │   ├── HowItWorks
-│   │   ├── IdleTools
-│   │   │   └── CheckIcon              ×3
-│   │   └── Why
-│   │
-│   ├── #/catalog      CatalogView { queryString }   key=queryString
-│   │   │                              state: search (useState) · items (store)
-│   │   ├── SearchIcon
-│   │   ├── ItemsStatus { state }                        while loading or on error
-│   │   └── CatalogResults { items, filters }
-│   │       ├── EmptyState { title, text }               no items at all
-│   │       ├── FilterChips { filters, categories }
-│   │       ├── SortSelect { filters }
-│   │       ├── EmptyState { title, text, action }       no match
-│   │       └── ItemCard { item, action }   key=item.id   ×14
-│   │           └── AddToListButton { item }
-│   │
-│   ├── #/item/:id     ItemDetailView { itemId }   key=itemId
-│   │   │                              state: items (store)
-│   │   ├── ItemPageStatus { state }                     while loading or on error
-│   │   │   └── ItemsStatus { state }
-│   │   ├── ItemNotFound                                 unknown id
-│   │   │   └── PlaceholderCard { title, text, action }
-│   │   └── ItemDetail { item }        state: user (store)
-│   │       ├── BackIcon
-│   │       ├── OwnerCard { item }
-│   │       └── BorrowForm { item }    state: startDate, endDate, errors, isSending (useState)
-│   │
-│   ├── #/borrow-list  BorrowListView  state: borrow list, items (stores)
-│   │   ├── ItemsStatus { state }                        while loading or on error
-│   │   ├── EmptyState { title, text, action }           empty list
-│   │   └── BorrowListRow { entry, item, onRowRemoved }   key=entry.itemId
-│   │
-│   ├── #/register     RegisterView    state: createdName (useState)
-│   ├── #/dashboard    DashboardView   state: user (store)
-│   │   └── PlaceholderCard { title, text }
-│   │       └── BackIcon
-│   ├── #/list-item    ListItemView
-│   │   └── PlaceholderCard { title, text }
-│   │       └── BackIcon
-│   └── anything else  NotFoundView
-│       └── PlaceholderCard { title, text }
-│           └── BackIcon
+App (hash and lazy-page retry counters)
+├── Navbar (local menu state; user, language and borrow-list hooks)
+├── main
+│   └── ErrorBoundary (current route)
+│       └── Suspense (LoadingState: "Loading page...")
+│           └── One React.lazy page selected by renderRoute(hash)
+│               ├── #/             HomeView
+│               │   ├── Hero, About, Categories
+│               │   ├── ErrorBoundary → Featured (useItems, ItemsStatus, ItemCard)
+│               │   ├── HowItWorks, IdleTools, Why
+│               ├── #/catalog      CatalogView → ItemsStatus or CatalogResults
+│               │   └── CatalogResults → FilterChips, SortSelect,
+│               │       EmptyState (empty/no-match), ItemCard
+│               ├── #/item/:id     ItemDetailView → ItemPageStatus,
+│               │   │               ItemNotFound, or ItemDetail
+│               │   └── ItemDetail → OwnerCard, BorrowForm
+│               ├── #/borrow-list  BorrowListView → ItemsStatus,
+│               │                   EmptyState, BorrowListRow
+│               ├── #/register     RegisterView
+│               ├── #/dashboard    DashboardView (placeholder)
+│               ├── #/list-item    ListItemView (placeholder)
+│               └── other hashes   NotFoundView
 ├── Footer
-│   └── ScrollLink { targetId, className }
-└── Toasts                             state: toasts (store)
+└── Toasts
 ```
 
-`ItemsStatus { state }` draws `LoadingState { label }` or `ErrorState { title, text, onRetry }`.
+`ErrorBoundary` is outside `Suspense` for the route page; the shared Navbar, Footer and Toasts are outside that boundary. `HomeView` wraps only `Featured` in a separate boundary. `useRetryableLazy()` keeps each lazy component stable during normal renders and creates a fresh lazy component after an explicit retry.
+
+`ItemsStatus` draws `LoadingState` or the API `ErrorState` with a real data retry. `CatalogResults` distinguishes a successful empty collection from no matches after filtering. Item details use the individual item endpoint and their own item-id-scoped request state; the catalog and borrow list consume the shared items store.
 
 ### Who owns the state
 
-| State                             | Owner                                                        | Why there                                                                                                  |
-| --------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| The current page (`hash`)         | `App` (`useState`)                                           | It picks the page and is passed to `Navbar` for the active link.                                           |
-| Menu open, profile open, scrolled | `Navbar` (`useState`)                                        | Only the header uses them.                                                                                 |
-| Search text while typing          | `CatalogView` (`useState`)                                   | A controlled input; the URL holds the search after submit.                                                 |
-| Filters and sort                  | The URL (`#/catalog?q=&category=&sort=`)                     | Read with `parseCatalogParams()` and passed down as `filters`, so a link or refresh keeps them.            |
-| Dates, errors, sending            | `BorrowForm` (`useState`)                                    | Only the form uses them.                                                                                   |
-| Account just created              | `RegisterView` (`useState`)                                  | Only the page uses it.                                                                                     |
-| Items from the API                | `itemsStore` (`cards/itemsStore.ts`), read with `useItems()` | One request shared by every page. Loading, error or success.                                               |
-| Borrow list (the cart)            | `borrowListStore`, read with `useBorrowList()`               | Saved in `localStorage`, so it survives a refresh; the Navbar count and the list page read the same store. |
-| Language                          | `i18n.ts`, read with `useLang()`                             | `App` reads it, so every page draws again after a switch.                                                  |
-| Current persona                   | `userStore`, read with `useCurrentUser()`                    | Used by the Navbar, the item page (owner check) and the dashboard.                                         |
-| Toasts                            | `toast.ts`, read in `Toasts`                                 | Any feature can call `showToast()`.                                                                        |
+| State                             | Owner                                                  | Why there                                                                                       |
+| --------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Current page and page retry count | `App` (`useState`)                                     | The hash picks the page; retry counters recreate a lazy page only after explicit retry.         |
+| Menu open, profile open, scrolled | `Navbar` (`useState`)                                  | Only the header uses them.                                                                      |
+| Search text while typing          | `CatalogView` (`useState`)                             | A controlled input; the URL holds the search after submit.                                      |
+| Filters and sort                  | The URL (`#/catalog?q=&category=&sort=`)               | Read with `parseCatalogParams()` and passed down as `filters`, so a link or refresh keeps them. |
+| Borrow form fields/errors/sending | `BorrowForm` (`react-hook-form`)                       | RHF owns field state; Zod adapts errors from the centralized domain rules.                      |
+| Account just created              | `RegisterView` (`useState`)                            | Only the page uses it.                                                                          |
+| Catalog/home/list items           | Custom `itemsStore`, read with `useItems()`            | One shared list request with loading, error or success state.                                   |
+| Item details                      | `ItemDetailView`                                       | Loads `/api/items/:id`; request state is tied to the current id to avoid stale responses.       |
+| Borrow list (the cart)            | Zustand `borrowListStore`, read with `useBorrowList()` | One shared source of truth, persisted with Zustand under `borrowbox_borrow_list`.               |
+| Language                          | `i18n.ts`, read with `useLang()`                       | `App` reads it, so every page draws again after a switch.                                       |
+| Current persona                   | `userStore`, read with `useCurrentUser()`              | Used by the Navbar, the item page (owner check) and the dashboard.                              |
+| Toasts                            | `toast.ts`, read in `Toasts`                           | Any feature can call `showToast()`.                                                             |
 
-A "store" is a small module outside React: one function returns the current value (such as `itemsStore.getState()` or `getLang()`) and a `subscribe` function tells React when it changes. Components read it with `useSyncExternalStore`, so every component that reads the same store draws again when it changes.
+The items store is a small custom external store read with `useSyncExternalStore`; it deduplicates the shared list request and exposes loading/error/success plus retry. The borrow list is Zustand, using its vanilla store API and `persist` middleware; `parseBorrowList()` validates restored data and the migration retains valid entries from the old raw-array format. Do not mirror either store's data in component state.
 
 ## Translations
 

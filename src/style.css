@@ -1,3 +1,7 @@
+/* Tailwind v4 theme and utilities only; preflight/global reset is intentionally omitted. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
 :root {
   /* Colours from DESIGN.md (Nomu-based palette). Every text pair is measured;
      the ratios are listed in DESIGN.md. Orange #ff7448 is never text and never

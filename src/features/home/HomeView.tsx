@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { t } from "../../shared/i18n/i18n.ts";
 import { observeReveals } from "../../shared/browser/reveal.ts";
 import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
+import { ErrorBoundary } from "../../shared/ui/ErrorBoundary.tsx";
 import { About } from "./About.tsx";
 import { Categories } from "./Categories.tsx";
 import { Featured } from "./Featured.tsx";
@@ -28,7 +29,12 @@ export function HomeView(): ReactElement {
       <Hero />
       <About />
       <Categories />
-      <Featured />
+      <ErrorBoundary
+        title={t("error.boundaryTitle")}
+        text={t("error.boundaryText")}
+      >
+        <Featured />
+      </ErrorBoundary>
       <HowItWorks />
       <IdleTools />
       <Why />

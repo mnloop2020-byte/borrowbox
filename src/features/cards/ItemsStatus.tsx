@@ -8,6 +8,7 @@ import { itemsStore } from "./useItems.ts";
 interface ItemsStatusProps {
   /** The items state while there are no items to show yet */
   state: Exclude<ItemsState, { status: "success" }>;
+  onRetry?: () => void;
 }
 
 /**
@@ -15,7 +16,10 @@ interface ItemsStatusProps {
  * error with "Try again". Every page that lists items uses it, so the
  * messages are the same everywhere.
  */
-export function ItemsStatus({ state }: ItemsStatusProps): ReactElement {
+export function ItemsStatus({
+  state,
+  onRetry = itemsStore.retry,
+}: ItemsStatusProps): ReactElement {
   if (state.status === "loading") {
     return <LoadingState label={t("items.loading")} />;
   }
@@ -29,7 +33,7 @@ export function ItemsStatus({ state }: ItemsStatusProps): ReactElement {
           ? t("items.errorNoAnswer")
           : t("items.errorCode", { status: state.httpStatus })
       }
-      onRetry={itemsStore.retry}
+      onRetry={onRetry}
     />
   );
 }

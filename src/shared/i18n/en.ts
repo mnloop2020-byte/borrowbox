@@ -209,12 +209,16 @@ export default {
   "catalog.sort.deposit-desc": "Deposit: high to low",
   "title.itemLoading": "Tool — BorrowBox",
   "item.pageHeading": "Tool details",
+  "page.loading": "Loading page...",
   "items.loading": "Loading tools…",
   "items.errorTitle": "We couldn't load the tools",
   "items.errorCode":
     "The server answered with error {status}. Please try again.",
   "items.errorNoAnswer":
     "The server did not answer. Check that the API is running, then try again.",
+  "error.boundaryTitle": "We couldn't display this part of BorrowBox",
+  "error.boundaryText":
+    "Something went wrong while showing this content. Try again.",
   "state.retry": "Try again",
   "catalog.noItemsTitle": "No tools listed yet",
   "catalog.noItemsText":

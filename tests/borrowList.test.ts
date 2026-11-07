@@ -112,6 +112,56 @@ test("the list is still there after a refresh (a new store, same storage)", () =
   ]);
 });
 
+test("the persisted Zustand state keeps the existing storage key", () => {
+  const storage = fakeStorage();
+  const store = createBorrowListStore(storage);
+  store.add("item-1");
+
+  assert.deepEqual(Object.keys(storage.data), ["borrowbox_borrow_list"]);
+  const persisted: unknown = JSON.parse(storage.data.borrowbox_borrow_list);
+  assert.deepEqual(persisted, {
+    state: { list: [entry("item-1", 1)] },
+    version: 1,
+  });
+});
+
+test("legacy raw-array data is migrated without losing valid entries", () => {
+  const storage = fakeStorage({
+    borrowbox_borrow_list: JSON.stringify([
+      entry("item-1", 2),
+      { itemId: "<bad-id>", days: 1 },
+      entry("item-2", 14),
+    ]),
+  });
+
+  const migrated = createBorrowListStore(storage);
+  assert.deepEqual(migrated.getList(), [
+    entry("item-1", 2),
+    entry("item-2", 14),
+  ]);
+
+  const persisted: unknown = JSON.parse(storage.data.borrowbox_borrow_list);
+  assert.deepEqual(persisted, {
+    state: { list: [entry("item-1", 2), entry("item-2", 14)] },
+    version: 1,
+  });
+});
+
+test("invalid persisted entries are filtered when restoring Zustand state", () => {
+  const storage = fakeStorage({
+    borrowbox_borrow_list: JSON.stringify({
+      state: {
+        list: [entry("item-1", 2), entry("item-2", 0), entry("<bad>", 1)],
+      },
+      version: 1,
+    }),
+  });
+
+  assert.deepEqual(createBorrowListStore(storage).getList(), [
+    entry("item-1", 2),
+  ]);
+});
+
 test("the count is correct after every action", () => {
   const storage = fakeStorage();
   const store = createBorrowListStore(storage);
@@ -177,6 +227,15 @@ test("a broken or blocked storage never crashes the list", () => {
   assert.deepEqual(blocked.getList(), []);
   blocked.add("item-1"); // cannot be saved, but still works on this page
   assert.deepEqual(blocked.getList(), [entry("item-1", 1)]);
+});
+
+test("only the Zustand state is the source of truth for the list", () => {
+  const store = createBorrowListStore(fakeStorage());
+  assert.equal(store.getList(), store.store.getState().list);
+
+  store.add("item-1");
+  assert.equal(store.getList(), store.store.getState().list);
+  assert.deepEqual(store.store.getState().list, [entry("item-1", 1)]);
 });
 
 test("items that do not exist are dropped, so the count matches the page", () => {
