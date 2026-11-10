@@ -1,4 +1,5 @@
-dist
+.next
+next-env.d.ts
 node_modules
 package-lock.json
 # Skills copied from vercel-labs/agent-skills, kept exactly as published

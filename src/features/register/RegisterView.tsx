@@ -1,7 +1,12 @@
+"use client";
 import { useState } from "react";
 import type { FormEvent, ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
-import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
+import { createI18n } from "../../shared/i18n/i18n.ts";
+import type { Lang } from "../../shared/types.ts";
+
+interface RegisterViewProps {
+  lang: Lang;
+}
 
 /**
  * Registration page.
@@ -15,8 +20,8 @@ import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
  * The inputs are uncontrolled: the browser keeps what is typed, and the
  * name is read once, on submit. No state is needed for each field.
  */
-export function RegisterView(): ReactElement {
-  usePageTitle(t("title.register"));
+export function RegisterView({ lang }: RegisterViewProps): ReactElement {
+  const { t } = createI18n(lang);
   // The name of the last account created, or null before the first one.
   // The name, not the message, so a language switch translates it.
   const [createdName, setCreatedName] = useState<string | null>(null);

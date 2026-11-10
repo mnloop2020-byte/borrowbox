@@ -3,42 +3,16 @@ import assert from "node:assert/strict";
 
 import en from "../src/shared/i18n/en.ts";
 import ar from "../src/shared/i18n/ar.ts";
-import {
-  formatMoney,
-  getLang,
-  readStoredLang,
-  saveLang,
-  setLang,
-  t,
-  translate,
-} from "../src/shared/i18n/i18n.ts";
-import { fakeStorage, makeItem, throwingStorage } from "./fakes.ts";
+import { createI18n, parseLang, translate } from "../src/shared/i18n/i18n.ts";
+import { makeItem } from "./fakes.ts";
 
-// ---------- Phase 1: stored language ----------
+// ---------- Phase 1: the language from the cookie ----------
 
-test("readStoredLang returns ar only for the exact value 'ar'", () => {
-  assert.equal(readStoredLang(fakeStorage({ borrowbox_lang: "ar" })), "ar");
-});
-
-test("readStoredLang falls back to en for missing or invalid values", () => {
-  for (const value of [undefined, "fr", "AR", "", '"ar"', "en"]) {
-    const storage =
-      value === undefined
-        ? fakeStorage()
-        : fakeStorage({ borrowbox_lang: value });
-    assert.equal(readStoredLang(storage), "en", String(value));
+test("parseLang returns ar only for the exact value 'ar'", () => {
+  assert.equal(parseLang("ar"), "ar");
+  for (const value of [undefined, "fr", "AR", "", '"ar"', "en", 1]) {
+    assert.equal(parseLang(value), "en", String(value));
   }
-});
-
-test("readStoredLang falls back to en when storage throws", () => {
-  assert.equal(readStoredLang(throwingStorage), "en");
-});
-
-test("saveLang reports failure without throwing when storage throws", () => {
-  assert.equal(saveLang("ar", throwingStorage), false);
-  const storage = fakeStorage();
-  assert.equal(saveLang("ar", storage), true);
-  assert.equal(storage.data.borrowbox_lang, "ar");
 });
 
 // ---------- Phase 2: dictionaries ----------
@@ -91,48 +65,38 @@ test("translate returns the key itself for an unknown key, never empty", () => {
   assert.equal(translate(dicts, "ar", "nope.missing"), "nope.missing");
 });
 
-test("setLang rejects invalid languages and falls back to en", () => {
-  assert.equal(setLang("de"), "en");
-  assert.equal(getLang(), "en");
-  assert.equal(setLang("ar"), "ar");
-  assert.equal(getLang(), "ar");
-  assert.equal(t("nav.explore"), ar["nav.explore"]);
-  setLang("en");
+test("createI18n translates in the language it was made for", () => {
+  assert.equal(createI18n("ar").t("nav.explore"), ar["nav.explore"]);
+  assert.equal(createI18n("en").t("nav.explore"), en["nav.explore"]);
 });
 
 // ---------- Phase 8: money ----------
 
 test("formatMoney in English uses a dollar sign and Western digits", () => {
-  setLang("en");
+  const { formatMoney } = createI18n("en");
   assert.equal(formatMoney(45), "$45");
   assert.equal(formatMoney(1234), "$1,234");
 });
 
 test("formatMoney in Arabic keeps Western digits", () => {
-  setLang("ar");
-  const text = formatMoney(45);
+  const text = createI18n("ar").formatMoney(45);
   assert.ok(text.includes("45"), text);
   assert.ok(text.includes("$"), text);
   assert.equal(/[٠-٩]/.test(text), false, text);
-  setLang("en");
 });
 
 test("formatMoney treats non-numbers as 0", () => {
-  setLang("en");
-  assert.equal(formatMoney("abc"), "$0");
+  assert.equal(createI18n("en").formatMoney("abc"), "$0");
 });
 
 // ---------- Phase 5: display of fixed data values ----------
 
-import { tValue } from "../src/shared/i18n/i18n.ts";
-
 test("tValue translates a known value and shows an unknown one as stored", () => {
-  setLang("ar");
+  const { tValue } = createI18n("ar");
   assert.equal(tValue("status", "Available"), "متاح");
   assert.equal(tValue("condition", "Weird & new"), "Weird & new");
   assert.equal(tValue("condition", undefined), "");
-  setLang("en");
-  assert.equal(tValue("condition", "Like New"), "Like New");
+  assert.equal(createI18n("en").tValue("condition", "Like New"), "Like New");
 });
 
 // ---------- Phase 4: no hard-coded interface text ----------
@@ -146,7 +110,6 @@ test("pages and UI code contain no hard-coded English interface text", () => {
       .filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"))
       .map((f) => `${dir}/${f.replaceAll("\\", "/")}`);
   const files = [
-    "src/main.tsx",
     ...tsFilesIn("src/app"),
     ...tsFilesIn("src/features"),
     ...tsFilesIn("src/shared/ui"),
@@ -170,16 +133,11 @@ test("pages and UI code contain no hard-coded English interface text", () => {
 
 // ---------- Phase 5: data and URLs stay English ----------
 
-import {
-  CATEGORIES,
-  categoryHref,
-  categoryLabel,
-} from "../src/features/cards/categories.ts";
+import { CATEGORIES, categoryHref } from "../src/features/cards/categories.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
 import { itemCardData } from "../src/features/cards/itemCardData.ts";
 
 test("category data and URLs stay English in Arabic", () => {
-  setLang("ar");
   assert.deepEqual(CATEGORIES, [
     "Power Tools",
     "Hand Tools",
@@ -188,19 +146,21 @@ test("category data and URLs stay English in Arabic", () => {
     "Camping",
     "Outdoor Equipment",
   ]);
-  assert.equal(categoryHref("Power Tools"), "#/catalog?category=Power%20Tools");
+  assert.equal(categoryHref("Power Tools"), "/catalog?category=Power+Tools");
   for (const name of CATEGORIES) {
     assert.equal(
       parseCatalogParams(`category=${encodeURIComponent(name)}`).category,
       name,
     );
   }
-  assert.equal(categoryLabel("Power Tools"), "أدوات كهربائية");
-  setLang("en");
+  assert.equal(
+    createI18n("ar").tValue("category", "Power Tools"),
+    "أدوات كهربائية",
+  );
 });
 
 test("an Arabic item card keeps its English link and status class", () => {
-  setLang("ar");
+  const { formatMoney, tValue } = createI18n("ar");
   const card = itemCardData(
     makeItem({
       id: "item-101",
@@ -210,10 +170,10 @@ test("an Arabic item card keeps its English link and status class", () => {
       status: "Available",
       imageUrl: "/a.png",
     }),
+    formatMoney,
   );
-  assert.equal(card.href, "#/item/item-101");
+  assert.equal(card.href, "/items/item-101");
   // ItemCard.tsx builds the class from this English value
   assert.equal(card.status, "Available");
   assert.equal(tValue("status", "Available"), "متاح");
-  setLang("en");
 });

@@ -2,6 +2,7 @@
  * The item photos. The API sends no images, so the app keeps them and adds
  * them to each item in toItem() (itemMapper.ts).
  */
+import type { StaticImageData } from "next/image";
 import drill from "../../assets/photos/cards/cordless-drill.webp";
 import mower from "../../assets/photos/cards/lawn-mower.webp";
 import tent from "../../assets/photos/cards/dome-tent.webp";
@@ -17,8 +18,8 @@ import ladder from "../../assets/photos/cards/step-ladder.webp";
 import bike from "../../assets/photos/cards/mountain-bike.webp";
 import scooter from "../../assets/photos/cards/electric-scooter.webp";
 
-/** Each item's photo, by item id. Vite gives each file a hashed URL. */
-const PHOTOS: Record<string, string> = {
+/** Each item's photo, by item id. Next.js gives each file a hashed URL. */
+const PHOTOS: Record<string, StaticImageData> = {
   "item-101": drill,
   "item-102": mower,
   "item-103": tent,
@@ -40,5 +41,5 @@ const PHOTOS: Record<string, string> = {
  * image). Passed to toItems() when the items arrive from the API.
  */
 export function photoUrl(id: string): string {
-  return PHOTOS[id] ?? "";
+  return PHOTOS[id]?.src ?? "";
 }

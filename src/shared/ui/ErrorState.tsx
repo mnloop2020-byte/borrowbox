@@ -1,20 +1,21 @@
 import type { ReactElement } from "react";
-import { t } from "../i18n/i18n.ts";
 
 interface ErrorStateProps {
   title: string;
   text: string;
-  /** Called by the "Try again" button */
+  /** The button text, e.g. "Try again" in the page's language */
+  retryLabel: string;
   onRetry: () => void;
 }
 
 /**
- * Shown when data could not be loaded, with a "Try again" button.
- * role="alert" makes screen readers say it at once.
+ * Shown when something could not be loaded or drawn, with a "Try again"
+ * button. role="alert" makes screen readers say it at once.
  */
 export function ErrorState({
   title,
   text,
+  retryLabel,
   onRetry,
 }: ErrorStateProps): ReactElement {
   return (
@@ -22,7 +23,7 @@ export function ErrorState({
       <h2 className="state-title">{title}</h2>
       <p>{text}</p>
       <button type="button" className="btn btn-primary" onClick={onRetry}>
-        {t("state.retry")}
+        {retryLabel}
       </button>
     </div>
   );

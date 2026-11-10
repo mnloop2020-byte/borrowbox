@@ -313,8 +313,8 @@ rules. Buttons use the palette directly, so they look the same everywhere.
 
 ## Typography
 
-**Font: Inter** (observed on Nomu, open licence, on Google Fonts), loaded as
-its variable axis from 400 to 600, which includes 450. It replaces Space
+**Font: Inter** (observed on Nomu, open licence, on Google Fonts), loaded with
+`next/font` (served from this site) as its variable axis, which includes 450. It replaces Space
 Grotesk and DM Sans. **Arabic: Tajawal** for every role, loaded at 400, 500
 and 700.
 
@@ -409,12 +409,12 @@ dark footer.
 
 | Page                         | Layout                                                                                                                                                                                   |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Home** `#/`                | Hero → About → Browse by category → Featured items → How it works (steps `01–04`) → Got tools sitting idle? → Why BorrowBox (dark panel) → Footer                                        |
-| **Catalog** `#/catalog`      | `h1`, a pill `search-bar`, category chips (from the existing category list and `?category=`), then the item grid. Empty and "no results" states use the same card shape                  |
-| **Item detail** `#/item/:id` | Large square photo in a white `card` frame (left on desktop, sticky); one column on the right: title, owner and trust details, the booking panel (deposit, status, date form), condition |
-| **List item** `#/list-item`  | `h1` and one centred white form card (`max-width: 42rem`)                                                                                                                                |
-| **Dashboard** `#/dashboard`  | `h1`, then white cards in a single column on mobile and two columns from 1024px                                                                                                          |
-| **Register** `#/register`    | `h1` and one centred white form card                                                                                                                                                     |
+| **Home** `/`                 | Hero → About → Browse by category → Featured items → How it works (steps `01–04`) → Got tools sitting idle? → Why BorrowBox (dark panel) → Footer                                        |
+| **Catalog** `/catalog`       | `h1`, a pill `search-bar`, category chips (from the existing category list and `?category=`), then the item grid. Empty and "no results" states use the same card shape                  |
+| **Item detail** `/items/:id` | Large square photo in a white `card` frame (left on desktop, sticky); one column on the right: title, owner and trust details, the booking panel (deposit, status, date form), condition |
+| **List item** `/list-item`   | `h1` and one centred white form card (`max-width: 42rem`)                                                                                                                                |
+| **Dashboard** `/dashboard`   | `h1`, then white cards in a single column on mobile and two columns from 1024px                                                                                                          |
+| **Register** `/register`     | `h1` and one centred white form card                                                                                                                                                     |
 
 The catalog, list item and dashboard pages are placeholders in the current
 app: each shows one centred white card with its `h1`, a short text and a
@@ -480,7 +480,7 @@ action: the search.
   each check mark stays next to its first word).
 - **Search card:** a white `card` with the `float` shadow, holding the pill
   `search-bar` and, under it, the six categories as chips linking to
-  `#/catalog?category=<name>`. It uses the existing search form and category
+  `/catalog?category=<name>`. It uses the existing search form and category
   list; nothing new is added.
 - Under the card: one `button-primary` ("Explore all items") and one
   `button-ghost` ("List an item").
@@ -569,7 +569,7 @@ Use in the page:
 - Under the image, with `md` padding: category and rating on one row, the
   title, then condition and owner, and a footer row with the deposit and a
   "Free to borrow" chip.
-- The whole card is one link to `#/item/:id`; it has one focusable element.
+- The whole card is one link to `/items/:id`; it has one focusable element.
 - Hover: card lifts `-4px` and gets the `float` shadow; the image zooms to
   `scale(1.05)` inside its frame.
 
@@ -614,7 +614,8 @@ Use in the page:
 | Section photos        | 4 / 3 | Observed                               |
 | Hero image            | 4 / 5 | BorrowBox (crop of the new hero image) |
 
-- WebP, quality 80, imported in TypeScript so Vite hashes the file name.
+- WebP, quality 80, imported in TypeScript so Next.js hashes the file name, and
+  drawn with `next/image`, which serves the right size for each screen.
 - Content images have a real `alt`; decorative ones have `alt=""`.
 - Only relative or `https:` image URLs (see `CLAUDE.md`).
 - **Item photos:** studio product shots, 1024 × 1024, on a light cream

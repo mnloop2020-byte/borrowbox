@@ -1,16 +1,16 @@
 /**
  * The one API client: every call to the BorrowBox API (server/index.ts)
  * goes through this file, and it is the only place that calls fetch.
- * Features keep their own addresses, e.g. features/requests/requestsApi.ts.
+ * Features keep their own paths, e.g. features/cards/itemsApi.ts.
  *
- * Because every request passes here, this is where problems are watched:
- * each failure is written to the Console as one line, e.g.
- *   [api] POST /api/requests failed: 500
- * Open DevTools > Console to see which request failed and why.
+ * It runs on the server only (server components and server actions), so the
+ * API address stays out of the browser. Each failure is written to the
+ * terminal as one line, e.g.
+ *   [api] GET http://localhost:4000/api/items failed: 500
  *
- * Returns a result instead of throwing, like validateRequest() does, so the
- * caller must handle both cases.
+ * Returns a result instead of throwing, so the caller must handle both cases.
  */
+import "server-only";
 
 export type ApiResult =
   | { ok: true; data: unknown }
@@ -30,11 +30,16 @@ function logFailure(
 }
 
 /**
- * Where the API lives. The one place the address is written: every path
- * below is joined to it, e.g. "/items" -> "/api/items". During `npm run dev`
- * Vite forwards /api to the API server (vite.config.ts).
+ * Where the API lives, from API_BASE_URL in .env.local (see .env.example).
+ * Every path is joined to it, e.g. "/items" -> ".../api/items". Adding a
+ * test switch to it (".../api/delay/3000") changes every request.
  */
-export const BASE_URL = "/api";
+function baseUrl(): string {
+  const url = process.env.API_BASE_URL;
+  if (!url)
+    throw new Error("API_BASE_URL is not set: copy .env.example to .env.local");
+  return url.replace(/\/$/, "");
+}
 
 /**
  * Sends one request and checks the answer. GET and POST both use it, so
@@ -45,11 +50,12 @@ async function requestJson(
   path: string,
   body?: unknown,
 ): Promise<ApiResult> {
-  const url = `${BASE_URL}${path}`;
+  const url = `${baseUrl()}${path}`;
   let res: Response;
   try {
     res = await fetch(url, {
       method,
+      cache: "no-store",
       headers:
         method === "POST" ? { "Content-Type": "application/json" } : undefined,
       body: method === "POST" ? JSON.stringify(body) : undefined,
@@ -60,9 +66,10 @@ async function requestJson(
     return { ok: false, status: 0 };
   }
 
-  // A 4xx or 5xx answer still arrives, so check it here
+  // A 4xx or 5xx answer still arrives, so check it here. 404 is not logged:
+  // "no such item" is an answer the page shows (not-found), not a failure.
   if (!res.ok) {
-    logFailure(method, url, res.status);
+    if (res.status !== 404) logFailure(method, url, res.status);
     return { ok: false, status: res.status };
   }
 

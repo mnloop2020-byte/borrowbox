@@ -1,25 +1,19 @@
+import Link from "next/link";
+import { Suspense } from "react";
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { ArrowIcon } from "../../shared/ui/ArrowIcon.tsx";
-import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
-import { ItemCard } from "../cards/ItemCard.tsx";
-import { ItemsStatus } from "../cards/ItemsStatus.tsx";
-import { listCards } from "../cards/listCards.ts";
-import { useItems } from "../cards/useItems.ts";
-import { FEATURED_ITEM_IDS } from "./homeContent.ts";
+import { LoadingState } from "../../shared/ui/LoadingState.tsx";
+import { RetryBoundary } from "../../shared/ui/RetryBoundary.tsx";
+import { FeaturedGrid } from "./FeaturedGrid.tsx";
 
 /**
- * The items in FEATURED_ITEM_IDS, from the API. Until they arrive: the
- * loading or error state.
+ * "Featured items". The heading shows at once; the cards wait for the API
+ * in their own Suspense (loading) and RetryBoundary (error with "Try
+ * again"), so the rest of the home page never waits for them.
  */
-export function Featured(): ReactElement {
-  const state = useItems();
-  const items =
-    state.status === "success"
-      ? listCards(state.items).filter((item) =>
-          FEATURED_ITEM_IDS.includes(item.id),
-        )
-      : [];
+export async function Featured(): Promise<ReactElement> {
+  const { t, lang } = await getI18n();
   return (
     <section
       className="home-section featured-section"
@@ -29,23 +23,15 @@ export function Featured(): ReactElement {
         <h2 id="featured-heading" className="section-title">
           {t("home.featured.title")}
         </h2>
-        <a href="#/catalog" className="text-link">
+        <Link href="/catalog" className="text-link">
           {t("home.featured.viewAll")} <ArrowIcon />
-        </a>
+        </Link>
       </div>
-      {state.status !== "success" ? (
-        <ItemsStatus state={state} />
-      ) : (
-        <div className="featured-grid" data-reveal-group>
-          {items.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              action={<AddToListButton item={item} />}
-            />
-          ))}
-        </div>
-      )}
+      <RetryBoundary lang={lang} title={t("items.errorTitle")}>
+        <Suspense fallback={<LoadingState label={t("items.loading")} />}>
+          <FeaturedGrid />
+        </Suspense>
+      </RetryBoundary>
     </section>
   );
 }

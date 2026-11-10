@@ -1,13 +1,11 @@
+import Image from "next/image";
+import Link from "next/link";
 import type { ReactElement } from "react";
-import { formatMoney, t, tValue } from "../../shared/i18n/i18n.ts";
-import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
-import { todayISO } from "../../shared/lib/dates.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { isSafeImageUrl } from "../../shared/lib/imageUrl.ts";
 import { BackIcon } from "../../shared/ui/BackIcon.tsx";
 import { BorrowForm } from "../requests/BorrowForm.tsx";
-import { deriveItemStatus } from "../requests/requestRules.ts";
-import { getRequests } from "../requests/requestStore.ts";
-import { useCurrentUser } from "../users/useCurrentUser.ts";
+import { getCurrentUser } from "../users/currentUser.ts";
 import { OwnerCard } from "./OwnerCard.tsx";
 import type { Item } from "./types.ts";
 
@@ -16,25 +14,30 @@ interface ItemDetailProps {
 }
 
 /** One item: photo, details, deposit, owner and the borrow form */
-export function ItemDetail({ item }: ItemDetailProps): ReactElement {
-  usePageTitle(t("title.item", { title: item.title }));
-  // Read on every draw, so a new request shows at once
-  const status = deriveItemStatus(item, getRequests(), todayISO());
-  const isOwner = useCurrentUser().id === item.ownerId;
+export async function ItemDetail({
+  item,
+}: ItemDetailProps): Promise<ReactElement> {
+  const { t, tValue, formatMoney, lang } = await getI18n();
+  const currentUser = await getCurrentUser();
+  const isOwner = currentUser.id === item.ownerId;
 
   return (
     <article className="item-detail" aria-labelledby="item-title">
-      <a href="#/catalog" className="text-link item-back">
+      <Link href="/catalog" className="text-link item-back">
         <BackIcon /> {t("item.back")}
-      </a>
+      </Link>
 
       <div className="item-detail-layout">
         <div className="item-detail-media">
           {isSafeImageUrl(item.imageUrl) && (
-            <img
+            <Image
               src={item.imageUrl}
               alt={item.title}
+              width={800}
+              height={800}
+              sizes="(min-width: 768px) 50vw, 100vw"
               className="item-detail-img"
+              loading="eager"
             />
           )}
         </div>
@@ -63,9 +66,9 @@ export function ItemDetail({ item }: ItemDetailProps): ReactElement {
                 {t("booking.depositHeading")}
               </h2>
               <p
-                className={`item-card-badge status-${status.toLowerCase()} item-detail-status`}
+                className={`item-card-badge status-${item.status.toLowerCase()} item-detail-status`}
               >
-                {tValue("status", status)}
+                {tValue("status", item.status)}
               </p>
             </div>
             <p className="booking-deposit">{formatMoney(item.depositAmount)}</p>
@@ -73,7 +76,7 @@ export function ItemDetail({ item }: ItemDetailProps): ReactElement {
             {isOwner ? (
               <p className="booking-owner-note">{t("booking.ownerNote")}</p>
             ) : (
-              <BorrowForm item={item} />
+              <BorrowForm item={item} borrower={currentUser} lang={lang} />
             )}
           </aside>
 

@@ -21,7 +21,7 @@ function isSortKey(value: string): value is SortKey {
 /**
  * The catalog address for a set of filters, the opposite of
  * parseCatalogParams(). Default values are left out, so "All" with no
- * search and the default sort is just "#/catalog".
+ * search and the default sort is just "/catalog".
  */
 export function catalogHref(filters: CatalogParams): string {
   const params = new URLSearchParams();
@@ -29,7 +29,7 @@ export function catalogHref(filters: CatalogParams): string {
   if (filters.q) params.set("q", filters.q);
   if (filters.sort !== "default") params.set("sort", filters.sort);
   const query = params.toString();
-  return query ? `#/catalog?${query}` : "#/catalog";
+  return query ? `/catalog?${query}` : "/catalog";
 }
 
 /**

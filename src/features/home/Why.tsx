@@ -1,9 +1,10 @@
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { WHY_ITEMS } from "./homeContent.ts";
 
 /** The dark "Why BorrowBox" panel */
-export function Why(): ReactElement {
+export async function Why(): Promise<ReactElement> {
+  const { t } = await getI18n();
   return (
     <section className="home-section" aria-labelledby="why-heading">
       <div className="why-panel">

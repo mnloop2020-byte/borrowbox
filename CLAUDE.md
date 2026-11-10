@@ -2,51 +2,52 @@
 
 ## 1. Technology Stack
 
-- Vite, React 19 and TypeScript in strict mode (see `tsconfig.json`), with the existing custom CSS and Tailwind CSS v4 theme/utilities for the limited shadcn/ui-style form components. Do not import Tailwind Preflight or add a global reset.
-- The router is the small hash router in `src/app/App.tsx`; do not add a routing library. Zustand is used for the shared borrow list only. The items, user, language and toast state use their existing custom stores; do not replace those architectures without an explicit requirement.
-- Use React and native browser APIs before adding a package.
+- Next.js 16 (App Router), React 19 and TypeScript in strict mode (see `tsconfig.json`), with the existing plain CSS in `src/style.css`. Tailwind CSS v4 adds only its theme and utilities, for the small shadcn/ui-style `Button` and `Input`; never add its Preflight (global reset).
+- Zustand for shared state in the browser. React Hook Form and Zod for forms with their own logic.
+- The API is a separate Node server in `server/` (no packages). The app reaches it from the server only, at `API_BASE_URL` (`.env.local`, see `.env.example`).
+- Use Next.js, React and native browser APIs before adding a package.
+- **This Next.js version is newer than most training data.** Before using a Next.js API, read its page in `node_modules/next/dist/docs/` (see rule 10, "Read the docs of the installed version").
 
 ## Architecture
 
 Files are grouped by feature. To fix a bug, open the folder of the feature it is in.
 
-- `src/main.tsx`: starts React and draws `<App />` into `<div id="app">` (in `StrictMode`).
-- `src/react-css.d.ts`: lets a `style` object set CSS variables (`style={{ "--i": 2 }}`).
-- `src/app/`: the frame around every page.
-  - `App.tsx`: shell and hash router (`#/`, `#/catalog`, `#/item/:id`, `#/borrow-list`, `#/list-item`, `#/dashboard`, `#/register`; other hashes show `NotFoundView`). Route pages use `React.lazy` inside `Suspense`; `useRetryableLazy.ts` recreates a lazy type only after explicit retry because React caches rejected lazy promises. A route-level `ErrorBoundary` wraps Suspense, and a hash change moves focus to `<main>`.
-  - `Navbar.tsx` (menu, language and persona switch), `NavLink.tsx` (a menu link marked when its page is open), `isCurrentRoute.ts`, `Footer.tsx`, `NotFoundView.tsx`.
-- `src/features/<feature>/`: everything for one feature: its types (`types.ts`), rules, store and UI. A page is `XView.tsx`: it exports the component `XView` and sets the tab title with `usePageTitle()`.
-  - `home/`: `HomeView.tsx` (the page and the scroll reveal), one file per section (`Hero.tsx`, `About.tsx`, `Categories.tsx`, `Featured.tsx`, `HowItWorks.tsx`, `IdleTools.tsx`, `Why.tsx`) and `homeContent.ts` (their texts, images and the featured ids).
-  - `cards/`: the tools people lend (the data type is `Item`, and links stay `#/item/:id`). The catalog uses `GET /api/items`: `itemsApi.ts` (`fetchItems()`), `itemMapper.ts` (`toItems()` checks API data), `itemsStore.ts` (custom external store with loading/error/success, one shared list request and `retry()`), and `useItems.ts` (`useSyncExternalStore` hook). `ItemDetailView.tsx` independently loads one item through `fetchItem()` (`GET /api/items/:id`), maps it with `toItem()`, and guards against stale responses when the id changes. Other card, item, status, category and id files retain their existing responsibilities.
-  - `requests/`: borrow requests. `types.ts` (`BorrowRequest`), `requestRules.ts` (pure source of domain rules: dates, overlaps, duplicates, owner checks), `borrowRequestSchema.ts` (Zod adapter that calls `validateRequest()` and maps errors to form fields), `requestStore.ts` (successful local request records in `borrowbox_requests`), `requestsApi.ts` (POST through the shared client), and `BorrowForm.tsx` (React Hook Form form on the item page).
-  - `users/`: `types.ts` (`User`, `UserRole`), `demoUsers.ts`, `userStore.ts` (the persona in use) and `useCurrentUser.ts` (its hook).
-  - `catalog/`: `CatalogView.tsx` (title and search), `CatalogResults.tsx` (chips, count, sort, cards, "no items" and "no match"), `FilterChips.tsx`, `SortSelect.tsx`, `catalogFilter.ts` (pure: which items match the name search and category, the categories from the data, and `sortItems()`, which sorts a copy) and `catalogParams.ts` (the allowed URL filters: `q`, `category`, `sort`, and `catalogHref()`, the other way round).
-  - `borrow-list/`: the borrowing list. `types.ts` (`BorrowListEntry`), `borrowListRules.ts` (pure add, increase/decrease days, remove and `parseBorrowList()` validation), `borrowListStore.ts` (the one vanilla Zustand store with `persist`), `useBorrowList.ts` (`useStore` selector hook), `AddToListButton.tsx` and `BorrowListView.tsx`. The existing localStorage key is `borrowbox_borrow_list`; persistence keeps the list as the single source of truth, validates restored data with `parseBorrowList()`, and migrates valid entries from the previous raw-array format. Tests can create isolated stores with `createBorrowListStore()`.
+- `src/app/`: **routes only** (Next.js decides the file names). Each `page.tsx` reads the URL (`params`, `searchParams`), sets the tab title in `generateMetadata()`, and draws the feature's component.
+  - `layout.tsx`: the frame of every page: `<html lang dir>` from the language cookie, the fonts (`next/font`), Navbar, `<main>`, Footer, `Toasts` and `BorrowListHydration`. It starts `getItemIds()` without waiting, for the Navbar count.
+  - `loading.tsx` (Suspense fallback for a page), `error.tsx` (error boundary of every page, with `retry()`), `not-found.tsx` (any unknown address).
+  - `catalog/`, `items/[id]/` (with its own `not-found.tsx`), `borrow-list/`, `register/`, `dashboard/`, `list-item/`.
+- `src/features/<feature>/`: everything for one feature: its types (`types.ts`), rules, store, API calls and UI.
+  - `site/`: `Navbar.tsx` (client: menus, language and persona switch), `NavLink.tsx`, `isCurrentRoute.ts`, `Footer.tsx`, `NotFoundView.tsx`.
+  - `home/`: `HomeView.tsx` and one file per section. `Featured.tsx` draws its heading at once and `FeaturedGrid.tsx` (the cards) inside its own `Suspense` and `RetryBoundary`. `homeContent.ts` holds the texts' keys, the images and the featured ids.
+  - `cards/`: the items. `itemsApi.ts` (**server only**: `getItems()`, `getItem(id)`, `getItemIds()`, each wrapped in React `cache()`), `itemMapper.ts` (pure: `toItems()` checks every field of the API answer and turns `ApiItem` into `Item`), `listCards.ts` (today's status), `cardPhotos.ts`, `categories.ts` (`CATEGORIES`, the `Category` union, `isCategory()`), `itemId.ts`, `itemStatus.ts`, `itemCardData.ts` (pure: the checked values a card shows), `types.ts`, and the components `ItemCard`, `ItemDetail`, `OwnerCard`, `ItemNotFound`.
+  - `catalog/`: `CatalogView.tsx` (title and the search form), `CatalogResults.tsx` (fetches the items; chips, count, sort, cards, "no items" and "no match"), `FilterChips.tsx`, `SortSelect.tsx` (client), `catalogFilter.ts` (pure: search, category, `sortItems()` on a copy) and `catalogParams.ts` (the allowed URL filters and `catalogHref()`).
+  - `borrow-list/`: the cart. `borrowListRules.ts` (pure: add, more/fewer days, remove, `parseBorrowList()`), `borrowListStore.ts` (the Zustand store with `persist` under `borrowbox_borrow_list`), `useBorrowList.ts` (`useBorrowList()`, `useBorrowListReady()`), `BorrowListHydration.tsx`, `BorrowListCount.tsx`, `AddToListButton.tsx`, `BorrowListView.tsx`, `BorrowListRow.tsx`.
+  - `requests/`: borrow requests. `requestRules.ts` (pure: dates, overlaps, duplicates, owner check), `borrowRequestSchema.ts` (Zod: calls `validateRequest()`), `BorrowForm.tsx` (client: React Hook Form), `actions.ts` (**server action** `requestBorrow()`: checks the input again and posts it), `requestsApi.ts` (server only), `requestStore.ts` (the local copy of sent requests).
+  - `users/`: `demoUsers.ts`, `currentUser.ts` (server: the persona cookie), `actions.ts` (server action `switchPersona()`), `types.ts`.
   - `register/`, `dashboard/`, `list-item/`: one page each (dashboard and list item are placeholders).
 - `src/shared/`: code many features use. **It never imports from `features/` or `app/`.**
-  - `api/client.ts`: **the one API client** and the only place that calls `fetch`. `BASE_URL = "/api"` is the one place the address is written. `getJson("/items")` and `postJson("/requests", body)` return `{ ok: true, data }` or `{ ok: false, status }`. Every failure is logged to the Console as one line, e.g. `[api] POST /api/requests failed: 500` (never the body). A new request type is added here, not with `fetch` in a page.
-  - `ui/`: `ErrorBoundary.tsx`, `LoadingState.tsx`, `ErrorState.tsx` (including the API retry action), `EmptyState.tsx`, toast UI/store, `ScrollLink.tsx`, `PlaceholderCard.tsx`, icons, plus the limited shadcn/ui-style `Button.tsx` and `Input.tsx` used by `BorrowForm`. Existing CSS classes own their appearance; do not migrate unrelated UI.
-  - `i18n/`: `en.ts` and `ar.ts` dictionaries with the same keys; `i18n.ts` with `t()`, `setLang()`, `formatMoney()`; `useLang.ts` (its hook).
-  - `lib/`: pure functions (`imageUrl.ts`, `dates.ts`). No DOM and no `localStorage`, so Node can test them.
-  - `browser/`: helpers that use browser features: `storage.ts`, `reveal.ts` (scroll reveal), `scrollToSection.ts`, `usePageTitle.ts`.
-  - `types.ts`: only `Lang`, the one shape `shared/` itself needs. Every other type lives in its feature's `types.ts`. Types only, no runtime code.
-- `src/style.css`: all styles, organized in commented sections. Colours, sizes and motion come from the tokens in `DESIGN.md`.
-- `server/`: the JSON API (Node's `http` module, no packages), started with `npm run api`. During `npm run dev`, Vite forwards `/api` requests to it (`vite.config.ts`). `itemRecords.ts` is **the one list of items**: only the server reads it, and `tests/architecture.test.ts` fails if a file in `src/` imports it. `GET /api/items` answers `{ items, total }`; `GET /api/items/:id` answers one item; `POST /api/requests` accepts the borrowing payload and keeps server records in memory. The list test switches `?delay=3000`, `?fail=500` and `?empty=1` (`testSwitches.ts`) show loading, API failure and empty states.
-- `.claude/skills/`: two Claude Code skills, `vercel-react-best-practices` (React performance rules) and `vercel-composition-patterns` (component design), copied unchanged from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (commit `1a2c79d`). Use them when writing or reviewing React code.
-- `tests/`: `node:test` tests for the API client, request rules/schema, catalog, item mapper/store, Zustand persistence/migration, security, storage, toasts, translations and architecture. `errorBoundary.test.tsx` uses the existing jsdom setup to test render fallback, isolation and retryable lazy loading. `fakes.ts` builds complete test objects.
+  - `api/client.ts`: **the one API client** (server only) and the only place that calls `fetch`. It joins every path to `API_BASE_URL`, returns `{ ok: true, data }` or `{ ok: false, status }`, and logs each failure as one line (never the body). A 404 is returned but not logged.
+  - `i18n/`: `en.ts` and `ar.ts` (same keys), `i18n.ts` (pure: `createI18n(lang)` gives `t`, `tValue`, `formatMoney`), `serverI18n.ts` (`getI18n()` for server components: reads the cookie once per request), `actions.ts` (server action `switchLanguage()`), `useDocumentLang.ts` (only for `error.tsx`).
+  - `ui/`: `LoadingState`, `ErrorState`, `EmptyState`, `RetryBoundary` (Next.js `catchError`), `Toasts` with `toastStore.ts` (Zustand), `ScrollLink`, `RevealOnScroll`, `PlaceholderCard`, `Button`, `Input` and the icons.
+  - `lib/`: pure functions (`imageUrl.ts`, `dates.ts`, `cn.ts`). `browser/`: helpers that use browser features (`storage.ts`, `reveal.ts`, `scrollToSection.ts`).
+  - `types.ts`: only `Lang`. Every other type lives in its feature's `types.ts`.
+- `src/style.css`: all styles, in commented sections, built on the tokens in `DESIGN.md`.
+- `server/`: the JSON API on port 4000 (`npm run api`). `itemRecords.ts` is **the one list of items**; `tests/architecture.test.ts` fails if `src/` imports anything from `server/`. Test switches go right after `/api` and work on every endpoint (`testSwitches.ts`): `/api/delay/3000`, `/api/fail/500`, `/api/empty`.
+- `.claude/skills/`: `vercel-react-best-practices` and `vercel-composition-patterns`, copied unchanged from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (commit `1a2c79d`). Use them when writing or reviewing React code.
+- `tests/`: `node:test` tests, run with `tsx` and the `react-server` condition (so files that import `server-only` can be tested). `fakes.ts` builds complete test objects.
 
 ## Where a New Feature Goes
 
-Make one folder for it: `src/features/<feature>/`. Example: the "List an item" form (`#/list-item`), whose folder already exists.
+Make one folder for it: `src/features/<feature>/`. Example: the "List an item" form (`/list-item`), whose folder already exists.
 
-1. **Data shape:** add the types in the feature's own `types.ts` (like `cards/types.ts`). A fixed list of values is a union type built from the list with `as const`, like `Category` in `cards/categories.ts`, so a typo is a TypeScript error. Another feature imports them with `import type`.
-2. **Rules:** pure logic goes in a `.ts` file in the feature folder, like `catalog/catalogFilter.ts`, with its tests in `tests/`. No React and no DOM in rule files.
-3. **Data access:** saving or loading goes in a store file; calls to the server go in a feature API file that uses `shared/api/client.ts`. Use the existing custom external-store pattern for data such as shared items state. Use Zustand for the borrowing list only unless the project architecture is explicitly approved to change. Do not duplicate a store's state locally.
-4. **Page:** `ListItemView.tsx` and `DashboardView.tsx` are placeholders, not completed workflows. A new page gets an `XView.tsx` in its feature folder and a route in `renderRoute()` in `src/app/App.tsx`; add its stable lazy loader/retry counter there and keep it inside the route `ErrorBoundary` and `Suspense`.
-5. **Reuse:** use other features through their exports (the catalog reuses `cards/ItemCard.tsx` and `cards/listCards.ts`). A new item is added once, in `server/itemRecords.ts`, with its photo in `cards/cardPhotos.ts` (photos in `src/assets/photos/cards/`). Move code to `src/shared/` only when it is not about one feature.
-6. **Text:** add every visible string to both `src/shared/i18n/en.ts` and `src/shared/i18n/ar.ts`. `npm test` fails if the keys differ or a component has hard-coded English.
-7. **Styles:** add a commented section in `src/style.css` that uses the existing tokens and follows `DESIGN.md`.
-8. **Check:** run `npm test`, `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm run build`, then check the page in the browser at 320px, 768px and 1280px, in English and Arabic.
+1. **Data shape:** the types in the feature's own `types.ts`. A fixed list of values is a union type built from the list with `as const`, like `Category`.
+2. **Rules:** pure logic in a `.ts` file in the feature folder, with its tests in `tests/`. No React, no DOM, no Next.js.
+3. **Data from the API:** a server-only file like `cards/itemsApi.ts` that uses `shared/api/client.ts`, wrapped in `cache()`. Server components call it. A change from a form goes through a server action (`"use server"`) that checks its input again.
+4. **Page:** a route folder in `src/app/` with a thin `page.tsx` and `generateMetadata()`. The page's content is a component in the feature folder.
+5. **Shared browser state:** a Zustand store, changed only through its actions. State that one component needs stays in that component.
+6. **Text:** every visible string in both `en.ts` and `ar.ts`. `npm test` fails if the keys differ or a component has hard-coded English.
+7. **Styles:** a commented section in `src/style.css` with the existing tokens.
+8. **Check:** `npm test`, `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run build`, then the page in the browser at 320px, 768px and 1280px, in English and Arabic, with the Console open, and with `API_BASE_URL` set to `/delay/3000`, `/fail/500` and `/empty`.
 
 ## 2. HTML
 
@@ -56,29 +57,23 @@ Make one folder for it: `src/features/<feature>/`. Example: the "List an item" f
 - Use native form validation attributes such as `required`, `type`, and `minLength`.
 - Use accessible names for interactive elements.
 
-## 3. React
+## 3. React and Next.js
 
-- **Components:** one component per job and **one component per file** (the file has its name; `npm test` checks this), typed props in an `interface`, and a `ReactElement` return type. The tree is in the README; update it when a component is added or moved.
-- **State ownership:** use local `useState` for state owned by one component; use the URL for shareable catalog filters; use the existing shared store when multiple components need the same data. Do not mirror derived values or shared store state in component state. Do not change the DOM by hand (no `classList`, `setAttribute` or `textContent` from code): change state and let React draw it. The one exception is `shared/browser/reveal.ts`, which only adds the animation class `is-visible` to elements React already drew.
-- **Borrow-list Zustand:** `borrowListStore.ts` is the single source of truth. Keep its existing actions and `persist` middleware, storage key `borrowbox_borrow_list`, `parseBorrowList()` validation and legacy raw-array migration. Components read via `useBorrowList()`/`useStore`; actions stay on the store. Keep `createBorrowListStore()` so tests can make isolated persisted stores. Calculate counts and other derived values from the store state.
-- **Other stores:** the shared items store is custom, not Zustand. It exposes stable state plus `subscribe()` and is consumed through `useSyncExternalStore` in `useItems()`. It deduplicates the list request and owns loading/error/success and retry. User, language and toast stores keep their current custom subscription APIs. Do not consolidate these into Zustand as part of unrelated work.
-- **Forms:** `BorrowForm.tsx` uses React Hook Form and `zodResolver`; `borrowRequestSchema.ts` calls the pure `validateRequest()` in `requestRules.ts` and maps its field/form errors. Keep domain rules centralized there; schema context must read current item, borrower, requests and date. Keep the current API payload and only write a successful local request record after the API succeeds. `RegisterView.tsx` remains a native browser-validated form; do not migrate it without a requirement. Use the shared shadcn/ui-style `Button` and `Input` only where already needed, and preserve CSS ownership.
+- **Server or client:** a component is a Server Component unless it needs the browser: state, effects, event handlers, Zustand or browser APIs. Then it starts with `"use client"` and stays as small as possible. Server components fetch data; never `fetch` in a client component.
+- **Language in components:** a server component calls `await getI18n()`. A client component gets `lang` from the server component that draws it and calls `createI18n(lang)`. Never keep the language in a module variable: on the server it would be shared by every visitor.
+- **Components:** one component per job and **one component per file**, named like the file (`npm test` checks this; in `src/app` the one component is the default export). Typed props in an `interface`, and a `ReactElement` (or `Promise<ReactElement>`) return type. The tree is in the README; update it when a component is added or moved.
+- **State ownership:** data from the API belongs to the server. Shareable filters belong to the URL. Shared browser state belongs to a Zustand store and changes only through its actions. State one component needs stays in that component (`useState`). Anything that can be calculated is not state. Do not pass props through components that do not use them.
+- **Loading and errors:** a part that waits for data goes inside `Suspense` (or the route's `loading.tsx`), and a part that can fail inside `RetryBoundary` (or the route's `error.tsx`), so a slow or broken part never blocks the rest of the page. "Try again" must ask the server again (`retry()`), not only draw again. Keep "API error", "no items" and "no match" as different messages.
+- **Hydration:** the first render in the browser must match the server's HTML. Data that only the browser has (`localStorage`) is read after hydration (`BorrowListHydration`, `useBorrowListReady()`), and nothing may change HTML that React has not hydrated yet (see rule 10).
 - **Lists:** every `.map()` result has a stable `key` from the data (an id, never the index when the list can change).
-- **`key` to reset:** give a page a `key` when a new URL must start it fresh (the router uses `key={itemId}` and `key={query}`).
-- **Effects:** `useEffect` only for things outside React (listeners, timers, observers). Always return a cleanup, because `StrictMode` runs every effect twice in development to find missing ones.
+- **Effects:** `useEffect` only for things outside React (listeners, observers, `localStorage`). Always return a cleanup. Never fetch data in an effect.
 - **Refs:** `useRef` only for what state cannot do, such as moving focus.
-- **Custom stores outside React** (items, language, persona, toasts): follow their existing subscription hooks and stable-snapshot behavior. Borrow-list components use Zustand's `useStore` hook, not `useSyncExternalStore` or a second local copy.
-- **Errors in state:** keep error codes, not translated text, so a language switch translates them.
-- **API errors and retries:** use `shared/api/client.ts` through the feature API module; it returns `{ ok, data/status }` and logs a concise failure. Do not throw API failures into a React Error Boundary or replace the existing API error states. List retry must make a new request. Item detail uses `GET /api/items/:id`, maps with `toItem()`, and ignores stale responses after the id changes or the component unmounts.
-- **Suspense and render errors:** keep each page's stable lazy loader and retry token in `App.tsx`/`useRetryableLazy.ts`; React caches a rejected lazy promise, so only explicit retry changes the lazy component identity. Keep route structure `ErrorBoundary` → `Suspense` → lazy page. Shared Navbar, Footer and Toasts remain outside the page boundary. The homepage has a separate boundary around only `Featured`.
-- **Loading, empty and no-match:** use translated `page.loading` for lazy page loading and `items.loading` for item data loading. Preserve distinct API error, successful empty collection, filtered no-match and empty borrow-list states; do not represent an API failure as empty data.
-- **Navigation:** `window.location.assign("#/...")`, not `location.hash = ...` (the React lint rules forbid changing it directly).
+- **Errors in state:** keep error codes, not translated text, so the message follows the language.
+- **Navigation:** `next/link` for links, `next/form` for search forms, `router.push()` from `useRouter()` in event handlers.
 
 ## 4. CSS
 
-- `src/style.css` imports Tailwind v4 theme and utilities only. Do not add Preflight, a global reset or unrelated Tailwind styling migrations.
-- Follow a mobile-first approach.
-- Write base styles for mobile screens first, then use `min-width` media queries for larger screens.
+- Follow a mobile-first approach: base styles for small screens, then `min-width` media queries.
 - Do not use `!important`.
 - Use clear, consistent class names (`className` in JSX).
 - Keep styles organized and avoid unnecessary duplication.
@@ -94,26 +89,25 @@ Make one folder for it: `src/features/<feature>/`. Example: the "List an item" f
 
 ## 6. Security
 
-- Treat URL parameters, `localStorage` data and form input as untrusted.
+- Treat URL parameters, cookies, `localStorage` data, form input and server action arguments as untrusted.
 - Show untrusted text with `{value}` in JSX: React escapes it. Never use `dangerouslySetInnerHTML`, `innerHTML` or `insertAdjacentHTML`; `npm test` fails if any appears in `src/`.
 - Validate URL parameters against an allowlist (known categories and statuses, a pattern for item IDs).
 - Only allow image URLs that are relative or use `https:` (`isSafeImageUrl()`).
+- Files that must never reach the browser (the API client, API calls, cookie reads) start with `import "server-only"`.
 
 ## 7. Code Quality
 
-- Follow ESLint rules, including the React hooks rules (`eslint-plugin-react-hooks`).
+- Follow ESLint rules, including the Next.js and React hooks rules. `npm run lint` fails on any warning.
 - Use Prettier to format code.
 - Avoid unnecessary packages and configuration changes.
-- Pure logic and store behavior have tests run with `npm test` (Node's built-in `node:test`; React boundary tests use the existing jsdom setup).
-- Run `npm test`, `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm run build` before completing a change.
-- Husky's `.husky/pre-commit` runs `npx lint-staged`, then `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm run build`, in that order under `set -e`. Any failure blocks the commit. `package.json`'s `prepare: "husky"` initializes the hook after dependency installation; retain the existing lint-staged rules.
+- Pure logic and stores have tests run with `npm test`.
+- The pre-commit hook runs `lint-staged`, `typecheck`, `lint`, `format:check` and `build`. Any failure stops the commit.
 
 ## 8. Development Workflow
 
 - Inspect the existing files before making changes.
 - Explain the purpose of each change in simple English.
 - Do not delete or rewrite existing files unnecessarily.
-- After significant changes, run ESLint and Prettier checks.
 - Fix errors introduced by your changes.
 
 ## 9. Project Goal
@@ -158,4 +152,16 @@ Implement only the features explicitly requested. Keep the solution simple and s
 
 **The mistake:** While checking the component tree, every page showed "We couldn't load the tools". The code was fine: an old `npm run dev` was still open and did not forward `/api` to the API, so `/api/items` sent back the HTML page instead of the items. Earlier the same day, a command to stop the API did not stop it, so a check of the "API is off" message tested the wrong thing.
 
-**The rule:** When a page cannot load data, check the setup first: is the API running (`npm run api`), and does `/api/items` through the dev server return JSON, not HTML? If not, close the old servers and start `npm run dev` and `npm run api` again. After stopping a server, confirm that its port is really free. Only then look for the bug in the code.
+**The rule:** When a page cannot load data, check the setup first: is the API running (`npm run api`), does `API_BASE_URL` in `.env.local` point to it, and does it answer JSON? After stopping a server, confirm that its port is really free. Only then look for the bug in the code.
+
+### Read the docs of the installed version
+
+**The mistake:** While moving to Next.js, the AI started writing its own error boundary class with `router.refresh()` for "Try again", and used `priority` on the item photo. Next.js 16 already has `catchError()` and a `retry()` that asks the server again, and `priority` is deprecated there. Both were in the documentation that comes with the package, in `node_modules/next/dist/docs/`.
+
+**The rule:** Before using a Next.js API, read its page in `node_modules/next/dist/docs/`, which matches the installed version. Prefer the framework's own tool (`catchError`, `loading.tsx`, `error.tsx`, `next/form`) to custom code, and fix every deprecation warning.
+
+### Do not change HTML that React has not hydrated yet
+
+**The mistake:** After the move to Next.js, the home page showed a hydration error in the Console. The scroll reveal (`reveal.ts`) adds attributes to the children of every `[data-reveal-group]`. The featured cards arrive later, inside `Suspense`, so the script changed their HTML before React hydrated them, and React found HTML that did not match the server's.
+
+**The rule:** Code that changes the DOM (like `reveal.ts`) must only touch elements that React has already hydrated: never content inside a `Suspense` boundary that may still be streaming. After any change, open each page with the Console visible: a hydration warning is a bug, not noise.

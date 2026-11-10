@@ -1,11 +1,14 @@
+import Link from "next/link";
+import Image from "next/image";
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { ArrowIcon } from "../../shared/ui/ArrowIcon.tsx";
-import { categoryHref, categoryLabel } from "../cards/categories.ts";
+import { categoryHref } from "../cards/categories.ts";
 import { CATEGORY_GROUPS } from "./homeContent.ts";
 
 /** The category groups, each linking to the catalog for one category */
-export function Categories(): ReactElement {
+export async function Categories(): Promise<ReactElement> {
+  const { t, tValue } = await getI18n();
   return (
     <section
       id="categories"
@@ -23,11 +26,11 @@ export function Categories(): ReactElement {
             data-reveal
             aria-labelledby={`group-${group.id}`}
           >
-            <img
+            <Image
               src={group.image}
               alt={t(group.imageAltKey)}
               className="category-group-img"
-              loading="lazy"
+              sizes="(min-width: 768px) 33vw, 100vw"
             />
             <div className="category-group-body">
               <h3 id={`group-${group.id}`} className="category-group-title">
@@ -38,9 +41,9 @@ export function Categories(): ReactElement {
               <ul className="tool-links">
                 {group.categories.map((name) => (
                   <li key={name}>
-                    <a href={categoryHref(name)} className="tool-link">
-                      {categoryLabel(name)} <ArrowIcon />
-                    </a>
+                    <Link href={categoryHref(name)} className="tool-link">
+                      {tValue("category", name)} <ArrowIcon />
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -48,9 +51,9 @@ export function Categories(): ReactElement {
           </article>
         ))}
       </div>
-      <a href="#/catalog" className="btn btn-ghost section-cta">
+      <Link href="/catalog" className="btn btn-ghost section-cta">
         {t("home.categories.viewAll")}
-      </a>
+      </Link>
     </section>
   );
 }

@@ -1,6 +1,11 @@
 /**
  * The one Zustand store for the borrow list. Zustand's persist middleware
  * saves it under the existing localStorage key and restores validated data.
+ *
+ * The server cannot read localStorage, so the app's store starts empty
+ * (skipHydration) and BorrowListHydration reads the saved list once the
+ * page is in the browser. Server and browser then draw the same first
+ * screen, and React shows no hydration error.
  */
 import { createStore } from "zustand/vanilla";
 import type { StoreApi } from "zustand/vanilla";
@@ -37,6 +42,20 @@ export interface BorrowListStore {
   decrease(itemId: string): void;
   remove(itemId: string): void;
   clear(): void;
+  /** Reads the saved list from storage (the app calls it once, in the browser) */
+  rehydrate(): void;
+  hasHydrated(): boolean;
+  /** Calls `listener` when the saved list has been read */
+  onHydrated(listener: () => void): () => void;
+}
+
+interface BorrowListStoreOptions {
+  /** Tests pass a fake Storage; the app uses localStorage */
+  storage?: Storage;
+  /** When given, saved items not in it are dropped */
+  knownIds?: ReadonlySet<string>;
+  /** True for the app: read the saved list only when rehydrate() is called */
+  skipHydration?: boolean;
 }
 
 function savedList(
@@ -49,14 +68,14 @@ function savedList(
 }
 
 /**
- * Makes an isolated persisted Zustand store. Tests may pass their own
- * Storage; the app uses localStorage. The old format was a raw JSON array,
- * which migrate() converts without dropping valid saved entries.
+ * Makes an isolated persisted Zustand store. The old format was a raw JSON
+ * array, which migrate() converts without dropping valid saved entries.
  */
-export function createBorrowListStore(
-  storage?: Storage,
-  knownIds?: ReadonlySet<string>,
-): BorrowListStore {
+export function createBorrowListStore({
+  storage,
+  knownIds,
+  skipHydration = false,
+}: BorrowListStoreOptions = {}): BorrowListStore {
   const safeStorage: StateStorage = {
     getItem: (name) => {
       try {
@@ -119,6 +138,7 @@ export function createBorrowListStore(
           list: savedList(persistedState, knownIds),
         }),
         partialize: (state) => ({ list: state.list }),
+        skipHydration,
       },
     ),
   );
@@ -132,8 +152,11 @@ export function createBorrowListStore(
     decrease: (itemId) => store.getState().decrease(itemId),
     remove: (itemId) => store.getState().remove(itemId),
     clear: () => store.getState().clear(),
+    rehydrate: () => void store.persist.rehydrate(),
+    hasHydrated: () => store.persist.hasHydrated(),
+    onHydrated: (listener) => store.persist.onFinishHydration(listener),
   };
 }
 
 /** The single borrowing list store used by the application. */
-export const borrowListStore = createBorrowListStore();
+export const borrowListStore = createBorrowListStore({ skipHydration: true });

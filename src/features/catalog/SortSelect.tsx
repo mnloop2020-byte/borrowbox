@@ -1,18 +1,24 @@
+"use client";
+import { useRouter } from "next/navigation";
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { createI18n } from "../../shared/i18n/i18n.ts";
+import type { Lang } from "../../shared/types.ts";
 import { SORT_KEYS } from "./catalogFilter.ts";
 import { catalogHref } from "./catalogParams.ts";
 import type { CatalogParams } from "./catalogParams.ts";
 
 interface SortSelectProps {
   filters: CatalogParams;
+  lang: Lang;
 }
 
 /**
  * The sort menu. A change opens the new address at once (no button), and
- * the router draws the page for it; search and category are kept.
+ * the server draws the results for it; search and category are kept.
  */
-export function SortSelect({ filters }: SortSelectProps): ReactElement {
+export function SortSelect({ filters, lang }: SortSelectProps): ReactElement {
+  const router = useRouter();
+  const { t } = createI18n(lang);
   return (
     <div className="catalog-sort">
       <label htmlFor="catalog-sort-select" className="catalog-sort-label">
@@ -24,7 +30,7 @@ export function SortSelect({ filters }: SortSelectProps): ReactElement {
         value={filters.sort}
         onChange={(event) => {
           const sort = SORT_KEYS.find((key) => key === event.target.value);
-          if (sort) window.location.assign(catalogHref({ ...filters, sort }));
+          if (sort) router.push(catalogHref({ ...filters, sort }));
         }}
       >
         {SORT_KEYS.map((key) => (

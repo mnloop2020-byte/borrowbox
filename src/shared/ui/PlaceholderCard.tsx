@@ -1,5 +1,6 @@
+import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
-import { t } from "../i18n/i18n.ts";
+import { getI18n } from "../i18n/serverI18n.ts";
 import { BackIcon } from "./BackIcon.tsx";
 
 /** The button under the text */
@@ -21,13 +22,14 @@ interface PlaceholderCardProps {
  * The centred card shown by pages that are not built yet and by "not found"
  * pages: an h1, one paragraph and one button.
  */
-export function PlaceholderCard({
+export async function PlaceholderCard({
   title,
   text,
   action,
-}: PlaceholderCardProps): ReactElement {
+}: PlaceholderCardProps): Promise<ReactElement> {
+  const { t } = await getI18n();
   const button = action ?? {
-    href: "#/",
+    href: "/",
     label: t("page.backHome"),
     icon: <BackIcon />,
   };
@@ -36,9 +38,9 @@ export function PlaceholderCard({
       <h1 id="page-title">{title}</h1>
       <p>{text}</p>
       <p className="placeholder-actions">
-        <a href={button.href} className="btn btn-primary">
+        <Link href={button.href} className="btn btn-primary">
           {button.icon} {button.label}
-        </a>
+        </Link>
       </p>
     </section>
   );

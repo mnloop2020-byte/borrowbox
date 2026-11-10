@@ -1,16 +1,16 @@
-import { useSyncExternalStore } from "react";
+"use client";
 import type { ReactElement } from "react";
-import { getToasts, subscribeToasts } from "./toast.ts";
+import { useStore } from "zustand";
+import { toastStore } from "./toastStore.ts";
 
 /**
- * Draws the toasts from toast.ts. useSyncExternalStore reads a store
- * that lives outside React and draws again each time the store changes.
+ * Draws the toasts from toastStore and draws again after every change.
  *
  * The region is always on the page and has aria-live="polite", so screen
  * readers read each new toast aloud without moving focus.
  */
 export function Toasts(): ReactElement {
-  const toasts = useSyncExternalStore(subscribeToasts, getToasts);
+  const toasts = useStore(toastStore, (state) => state.toasts);
   return (
     <div id="toasts" className="toast-region" aria-live="polite">
       {toasts.map((toast) => (

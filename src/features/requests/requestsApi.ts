@@ -1,11 +1,13 @@
 /**
  * Sends borrow requests to the API (POST /api/requests in server/index.ts).
- * Pages call sendBorrowRequest(); only this file knows the address.
+ * Server only: the server action in actions.ts calls sendBorrowRequest(),
+ * and only this file knows the path.
  */
+import "server-only";
 import { postJson } from "../../shared/api/client.ts";
 import type { ApiResult } from "../../shared/api/client.ts";
 
-/** Where requests go, after BASE_URL. Change it to "/fail/500" to test the error toast. */
+/** Where requests go, after API_BASE_URL */
 const REQUESTS_PATH = "/requests";
 
 /** What the server needs for a new request */

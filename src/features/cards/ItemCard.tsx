@@ -1,5 +1,7 @@
+import Image from "next/image";
+import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
-import { t, tValue } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import type { Item } from "./types.ts";
 import { itemCardData } from "./itemCardData.ts";
 
@@ -11,6 +13,8 @@ interface ItemCardProps {
    * does not need to know about the borrow list.
    */
   action?: ReactNode;
+  /** True for the first cards on screen: their photos load at once */
+  eager?: boolean;
 }
 
 /**
@@ -18,20 +22,28 @@ interface ItemCardProps {
  * owner and deposit. Text is escaped by React; the image URL, id and
  * status are checked by itemCardData().
  */
-export function ItemCard({ item, action }: ItemCardProps): ReactElement {
-  const card = itemCardData(item);
+export async function ItemCard({
+  item,
+  action,
+  eager = false,
+}: ItemCardProps): Promise<ReactElement> {
+  const { t, tValue, formatMoney } = await getI18n();
+  const card = itemCardData(item, formatMoney);
 
   return (
     <article className="item-card" data-item-id={card.id ?? undefined}>
       {/* No aria-label: the link's name is its visible text, so the two always match (WCAG 2.5.3) */}
-      <a href={card.href} className="item-card-link">
+      <Link href={card.href} className="item-card-link">
         <div className="item-card-image-wrap">
           {card.imageUrl && (
-            <img
+            <Image
               src={card.imageUrl}
               alt={item.title}
+              width={800}
+              height={800}
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
               className="item-card-image"
-              loading="lazy"
+              loading={eager ? "eager" : "lazy"}
             />
           )}
           {card.status && (
@@ -89,7 +101,7 @@ export function ItemCard({ item, action }: ItemCardProps): ReactElement {
             <span className="borrow-free-tag">{t("card.freeLoan")}</span>
           </div>
         </div>
-      </a>
+      </Link>
       {action && <div className="item-card-action">{action}</div>}
     </article>
   );

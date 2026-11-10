@@ -1,7 +1,11 @@
 import { test } from "node:test";
 import type { TestContext } from "node:test";
 import assert from "node:assert/strict";
-import { BASE_URL, getJson, postJson } from "../src/shared/api/client.ts";
+import { getJson, postJson } from "../src/shared/api/client.ts";
+
+// The address comes from API_BASE_URL (.env.local in the app)
+const API = "http://api.test/api";
+process.env.API_BASE_URL = API;
 
 // A fake fetch: the test chooses the answer, and no real server is needed.
 // console.error is replaced too, so the test can read what was logged.
@@ -34,7 +38,7 @@ test("the body is sent as JSON with POST", async (t) => {
   await postJson("/requests", { itemId: "item-101" });
 
   const [url, init] = calls.mock.calls[0].arguments;
-  assert.equal(url, "/api/requests");
+  assert.equal(url, `${API}/requests`);
   assert.equal(init?.method, "POST");
   assert.deepEqual(init?.headers, { "Content-Type": "application/json" });
   assert.equal(init?.body, JSON.stringify({ itemId: "item-101" }));
@@ -48,7 +52,7 @@ test("an error answer (500) is returned and logged with method, URL and status",
 
   assert.deepEqual(result, { ok: false, status: 500 });
   assert.deepEqual(loggedLines(errors), [
-    "[api] POST /api/requests failed: 500",
+    `[api] POST ${API}/requests failed: 500`,
   ]);
 });
 
@@ -62,7 +66,7 @@ test("no connection is returned as status 0 and logged", async (t) => {
 
   assert.deepEqual(result, { ok: false, status: 0 });
   assert.deepEqual(loggedLines(errors), [
-    "[api] POST /api/requests failed: no connection",
+    `[api] POST ${API}/requests failed: no connection`,
   ]);
 });
 
@@ -74,7 +78,7 @@ test("an answer that is not JSON is returned as status 0 and logged", async (t) 
 
   assert.deepEqual(result, { ok: false, status: 0 });
   assert.deepEqual(loggedLines(errors), [
-    "[api] POST /api/requests failed: the answer is not JSON",
+    `[api] POST ${API}/requests failed: the answer is not JSON`,
   ]);
 });
 
@@ -89,16 +93,23 @@ test("the log never contains the request body (it can hold personal data)", asyn
   assert.ok(!text.includes("user-3"), text);
 });
 
-// ---- One place for the address: BASE_URL
+// ---- One place for the address: API_BASE_URL
 
-test("paths are joined to BASE_URL, so the address is written once", async (t) => {
+test("paths are joined to API_BASE_URL, so the address is written once", async (t) => {
   const calls = fakeFetch(t, async () => Response.json({}));
   watchErrors(t);
 
+  process.env.API_BASE_URL = `${API}/delay/3000/`; // a test switch, with a slash
   await postJson("/requests", {});
+  process.env.API_BASE_URL = API;
 
-  assert.equal(BASE_URL, "/api");
-  assert.equal(calls.mock.calls[0].arguments[0], "/api/requests");
+  assert.equal(calls.mock.calls[0].arguments[0], `${API}/delay/3000/requests`);
+});
+
+test("a missing API_BASE_URL is a clear error, not a request to nowhere", async () => {
+  delete process.env.API_BASE_URL;
+  await assert.rejects(getJson("/items"), /API_BASE_URL is not set/);
+  process.env.API_BASE_URL = API;
 });
 
 // ---- GET
@@ -113,7 +124,7 @@ test("getJson sends a GET and returns the data", async (t) => {
 
   assert.deepEqual(result, { ok: true, data: { items: [], total: 0 } });
   const [url, init] = calls.mock.calls[0].arguments;
-  assert.equal(url, "/api/items");
+  assert.equal(url, `${API}/items`);
   assert.equal(init?.method, "GET");
   assert.equal(init?.body, undefined, "a GET has no body");
   assert.equal(errors.mock.callCount(), 0);
@@ -126,5 +137,15 @@ test("a failed GET is returned and logged like a POST", async (t) => {
   const result = await getJson("/items");
 
   assert.deepEqual(result, { ok: false, status: 503 });
-  assert.deepEqual(loggedLines(errors), ["[api] GET /api/items failed: 503"]);
+  assert.deepEqual(loggedLines(errors), [`[api] GET ${API}/items failed: 503`]);
+});
+
+test("404 is an answer, not a failure: returned but not logged", async (t) => {
+  fakeFetch(t, async () => new Response("", { status: 404 }));
+  const errors = watchErrors(t);
+
+  const result = await getJson("/items/item-999");
+
+  assert.deepEqual(result, { ok: false, status: 404 });
+  assert.equal(errors.mock.callCount(), 0);
 });

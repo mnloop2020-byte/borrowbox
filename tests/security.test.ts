@@ -6,6 +6,7 @@ import { isSafeImageUrl } from "../src/shared/lib/imageUrl.ts";
 import { parseCatalogParams } from "../src/features/catalog/catalogParams.ts";
 import { isValidItemId } from "../src/features/cards/itemId.ts";
 import { itemCardData } from "../src/features/cards/itemCardData.ts";
+import { createI18n } from "../src/shared/i18n/i18n.ts";
 import { makeItem } from "./fakes.ts";
 
 // ---------- no HTML strings ----------
@@ -91,6 +92,7 @@ test("parseCatalogParams limits the query to 100 characters", () => {
 
 // React escapes every text value it draws, so the card needs no escapeHtml().
 // The checks left to us are in itemCardData(), tested here.
+const { formatMoney } = createI18n("en");
 
 const baseItem = makeItem({
   id: "item-101",
@@ -106,10 +108,14 @@ const baseItem = makeItem({
 
 test("itemCardData drops an unsafe image URL", () => {
   assert.equal(
-    itemCardData({ ...baseItem, imageUrl: "javascript:alert(1)" }).imageUrl,
+    itemCardData({ ...baseItem, imageUrl: "javascript:alert(1)" }, formatMoney)
+      .imageUrl,
     null,
   );
-  assert.equal(itemCardData(baseItem).imageUrl, "/assets/drill.svg");
+  assert.equal(
+    itemCardData(baseItem, formatMoney).imageUrl,
+    "/assets/drill.svg",
+  );
 });
 
 test("itemCardData keeps only known statuses", () => {
@@ -119,14 +125,18 @@ test("itemCardData keeps only known statuses", () => {
       // @ts-expect-error: a hostile status from corrupted storage, outside ItemStatus
       status: 'x" onmouseover="alert(1)',
     }),
+    formatMoney,
   );
   assert.equal(card.status, null);
-  assert.equal(itemCardData(baseItem).status, "Available");
+  assert.equal(itemCardData(baseItem, formatMoney).status, "Available");
 });
 
 test("itemCardData sends an unsafe id to the catalog", () => {
-  const card = itemCardData({ ...baseItem, id: '1" onclick="alert(1)' });
-  assert.equal(card.href, "#/catalog");
+  const card = itemCardData(
+    { ...baseItem, id: '1" onclick="alert(1)' },
+    formatMoney,
+  );
+  assert.equal(card.href, "/catalog");
   assert.equal(card.id, null);
-  assert.equal(itemCardData(baseItem).href, "#/item/item-101");
+  assert.equal(itemCardData(baseItem, formatMoney).href, "/items/item-101");
 });

@@ -3,7 +3,7 @@
  * Keys must match en.ts exactly; tests/i18n.test.ts checks this.
  * Plain text only, no HTML. "{name}" style placeholders are filled by t().
  */
-export default {
+const ar = {
   // Language switch
   "lang.switchTo": "English",
 
@@ -170,6 +170,7 @@ export default {
   "borrowList.title": "قائمة الاستعارة",
   "borrowList.intro":
     "الأدوات التي تنوي استعارتها وعدد الأيام لكل منها (حتى {max} يومًا). تُحفظ القائمة على هذا الجهاز.",
+  "borrowList.loading": "جارٍ تحميل قائمتك…",
   "borrowList.emptyTitle": "قائمتك فارغة",
   "borrowList.emptyText": "أضف أدوات من الكتالوج، ثم اختر عدد الأيام هنا.",
   "borrowList.browse": "تصفّح الكتالوج",
@@ -200,14 +201,11 @@ export default {
   "catalog.sort.name": "الاسم (A–Z)",
   "catalog.sort.deposit-asc": "التأمين: من الأقل إلى الأعلى",
   "catalog.sort.deposit-desc": "التأمين: من الأعلى إلى الأقل",
-  "title.itemLoading": "أداة — BorrowBox",
-  "item.pageHeading": "تفاصيل الأداة",
   "page.loading": "جارٍ تحميل الصفحة...",
   "items.loading": "جارٍ تحميل الأدوات…",
   "items.errorTitle": "تعذّر تحميل الأدوات",
-  "items.errorCode": "ردّ الخادم بالخطأ {status}. حاول مرة أخرى.",
-  "items.errorNoAnswer":
-    "لم يردّ الخادم. تأكّد من تشغيل الـ API ثم حاول مرة أخرى.",
+  "items.errorText":
+    "لم يُرسل الخادم الأدوات. تأكّد من تشغيل الـ API ثم حاول مرة أخرى.",
   "error.boundaryTitle": "تعذّر عرض هذا الجزء من BorrowBox",
   "error.boundaryText": "حدث خطأ أثناء عرض المحتوى. حاول مرة أخرى.",
   "state.retry": "حاول مرة أخرى",
@@ -243,3 +241,5 @@ export default {
   "footer.categories": "التصنيفات",
   "footer.bottom": "© 2026 BorrowBox. مبالغ التأمين تجريبية.",
 };
+
+export default ar;
