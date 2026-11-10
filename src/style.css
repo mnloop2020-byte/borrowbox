@@ -2808,3 +2808,20 @@ p {
     transform: translateY(var(--space-xs));
   }
 }
+
+/* ===== Checkout form (borrow list page) =====
+   Reuses the register form's fields and checks; only spacing is added. */
+.checkout-form {
+  margin-top: var(--space-xl);
+}
+
+.checkout-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.checkout-form legend {
+  margin-bottom: var(--space-xs);
+  font-weight: 500;
+}

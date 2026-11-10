@@ -8,7 +8,7 @@ The app is built with Next.js (App Router) and gets its data from a small JSON A
 
 - **Home page:** a search-first hero with category shortcuts, tool categories, featured items, "how it works" in four steps, and sections that rise into view as you scroll.
 - **Catalog** (`/catalog`): all 14 items, with a name search (upper/lower case does not matter), category chips built from the data, and a sort (name, deposit low/high, or the default order). Search, category and sort work together and live in the URL (`/catalog?category=Camping&q=stove&sort=name`), so a filtered list can be shared.
-- **Borrow list** (`/borrow-list`): works like a cart. "Add to list" on a card adds the item (again: one more day). On the list page, − and + change the days (− from 1 removes the item), and items can be removed one by one or all at once. The count in the header is always up to date, and the list survives a refresh.
+- **Borrow list and checkout** (`/borrow-list`): works like a cart. "Add to list" on a card adds the item (again: one more day). On the list page, − and + change the days (− from 1 removes the item), and items can be removed one by one or all at once. The count in the header is always up to date, and the list survives a refresh. Under the list, a **checkout form** (name, phone, pickup date, pickup method, deposit agreement) sends one borrow request per tool and empties the list.
 - **Item page** (`/items/item-103`): one item loaded by its id, with its photo, condition notes, owner, refundable deposit and a **borrow request** form. Requests are checked for valid dates, date overlaps, owners borrowing their own item, and duplicate pending requests.
 - **Registration page** (`/register`): a sign-up form checked by the browser's own validation.
 - **Arabic and English:** switch from the header. The layout mirrors for right-to-left and Arabic uses the Tajawal font. The server knows the language, so an Arabic page arrives already in Arabic and right-to-left.
@@ -152,7 +152,11 @@ RootLayout { children }                       app/layout.tsx
 │   │   │                                     reads the list (Zustand)
 │   │   ├── LoadingState { label }                   until the saved list is read
 │   │   ├── EmptyState { title, text, action }       empty list
-│   │   └── BorrowListRow (client) { entry, item, lang, onRowRemoved }  key=entry.itemId
+│   │   ├── BorrowListRow (client) { entry, item, lang, onRowRemoved }  key=entry.itemId
+│   │   └── CheckoutForm (client) { lang }
+│   │       │                                 state: fields, errors, isSubmitting (react-hook-form)
+│   │       ├── Input { ...input props }   ×3
+│   │       └── Button { ...button props }
 │   │
 │   ├── /register       RegisterPage → RegisterView (client) { lang }
 │   │                                         state: createdName (useState)
@@ -172,17 +176,18 @@ RetryBoundary shows ErrorState { title, text, retryLabel, onRetry } when its chi
 
 ### Who owns the state
 
-| State                               | Owner                                                             | Why there                                                                                                     |
-| ----------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Items from the API                  | The server: `getItems()` and `getItem(id)` in `cards/itemsApi.ts` | Server Components fetch them. React `cache()` makes one API call per request, however many parts ask.         |
-| Filters and sort                    | The URL (`/catalog?q=&category=&sort=`)                           | Read with `parseCatalogParams()` and passed down as `filters`, so a link or a refresh keeps them.             |
-| Language                            | The `borrowbox_lang` cookie                                       | The server must know it before drawing (`<html lang dir>`). Switched with the `switchLanguage` server action. |
-| Current persona                     | The `borrowbox_current_user_id` cookie                            | The server needs it for the Navbar, the owner check and the dashboard. Switched with `switchPersona`.         |
-| Borrow list (the cart)              | Zustand `borrowListStore`, saved in `localStorage`                | Many components need it (Navbar count, cards, list page). Changed only through the store's actions.           |
-| Toasts                              | Zustand `toastStore`                                              | Any component can call `showToast()`; `Toasts` draws them.                                                    |
-| Menu open, profile open, scrolled   | `Navbar` (`useState`)                                             | Only the header uses them.                                                                                    |
-| Borrow form fields, errors, sending | `BorrowForm` (react-hook-form)                                    | Only the form uses them. Zod checks them with the rules in `requestRules.ts`.                                 |
-| Account just created                | `RegisterView` (`useState`)                                       | Only that page uses it.                                                                                       |
+| State                               | Owner                                                             | Why there                                                                                                              |
+| ----------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Items from the API                  | The server: `getItems()` and `getItem(id)` in `cards/itemsApi.ts` | Server Components fetch them. React `cache()` makes one API call per request, however many parts ask.                  |
+| Filters and sort                    | The URL (`/catalog?q=&category=&sort=`)                           | Read with `parseCatalogParams()` and passed down as `filters`, so a link or a refresh keeps them.                      |
+| Language                            | The `borrowbox_lang` cookie                                       | The server must know it before drawing (`<html lang dir>`). Switched with the `switchLanguage` server action.          |
+| Current persona                     | The `borrowbox_current_user_id` cookie                            | The server needs it for the Navbar, the owner check and the dashboard. Switched with `switchPersona`.                  |
+| Borrow list (the cart)              | Zustand `borrowListStore`, saved in `localStorage`                | Many components need it (Navbar count, cards, list page). Changed only through the store's actions.                    |
+| Toasts                              | Zustand `toastStore`                                              | Any component can call `showToast()`; `Toasts` draws them.                                                             |
+| Menu open, profile open, scrolled   | `Navbar` (`useState`)                                             | Only the header uses them.                                                                                             |
+| Checkout fields, errors, sending    | `CheckoutForm` (react-hook-form)                                  | Only the form uses them. Every rule is in one Zod schema, `checkoutSchema.ts`, used by the form and the server action. |
+| Borrow form fields, errors, sending | `BorrowForm` (react-hook-form)                                    | Only the form uses them. Zod checks them with the rules in `requestRules.ts`.                                          |
+| Account just created                | `RegisterView` (`useState`)                                       | Only that page uses it.                                                                                                |
 
 Values that can be calculated are not state: the Navbar count, the list totals, the filtered and sorted cards and each item's status are calculated while drawing.
 

@@ -8,6 +8,7 @@ import { EmptyState } from "../../shared/ui/EmptyState.tsx";
 import { LoadingState } from "../../shared/ui/LoadingState.tsx";
 import type { Item } from "../cards/types.ts";
 import { BorrowListRow } from "./BorrowListRow.tsx";
+import { CheckoutForm } from "./CheckoutForm.tsx";
 import { MAX_DAYS, knownEntries } from "./borrowListRules.ts";
 import { borrowListStore } from "./borrowListStore.ts";
 import { useBorrowList, useBorrowListReady } from "./useBorrowList.ts";
@@ -103,6 +104,7 @@ export function BorrowListView({
               {t("borrowList.clear")}
             </button>
           </div>
+          <CheckoutForm lang={lang} />
         </>
       )}
     </section>
