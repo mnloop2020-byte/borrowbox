@@ -1,31 +1,41 @@
+"use client";
+import Link from "next/link";
 import { useRef } from "react";
 import type { ReactElement } from "react";
-import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
-import { formatMoney, t } from "../../shared/i18n/i18n.ts";
+import { createI18n } from "../../shared/i18n/i18n.ts";
+import type { Lang } from "../../shared/types.ts";
 import { EmptyState } from "../../shared/ui/EmptyState.tsx";
-import { ItemsStatus } from "../cards/ItemsStatus.tsx";
-import { listCards } from "../cards/listCards.ts";
-import { useItems } from "../cards/useItems.ts";
+import { LoadingState } from "../../shared/ui/LoadingState.tsx";
+import type { Item } from "../cards/types.ts";
 import { BorrowListRow } from "./BorrowListRow.tsx";
+import { CheckoutForm } from "./CheckoutForm.tsx";
 import { MAX_DAYS, knownEntries } from "./borrowListRules.ts";
 import { borrowListStore } from "./borrowListStore.ts";
-import { useBorrowList } from "./useBorrowList.ts";
+import { useBorrowList, useBorrowListReady } from "./useBorrowList.ts";
+
+interface BorrowListViewProps {
+  /** Every item from the API: the name, photo and deposit of each row */
+  items: Item[];
+  lang: Lang;
+}
 
 /**
- * "My borrow list" page (#/borrow-list): the cart. Change the days, remove
- * one item or clear all. The list is saved, so it survives a refresh. The
- * item details (name, photo, deposit) come from the API.
+ * "My borrow list" (/borrow-list): the cart. Change the days, remove one
+ * item or clear all. The list is saved in the browser, so it survives a
+ * refresh; the item details come from the API through the page.
  */
-export function BorrowListView(): ReactElement {
-  usePageTitle(t("title.borrowList"));
+export function BorrowListView({
+  items,
+  lang,
+}: BorrowListViewProps): ReactElement {
+  const { t, formatMoney } = createI18n(lang);
   const list = useBorrowList();
+  const ready = useBorrowListReady();
   // When the focused button disappears, focus goes to the heading, so
   // keyboard and screen-reader users are not lost at the top of the page
   const headingRef = useRef<HTMLHeadingElement>(null);
   const focusHeading = (): void => headingRef.current?.focus();
 
-  const state = useItems();
-  const items = state.status === "success" ? listCards(state.items) : [];
   const rows = knownEntries(list, items).flatMap((entry) => {
     const item = items.find((candidate) => candidate.id === entry.itemId);
     return item ? [{ entry, item }] : [];
@@ -50,16 +60,16 @@ export function BorrowListView(): ReactElement {
         {t("borrowList.intro", { max: MAX_DAYS })}
       </p>
 
-      {state.status !== "success" ? (
-        <ItemsStatus state={state} />
+      {!ready ? (
+        <LoadingState label={t("borrowList.loading")} />
       ) : rows.length === 0 ? (
         <EmptyState
           title={t("borrowList.emptyTitle")}
           text={t("borrowList.emptyText")}
           action={
-            <a href="#/catalog" className="btn btn-primary">
+            <Link href="/catalog" className="btn btn-primary">
               {t("borrowList.browse")}
-            </a>
+            </Link>
           }
         />
       ) : (
@@ -70,6 +80,7 @@ export function BorrowListView(): ReactElement {
                 key={entry.itemId}
                 entry={entry}
                 item={item}
+                lang={lang}
                 onRowRemoved={focusHeading}
               />
             ))}
@@ -93,6 +104,7 @@ export function BorrowListView(): ReactElement {
               {t("borrowList.clear")}
             </button>
           </div>
+          <CheckoutForm lang={lang} />
         </>
       )}
     </section>

@@ -100,12 +100,12 @@ test("parseBorrowList returns [] for anything that is not a list", () => {
 
 test("the list is still there after a refresh (a new store, same storage)", () => {
   const storage = fakeStorage();
-  const before = createBorrowListStore(storage);
+  const before = createBorrowListStore({ storage });
   before.add("item-1");
   before.add("item-2");
   before.increase("item-2");
 
-  const afterRefresh = createBorrowListStore(storage);
+  const afterRefresh = createBorrowListStore({ storage });
   assert.deepEqual(afterRefresh.getList(), [
     entry("item-1", 1),
     entry("item-2", 2),
@@ -114,7 +114,7 @@ test("the list is still there after a refresh (a new store, same storage)", () =
 
 test("the persisted Zustand state keeps the existing storage key", () => {
   const storage = fakeStorage();
-  const store = createBorrowListStore(storage);
+  const store = createBorrowListStore({ storage });
   store.add("item-1");
 
   assert.deepEqual(Object.keys(storage.data), ["borrowbox_borrow_list"]);
@@ -134,7 +134,7 @@ test("legacy raw-array data is migrated without losing valid entries", () => {
     ]),
   });
 
-  const migrated = createBorrowListStore(storage);
+  const migrated = createBorrowListStore({ storage });
   assert.deepEqual(migrated.getList(), [
     entry("item-1", 2),
     entry("item-2", 14),
@@ -157,14 +157,14 @@ test("invalid persisted entries are filtered when restoring Zustand state", () =
     }),
   });
 
-  assert.deepEqual(createBorrowListStore(storage).getList(), [
+  assert.deepEqual(createBorrowListStore({ storage }).getList(), [
     entry("item-1", 2),
   ]);
 });
 
 test("the count is correct after every action", () => {
   const storage = fakeStorage();
-  const store = createBorrowListStore(storage);
+  const store = createBorrowListStore({ storage });
   const count = (): number => listCount(store.getList());
   assert.equal(count(), 0);
   store.add("item-1");
@@ -185,12 +185,16 @@ test("the count is correct after every action", () => {
   store.add("item-4");
   store.clear();
   assert.equal(count(), 0);
-  assert.deepEqual(createBorrowListStore(storage).getList(), [], "saved too");
+  assert.deepEqual(
+    createBorrowListStore({ storage }).getList(),
+    [],
+    "saved too",
+  );
 });
 
 test("getList returns the same array until the list changes", () => {
   // useSyncExternalStore needs this, or React draws forever
-  const store = createBorrowListStore(fakeStorage());
+  const store = createBorrowListStore({ storage: fakeStorage() });
   const first = store.getList();
   assert.equal(store.getList(), first);
   store.add("item-1");
@@ -202,7 +206,7 @@ test("getList returns the same array until the list changes", () => {
 test("one add is one item, even after many subscribe/unsubscribe cycles", () => {
   // Like changing the catalog filter many times: each change draws the
   // cards again, and each one subscribes and unsubscribes.
-  const store = createBorrowListStore(fakeStorage());
+  const store = createBorrowListStore({ storage: fakeStorage() });
   let staleCalls = 0;
   for (let i = 0; i < 20; i++) {
     const stop = store.subscribe(() => staleCalls++);
@@ -218,19 +222,19 @@ test("one add is one item, even after many subscribe/unsubscribe cycles", () => 
 });
 
 test("a broken or blocked storage never crashes the list", () => {
-  const corrupt = createBorrowListStore(
-    fakeStorage({ borrowbox_borrow_list: "{not json" }),
-  );
+  const corrupt = createBorrowListStore({
+    storage: fakeStorage({ borrowbox_borrow_list: "{not json" }),
+  });
   assert.deepEqual(corrupt.getList(), []);
 
-  const blocked = createBorrowListStore(throwingStorage);
+  const blocked = createBorrowListStore({ storage: throwingStorage });
   assert.deepEqual(blocked.getList(), []);
   blocked.add("item-1"); // cannot be saved, but still works on this page
   assert.deepEqual(blocked.getList(), [entry("item-1", 1)]);
 });
 
 test("only the Zustand state is the source of truth for the list", () => {
-  const store = createBorrowListStore(fakeStorage());
+  const store = createBorrowListStore({ storage: fakeStorage() });
   assert.equal(store.getList(), store.store.getState().list);
 
   store.add("item-1");
@@ -244,7 +248,7 @@ test("items that do not exist are dropped, so the count matches the page", () =>
   assert.deepEqual(parseBorrowList(saved, known), [entry("item-1", 1)]);
 
   const storage = fakeStorage({ borrowbox_borrow_list: JSON.stringify(saved) });
-  const store = createBorrowListStore(storage, known);
+  const store = createBorrowListStore({ storage, knownIds: known });
   assert.equal(listCount(store.getList()), 1);
 });
 

@@ -17,22 +17,30 @@ test("no file in src/ imports the item list or anything else from server/", () =
   assert.deepEqual(found, []);
 });
 
-// One component per file: a .tsx file declares exactly one exported function
-// or class whose name starts with a capital letter (a component). It has the
-// file's name, so ItemCard is in ItemCard.tsx. Small helpers are fine.
+// One component per file. A component is a function whose name starts with
+// a capital letter (async for a server component).
+//  - In src/features and src/shared, a .tsx file has exactly one, exported
+//    with the file's name: ItemCard is in ItemCard.tsx. RetryBoundary is
+//    made by Next.js catchError() from its one fallback function.
+//  - In src/app, Next.js decides the file names (page.tsx, layout.tsx, ...),
+//    so each file has exactly one component, the default export.
+// Small helpers with lowercase names are fine.
+const COMPONENT = /^(?:export )?(?:default )?(?:async )?function [A-Z]\w*/gm;
+
 test("every .tsx file in src/ has one component, named like the file", () => {
   const wrong = filesIn("src")
-    .filter((file) => file.endsWith(".tsx") && !file.endsWith("main.tsx"))
+    .filter((file) => file.endsWith(".tsx"))
     .filter((file) => {
       const code = readFileSync(file, "utf8");
-      const functions = code.match(/^(export )?function [A-Z]\w*/gm) ?? [];
-      const classes = code.match(/^(export )?class [A-Z]\w*/gm) ?? [];
-      const all = [...functions, ...classes];
+      const count = (code.match(COMPONENT) ?? []).length;
+      if (file.startsWith("src/app/")) {
+        return count !== 1 || !/^export default (async )?function /m.test(code);
+      }
       const exported =
-        /^export function ([A-Z]\w*)/m.exec(code)?.[1] ??
-        /^export class ([A-Z]\w*)/m.exec(code)?.[1];
+        /^export (?:async )?function ([A-Z]\w*)/m.exec(code)?.[1] ??
+        /^export const ([A-Z]\w*) = catchError\(/m.exec(code)?.[1];
       const fileName = file.split("/").at(-1)?.replace(".tsx", "");
-      return all.length !== 1 || exported !== fileName;
+      return count !== 1 || exported !== fileName;
     });
   assert.deepEqual(wrong, []);
 });

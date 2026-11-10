@@ -3,10 +3,11 @@ import assert from "node:assert/strict";
 import {
   EXIT_MS,
   VISIBLE_MS,
-  getToasts,
   showToast,
-  subscribeToasts,
-} from "../src/shared/ui/toast.ts";
+  toastStore,
+} from "../src/shared/ui/toastStore.ts";
+
+const getToasts = () => toastStore.getState().toasts;
 
 // mock.timers: setTimeout waits for tick(), so the test controls the clock.
 // A timer created during a tick() waits for the next tick(), so the exit
@@ -57,7 +58,7 @@ test("toasts stack oldest first, and each change is a new list", (t) => {
 test("listeners hear every change until they unsubscribe", (t) => {
   t.mock.timers.enable({ apis: ["setTimeout"] });
   let calls = 0;
-  const stop = subscribeToasts(() => calls++);
+  const stop = toastStore.subscribe(() => calls++);
   showToast("Hi");
   assert.equal(calls, 1);
   stop();

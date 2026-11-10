@@ -1,24 +1,52 @@
 /**
- * Gets the items from the API (GET /api/items in server/index.ts).
- * Only this file knows the address; the store calls fetchItems().
+ * Gets the items from the API (server/index.ts). Server only: pages and
+ * layouts call these functions, and only this file knows the paths.
+ *
+ * cache(): within one request, every caller shares one API call, so the
+ * layout (the Navbar count) and the page never ask twice.
  */
+import "server-only";
+import { cache } from "react";
 import { getJson } from "../../shared/api/client.ts";
-import type { ApiResult } from "../../shared/api/client.ts";
+import { photoUrl } from "./cardPhotos.ts";
+import { toItem, toItems } from "./itemMapper.ts";
+import { listCards } from "./listCards.ts";
+import type { Item } from "./types.ts";
 
-/**
- * Where the items come from, after BASE_URL. To see each state of the app,
- * change it for a moment to:
- *   "/items?delay=3000"   loading (answers after 3 seconds)
- *   "/items?fail=500"     error, with the "Try again" button
- *   "/items?empty=1"      no items at all
- */
 const ITEMS_PATH = "/items";
 
-export function fetchItems(): Promise<ApiResult> {
-  return getJson(ITEMS_PATH);
-}
+/**
+ * Every item, with today's status. Throws when the API fails or sends
+ * something that is not a list of items: the nearest error boundary then
+ * shows the error with "Try again".
+ */
+export const getItems = cache(async (): Promise<Item[]> => {
+  const result = await getJson(ITEMS_PATH);
+  const items = result.ok ? toItems(result.data, photoUrl) : null;
+  if (items === null) throw new Error("The items could not be loaded");
+  return listCards(items);
+});
 
-/** Gets one item by its checked route id from GET /api/items/:id. */
-export function fetchItem(itemId: string): Promise<ApiResult> {
-  return getJson(`/items/${encodeURIComponent(itemId)}`);
+/**
+ * One item by its id (already checked with isValidItemId), or null when
+ * the API has no item with this id. Throws on any other failure.
+ */
+export const getItem = cache(async (itemId: string): Promise<Item | null> => {
+  const result = await getJson(`${ITEMS_PATH}/${encodeURIComponent(itemId)}`);
+  if (!result.ok && result.status === 404) return null;
+  const item = result.ok ? toItem(result.data, photoUrl) : null;
+  if (item === null) throw new Error("The item could not be loaded");
+  return listCards([item])[0];
+});
+
+/**
+ * The ids of every item, or null when the API fails. Never throws: the
+ * Navbar uses it to count only the borrow-list rows the list page can show.
+ */
+export async function getItemIds(): Promise<string[] | null> {
+  try {
+    return (await getItems()).map((item) => item.id);
+  } catch {
+    return null;
+  }
 }

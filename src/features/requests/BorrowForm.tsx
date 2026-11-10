@@ -1,21 +1,20 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { ReactElement } from "react";
 import { Button } from "../../shared/ui/Button.tsx";
 import { Input } from "../../shared/ui/Input.tsx";
-import { t } from "../../shared/i18n/i18n.ts";
+import { createI18n } from "../../shared/i18n/i18n.ts";
 import { todayISO } from "../../shared/lib/dates.ts";
-import { showToast } from "../../shared/ui/toast.ts";
+import type { Lang } from "../../shared/types.ts";
+import { showToast } from "../../shared/ui/toastStore.ts";
 import type { Item } from "../cards/types.ts";
-import { userStore } from "../users/userStore.ts";
+import type { User } from "../users/types.ts";
+import { requestBorrow } from "./actions.ts";
 import { addRequest, getRequests } from "./requestStore.ts";
 import { createRequestRecord } from "./requestRules.ts";
 import { createBorrowRequestSchema } from "./borrowRequestSchema.ts";
 import type { BorrowFormValues } from "./borrowRequestSchema.ts";
-import { sendBorrowRequest } from "./requestsApi.ts";
-
-/** Booking messages use validation codes so language changes stay live. */
-const message = (code: string): string => t(`booking.error.${code}`);
 
 function requestId(): string {
   return `req-${Date.now()}`;
@@ -23,13 +22,23 @@ function requestId(): string {
 
 interface BorrowFormProps {
   item: Item;
+  /** The demo persona in use (from the cookie, read by the server) */
+  borrower: User;
+  lang: Lang;
 }
 
 /** The validated "From / To" date form and borrow request action. */
-export function BorrowForm({ item }: BorrowFormProps): ReactElement {
+export function BorrowForm({
+  item,
+  borrower,
+  lang,
+}: BorrowFormProps): ReactElement {
+  const { t } = createI18n(lang);
+  /** Errors are kept as codes, so they show in the page's language */
+  const message = (code: string): string => t(`booking.error.${code}`);
   const schema = createBorrowRequestSchema(() => ({
     item,
-    borrowerId: userStore.getCurrentUser().id,
+    borrowerId: borrower.id,
     requests: getRequests(),
     today: todayISO(),
   }));
@@ -48,8 +57,7 @@ export function BorrowForm({ item }: BorrowFormProps): ReactElement {
   const today = todayISO();
 
   async function onSubmit(values: BorrowFormValues): Promise<void> {
-    const borrower = userStore.getCurrentUser();
-    const response = await sendBorrowRequest({
+    const response = await requestBorrow({
       itemId: item.id,
       borrowerId: borrower.id,
       startDate: values.startDate,

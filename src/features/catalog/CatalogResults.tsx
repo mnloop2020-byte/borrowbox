@@ -1,29 +1,33 @@
+import Link from "next/link";
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { EmptyState } from "../../shared/ui/EmptyState.tsx";
 import { AddToListButton } from "../borrow-list/AddToListButton.tsx";
 import { ItemCard } from "../cards/ItemCard.tsx";
-import type { Item } from "../cards/types.ts";
+import { getItems } from "../cards/itemsApi.ts";
 import { categoriesFrom, filterItems, sortItems } from "./catalogFilter.ts";
 import type { CatalogParams } from "./catalogParams.ts";
 import { FilterChips } from "./FilterChips.tsx";
 import { SortSelect } from "./SortSelect.tsx";
 
+/** Cards in the first row on a wide screen: their photos load at once */
+const FIRST_ROW = 4;
+
 interface CatalogResultsProps {
-  /** Every item from the API, with today's status */
-  items: Item[];
   filters: CatalogParams;
 }
 
 /**
- * The catalog under the search box, once the items have arrived: the
- * category chips (from the data), the count, the sort and the cards.
- * No items at all and "no match" are two different messages.
+ * The catalog under the search box: the category chips (from the data),
+ * the count, the sort and the cards. It waits for the API, so CatalogView
+ * draws it inside Suspense. No items at all and "no match" are two
+ * different messages.
  */
-export function CatalogResults({
-  items,
+export async function CatalogResults({
   filters,
-}: CatalogResultsProps): ReactElement {
+}: CatalogResultsProps): Promise<ReactElement> {
+  const { t, lang } = await getI18n();
+  const items = await getItems();
   if (items.length === 0) {
     return (
       <EmptyState
@@ -43,25 +47,26 @@ export function CatalogResults({
         <p className="catalog-count">
           {t("catalog.count", { count: shown.length, total: items.length })}
         </p>
-        <SortSelect filters={filters} />
+        <SortSelect filters={filters} lang={lang} />
       </div>
       {shown.length === 0 ? (
         <EmptyState
           title={t("catalog.emptyTitle")}
           text={t("catalog.emptyText")}
           action={
-            <a href="#/catalog" className="btn btn-ghost">
+            <Link href="/catalog" className="btn btn-ghost">
               {t("catalog.clear")}
-            </a>
+            </Link>
           }
         />
       ) : (
         <div className="catalog-grid">
-          {shown.map((item) => (
+          {shown.map((item, index) => (
             <ItemCard
               key={item.id}
               item={item}
-              action={<AddToListButton item={item} />}
+              eager={index < FIRST_ROW}
+              action={<AddToListButton item={item} lang={lang} />}
             />
           ))}
         </div>

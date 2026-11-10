@@ -8,7 +8,7 @@ const SAFE_DATA_IMAGE = /^data:image\/(png|jpe?g|gif|webp|avif|svg\+xml)[;,]/i;
 
 /**
  * Image rule: only relative URLs, https: URLs and inlined image data.
- * Vite may inline small images as data:image URLs, so those must pass.
+ * Small images can be inlined as data:image URLs, so those must pass.
  */
 export function isSafeImageUrl(url: unknown): boolean {
   if (typeof url !== "string") return false;

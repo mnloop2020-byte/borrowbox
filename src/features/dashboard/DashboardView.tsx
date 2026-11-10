@@ -1,13 +1,12 @@
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
-import { usePageTitle } from "../../shared/browser/usePageTitle.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { PlaceholderCard } from "../../shared/ui/PlaceholderCard.tsx";
-import { useCurrentUser } from "../users/useCurrentUser.ts";
+import { getCurrentUser } from "../users/currentUser.ts";
 
 /** "My activity" page (placeholder until the dashboard is built) */
-export function DashboardView(): ReactElement {
-  usePageTitle(t("title.dashboard"));
-  const currentUser = useCurrentUser();
+export async function DashboardView(): Promise<ReactElement> {
+  const { t } = await getI18n();
+  const currentUser = await getCurrentUser();
   return (
     <PlaceholderCard
       title={t("page.dashboard.title")}

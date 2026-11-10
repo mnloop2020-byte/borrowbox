@@ -1,5 +1,3 @@
-import { tValue } from "../../shared/i18n/i18n.ts";
-
 /**
  * The six item categories.
  * This is the only place category names are written; everything else imports them.
@@ -33,18 +31,8 @@ export function isCategory(value: unknown): value is Category {
 /**
  * Builds the catalog link for one category.
  * @param name - One of CATEGORIES
- * @returns e.g. "#/catalog?category=Power%20Tools"
+ * @returns e.g. "/catalog?category=Power+Tools"
  */
 export function categoryHref(name: Category): string {
-  return `#/catalog?category=${encodeURIComponent(name)}`;
-}
-
-/**
- * The category name to show in the current language. Data and URLs keep the
- * English name; only this display text changes.
- * @param name - One of CATEGORIES
- * @returns e.g. the Arabic name for "Power Tools" when the page is in Arabic
- */
-export function categoryLabel(name: Category): string {
-  return tValue("category", name);
+  return `/catalog?${new URLSearchParams({ category: name })}`;
 }

@@ -1,8 +1,7 @@
 /**
  * Scrolls to a section on the current page and moves focus to its heading.
  *
- * Used instead of plain "#id" links, because the app routes on the URL hash
- * ("#/catalog"), so "#how-it-works" would be treated as an unknown route.
+ * Used by ScrollLink on the home page, so focus moves with the scroll.
  *
  * @param id - The section's element id
  */

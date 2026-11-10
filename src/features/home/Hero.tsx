@@ -1,25 +1,15 @@
-import type { FormEvent, ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import Form from "next/form";
+import Link from "next/link";
+import type { ReactElement } from "react";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { CheckIcon } from "../../shared/ui/CheckIcon.tsx";
 import { SearchIcon } from "../../shared/ui/SearchIcon.tsx";
-import {
-  CATEGORIES,
-  categoryHref,
-  categoryLabel,
-} from "../cards/categories.ts";
+import { CATEGORIES, categoryHref } from "../cards/categories.ts";
 import { HERO_BULLET_KEYS } from "./homeContent.ts";
 
 /** The top of the home page: title, points, search box and category chips */
-export function Hero(): ReactElement {
-  // The search text is read once, on submit, so the input needs no state
-  function handleSearch(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    const value = new FormData(event.currentTarget).get("q");
-    const term = typeof value === "string" ? value.trim() : "";
-    window.location.assign(
-      term ? `#/catalog?q=${encodeURIComponent(term)}` : "#/catalog",
-    );
-  }
+export async function Hero(): Promise<ReactElement> {
+  const { t, tValue } = await getI18n();
 
   return (
     <section className="hero" aria-labelledby="hero-heading">
@@ -42,10 +32,12 @@ export function Hero(): ReactElement {
           ))}
         </ul>
         <div className="hero-search-card hero-enter hero-enter--2">
-          <form
+          {/* next/form: a GET form to /catalog?q=..., opened without a full
+              page load. The catalog reads q from the URL, so no state here. */}
+          <Form
+            action="/catalog"
             role="search"
             aria-label={t("home.hero.searchLabel")}
-            onSubmit={handleSearch}
           >
             <div className="search-input-group">
               {/* A real <label htmlFor> (hidden visually; the placeholder and icon show the purpose) */}
@@ -66,7 +58,7 @@ export function Hero(): ReactElement {
                 {t("home.hero.searchButton")}
               </button>
             </div>
-          </form>
+          </Form>
           {/* Chips link with the English name; only the label is translated.
               --i staggers their entrance animation. */}
           <ul
@@ -75,24 +67,24 @@ export function Hero(): ReactElement {
           >
             {CATEGORIES.map((name, i) => (
               <li key={name}>
-                <a
+                <Link
                   href={categoryHref(name)}
                   className="category-chip"
                   style={{ "--i": i }}
                 >
-                  {categoryLabel(name)}
-                </a>
+                  {tValue("category", name)}
+                </Link>
               </li>
             ))}
           </ul>
         </div>
         <div className="hero-actions hero-enter hero-enter--3">
-          <a href="#/catalog" className="btn btn-primary">
+          <Link href="/catalog" className="btn btn-primary">
             {t("home.hero.exploreAll")}
-          </a>
-          <a href="#/list-item" className="btn btn-ghost">
+          </Link>
+          <Link href="/list-item" className="btn btn-ghost">
             {t("nav.listItem")}
-          </a>
+          </Link>
         </div>
       </div>
     </section>

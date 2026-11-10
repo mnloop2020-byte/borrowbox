@@ -40,9 +40,11 @@
   --color-heading: var(--color-ink);
   --color-border: var(--color-line);
 
-  /* Typography: Inter for Latin text, Tajawal for Arabic (see :root[lang="ar"]) */
+  /* Typography: Inter for Latin text, Tajawal for Arabic (see :root[lang="ar"]).
+     next/font loads both and names them --font-inter and --font-tajawal (app/layout.tsx). */
   --font-body:
-    "Inter", "Tajawal", system-ui, -apple-system, "Segoe UI", sans-serif;
+    var(--font-inter), var(--font-tajawal), system-ui, -apple-system,
+    "Segoe UI", sans-serif;
   --font-heading: var(--font-body);
   --font-weight-heading: 450;
   --font-size-xs: 0.75rem; /* 12px */
@@ -1035,6 +1037,7 @@ p {
 
 .category-group-img {
   width: 100%;
+  height: auto; /* next/image sets a height; aspect-ratio decides it */
   aspect-ratio: 8 / 5;
   object-fit: cover;
   border-radius: var(--radius-lg);
@@ -1135,6 +1138,7 @@ p {
 
 .split-img {
   width: 100%;
+  height: auto; /* next/image sets a height; aspect-ratio decides it */
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius-card);
@@ -1727,6 +1731,7 @@ p {
 .item-detail-img {
   display: block;
   width: 100%;
+  height: auto; /* next/image sets a height; aspect-ratio decides it */
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--radius-lg);
@@ -2089,8 +2094,8 @@ p {
    headings use the nearest loaded weight (500); the final Arabic heading
    weight is still an open decision in DESIGN.md. */
 :root[lang="ar"] {
-  --font-body: "Tajawal", system-ui, sans-serif;
-  --font-heading: "Tajawal", system-ui, sans-serif;
+  --font-body: var(--font-tajawal), system-ui, sans-serif;
+  --font-heading: var(--font-tajawal), system-ui, sans-serif;
   --tracking-display: 0;
   --tracking-h2: 0;
   --tracking-h3: 0;
@@ -2370,7 +2375,7 @@ p {
 /* ==========================================================================
    Borrow list (features/borrow-list/)
    The "Add to list" button under a card, the "My list" link with its count
-   in the header, and the list page (#/borrow-list) with a − / + days stepper
+   in the header, and the list page (/borrow-list) with a − / + days stepper
    ========================================================================== */
 
 /* The card is a column, so the button sits at the bottom of every card */
@@ -2802,4 +2807,21 @@ p {
     opacity: 0;
     transform: translateY(var(--space-xs));
   }
+}
+
+/* ===== Checkout form (borrow list page) =====
+   Reuses the register form's fields and checks; only spacing is added. */
+.checkout-form {
+  margin-top: var(--space-xl);
+}
+
+.checkout-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.checkout-form legend {
+  margin-bottom: var(--space-xs);
+  font-weight: 500;
 }

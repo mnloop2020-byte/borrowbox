@@ -1,16 +1,16 @@
 /**
  * A small JSON API for BorrowBox, built on Node's own http module (no
- * packages). Run it with `npm run api`; Vite forwards every /api request
- * from the app to it (see vite.config.ts).
+ * packages). Run it with `npm run api`. The Next.js app calls it from the
+ * server, at API_BASE_URL (.env.local).
  *
  * Endpoints:
  *   GET  /api/items         all items: { "items": [...], "total": 14 }
- *                           Test switches: ?delay=3000, ?fail=500, ?empty=1
- *                           (server/testSwitches.ts)
  *   GET  /api/items/:id     one item, e.g. /api/items/item-103
  *   POST /api/requests      a new borrow request (JSON body)
- *   ANY  /api/fail/:status  always fails with that status, e.g. /api/fail/500,
- *                           to test how the app handles errors
+ *
+ * Test switches go right after /api and work on every endpoint
+ * (server/testSwitches.ts): /api/delay/3000/..., /api/fail/500/...,
+ * /api/empty/items.
  */
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -18,7 +18,8 @@ import { isValidItemId } from "../src/features/cards/itemId.ts";
 import { ITEMS } from "./data.ts";
 import { readTestSwitches } from "./testSwitches.ts";
 
-const PORT = 3000;
+// Next.js uses 3000 during development
+const PORT = 4000;
 
 /** Larger bodies are refused, so nobody can fill the server's memory */
 const MAX_BODY_LENGTH = 10_000;
@@ -89,25 +90,19 @@ function isRequestBody(value: unknown): value is RequestBody {
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-/** GET /api/items (with the test switches) and GET /api/items/:id */
-async function handleItems(
+/** GET /api/items and GET /api/items/:id */
+function handleItems(
   pathname: string,
-  params: URLSearchParams,
+  empty: boolean,
   res: ServerResponse,
-): Promise<void> {
+): void {
   if (pathname === "/api/items") {
-    const { delayMs, empty, failStatus } = readTestSwitches(params);
-    if (delayMs > 0) await wait(delayMs);
-    if (failStatus !== null) {
-      sendJson(res, failStatus, { error: "Simulated failure" });
-      return;
-    }
     const items = empty ? [] : ITEMS;
     sendJson(res, 200, { items, total: items.length });
     return;
   }
   const id = pathname.slice("/api/items/".length);
-  // The same rule the app uses for #/item/:id
+  // The same rule the app uses for /items/:id
   if (!isValidItemId(id)) {
     sendJson(res, 400, { error: "Invalid item id" });
     return;
@@ -145,17 +140,15 @@ async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> {
-  const { pathname, searchParams } = new URL(
-    req.url ?? "/",
-    `http://localhost:${PORT}`,
-  );
-  console.log(req.method, pathname);
+  const url = new URL(req.url ?? "/", `http://localhost:${PORT}`);
+  console.log(req.method, url.pathname);
 
-  if (pathname.startsWith("/api/fail/")) {
-    const status = Number(pathname.slice("/api/fail/".length));
-    const isErrorStatus =
-      Number.isInteger(status) && status >= 400 && status <= 599;
-    sendJson(res, isErrorStatus ? status : 400, { error: "Simulated failure" });
+  const { delayMs, empty, failStatus, pathname } = readTestSwitches(
+    url.pathname,
+  );
+  if (delayMs > 0) await wait(delayMs);
+  if (failStatus !== null) {
+    sendJson(res, failStatus, { error: "Simulated failure" });
     return;
   }
 
@@ -164,7 +157,7 @@ async function handleRequest(
       sendJson(res, 405, { error: "Method not allowed" });
       return;
     }
-    await handleItems(pathname, searchParams, res);
+    handleItems(pathname, empty, res);
     return;
   }
 

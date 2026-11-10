@@ -1,4 +1,3 @@
-import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes, ReactElement } from "react";
@@ -21,22 +20,15 @@ const buttonVariants = cva(
 interface ButtonProps
   extends
     ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
+    VariantProps<typeof buttonVariants> {}
 
 /** shadcn-style button, scoped to existing BorrowBox button styling. */
 export function Button({
   className,
   variant,
-  asChild = false,
   ...props
 }: ButtonProps): ReactElement {
-  const Component = asChild ? Slot : "button";
   return (
-    <Component
-      className={cn(buttonVariants({ variant }), className)}
-      {...props}
-    />
+    <button className={cn(buttonVariants({ variant }), className)} {...props} />
   );
 }

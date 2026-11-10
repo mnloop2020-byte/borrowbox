@@ -1,5 +1,9 @@
+"use client";
+import Image from "next/image";
+import Link from "next/link";
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { createI18n } from "../../shared/i18n/i18n.ts";
+import type { Lang } from "../../shared/types.ts";
 import { itemCardData } from "../cards/itemCardData.ts";
 import type { Item } from "../cards/types.ts";
 import { MAX_DAYS } from "./borrowListRules.ts";
@@ -9,6 +13,7 @@ import type { BorrowListEntry } from "./types.ts";
 interface BorrowListRowProps {
   entry: BorrowListEntry;
   item: Item;
+  lang: Lang;
   /** Called after a change that takes the row off the page */
   onRowRemoved: () => void;
 }
@@ -17,9 +22,11 @@ interface BorrowListRowProps {
 export function BorrowListRow({
   entry,
   item,
+  lang,
   onRowRemoved,
 }: BorrowListRowProps): ReactElement {
-  const card = itemCardData(item);
+  const { t, formatMoney } = createI18n(lang);
+  const card = itemCardData(item, formatMoney);
   const daysId = `days-${item.id}`;
 
   function decrease(): void {
@@ -36,12 +43,18 @@ export function BorrowListRow({
   return (
     <li className="borrow-row">
       {card.imageUrl && (
-        <img src={card.imageUrl} alt="" className="borrow-row-image" />
+        <Image
+          src={card.imageUrl}
+          alt=""
+          width={72}
+          height={72}
+          className="borrow-row-image"
+        />
       )}
       <div className="borrow-row-info">
-        <a href={card.href} className="borrow-row-title">
+        <Link href={card.href} className="borrow-row-title">
           <bdi>{item.title}</bdi>
-        </a>
+        </Link>
         <span className="borrow-row-deposit">
           {t("borrowList.deposit", { amount: card.deposit })}
         </span>

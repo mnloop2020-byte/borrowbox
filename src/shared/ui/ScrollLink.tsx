@@ -1,3 +1,6 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { MouseEvent, ReactElement, ReactNode } from "react";
 import { scrollToSection } from "../browser/scrollToSection.ts";
 
@@ -11,10 +14,10 @@ interface ScrollLinkProps {
 }
 
 /**
- * A link to a section of the home page ("How it works"). A plain
- * "#how-it-works" link cannot work, because the router reads the hash
- * ("#/catalog"), so this link scrolls with JavaScript instead.
- * From another page it goes home first, then scrolls.
+ * A link to a section of the home page ("How it works"). From another page
+ * it is a normal link to "/#how-it-works". On the home page it scrolls
+ * there itself and moves focus to the section heading, for keyboard and
+ * screen-reader users.
  */
 export function ScrollLink({
   targetId,
@@ -22,28 +25,18 @@ export function ScrollLink({
   children,
   onClick,
 }: ScrollLinkProps): ReactElement {
-  function handleClick(event: MouseEvent<HTMLAnchorElement>): void {
-    event.preventDefault();
-    onClick?.();
+  const pathname = usePathname();
 
-    const isHome = ["", "#", "#/"].includes(window.location.hash);
-    if (isHome) {
-      scrollToSection(targetId);
-      return;
-    }
-    // Added after the router's listener (App.tsx), so it runs after home is
-    // drawn. setTimeout (not requestAnimationFrame) never waits for a paint.
-    window.addEventListener(
-      "hashchange",
-      () => setTimeout(() => scrollToSection(targetId), 0),
-      { once: true },
-    );
-    window.location.assign("#/");
+  function handleClick(event: MouseEvent<HTMLAnchorElement>): void {
+    onClick?.();
+    if (pathname !== "/") return;
+    event.preventDefault();
+    scrollToSection(targetId);
   }
 
   return (
-    <a href="#/" className={className} onClick={handleClick}>
+    <Link href={`/#${targetId}`} className={className} onClick={handleClick}>
       {children}
-    </a>
+    </Link>
   );
 }

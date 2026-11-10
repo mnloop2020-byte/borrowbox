@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import type { Item } from "./types.ts";
 
 interface OwnerCardProps {
@@ -7,7 +7,10 @@ interface OwnerCardProps {
 }
 
 /** Who lends the item: the trust details that sit under the title */
-export function OwnerCard({ item }: OwnerCardProps): ReactElement {
+export async function OwnerCard({
+  item,
+}: OwnerCardProps): Promise<ReactElement> {
+  const { t } = await getI18n();
   const rating = Number(item.ownerRating);
   return (
     <section className="item-owner" aria-labelledby="owner-heading">

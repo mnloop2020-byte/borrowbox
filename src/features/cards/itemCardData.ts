@@ -6,7 +6,7 @@
  * localStorage and the List an Item form): the image URL and id are
  * checked, and only known statuses reach the class name.
  */
-import { formatMoney } from "../../shared/i18n/i18n.ts";
+import type { I18n } from "../../shared/i18n/i18n.ts";
 import { isSafeImageUrl } from "../../shared/lib/imageUrl.ts";
 import type { Item, ItemStatus } from "./types.ts";
 import { isValidItemId } from "./itemId.ts";
@@ -27,11 +27,15 @@ export interface ItemCardData {
   deposit: string;
 }
 
-export function itemCardData(item: Item): ItemCardData {
+/** @param formatMoney - from the page's language (createI18n or getI18n) */
+export function itemCardData(
+  item: Item,
+  formatMoney: I18n["formatMoney"],
+): ItemCardData {
   const validId = isValidItemId(item.id);
   const rating = Number(item.ownerRating);
   return {
-    href: validId ? `#/item/${item.id}` : "#/catalog",
+    href: validId ? `/items/${item.id}` : "/catalog",
     id: validId ? item.id : null,
     imageUrl: isSafeImageUrl(item.imageUrl) ? item.imageUrl : null,
     status: isItemStatus(item.status) ? item.status : null,

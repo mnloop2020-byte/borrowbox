@@ -1,9 +1,11 @@
+import Image from "next/image";
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { HOW_IMAGE, HOW_STEP_KEYS } from "./homeContent.ts";
 
 /** The numbered steps; the menu's "How it works" link scrolls here */
-export function HowItWorks(): ReactElement {
+export async function HowItWorks(): Promise<ReactElement> {
+  const { t } = await getI18n();
   return (
     <section
       id="how-it-works"
@@ -35,11 +37,11 @@ export function HowItWorks(): ReactElement {
           ))}
         </ol>
       </div>
-      <img
+      <Image
         src={HOW_IMAGE.image}
         alt={t(HOW_IMAGE.altKey)}
         className="split-img"
-        loading="lazy"
+        sizes="(min-width: 768px) 50vw, 100vw"
         data-reveal
       />
     </section>

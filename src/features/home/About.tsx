@@ -1,10 +1,11 @@
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { getI18n } from "../../shared/i18n/serverI18n.ts";
 import { ArrowIcon } from "../../shared/ui/ArrowIcon.tsx";
 import { ScrollLink } from "../../shared/ui/ScrollLink.tsx";
 
 /** "What is BorrowBox" with a link down to "How it works" */
-export function About(): ReactElement {
+export async function About(): Promise<ReactElement> {
+  const { t } = await getI18n();
   return (
     <section
       className="home-section about-section"

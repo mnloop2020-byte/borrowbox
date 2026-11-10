@@ -1,6 +1,6 @@
 /**
  * The item id check, used wherever an id comes from outside: the URL
- * (#/item/:id), item data, and the API (server/index.ts).
+ * (/items/:id), item data, and the API (server/index.ts).
  * Pure function: no DOM, so Node can test it.
  */
 

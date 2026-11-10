@@ -3,7 +3,7 @@
  * Keys must match ar.ts exactly; tests/i18n.test.ts checks this.
  * Plain text only, no HTML. "{name}" style placeholders are filled by t().
  */
-export default {
+const en = {
   // Language switch
   "lang.switchTo": "العربية",
 
@@ -176,6 +176,24 @@ export default {
   "borrowList.title": "My borrow list",
   "borrowList.intro":
     "The tools you plan to borrow and for how many days (up to {max}). The list is saved on this device.",
+  "checkout.title": "Request every tool in your list",
+  "checkout.name": "Full name",
+  "checkout.phone": "Phone number",
+  "checkout.pickupDate": "Pickup date",
+  "checkout.method": "How will you get the tools?",
+  "checkout.method.owner": "I pick them up from the owner",
+  "checkout.method.delivery": "Deliver them to me",
+  "checkout.agree": "I agree to pay the refundable deposit for each tool",
+  "checkout.submit": "Send the requests",
+  "checkout.success": "Requests sent. The owners have 48 hours to respond.",
+  "checkout.failed": "The requests could not be sent. Please try again.",
+  "checkout.error.name": "Enter your name (at least 2 letters).",
+  "checkout.error.phone": "Enter a phone number of 8 to 15 digits.",
+  "checkout.error.date": "Choose a pickup date.",
+  "checkout.error.pastDate": "Choose today or a later date.",
+  "checkout.error.method": "Choose how you will get the tools.",
+  "checkout.error.agree": "You must agree to the deposit to continue.",
+  "borrowList.loading": "Loading your list…",
   "borrowList.emptyTitle": "Your list is empty",
   "borrowList.emptyText":
     "Add tools from the catalog, then choose the days here.",
@@ -207,15 +225,11 @@ export default {
   "catalog.sort.name": "Name (A–Z)",
   "catalog.sort.deposit-asc": "Deposit: low to high",
   "catalog.sort.deposit-desc": "Deposit: high to low",
-  "title.itemLoading": "Tool — BorrowBox",
-  "item.pageHeading": "Tool details",
   "page.loading": "Loading page...",
   "items.loading": "Loading tools…",
   "items.errorTitle": "We couldn't load the tools",
-  "items.errorCode":
-    "The server answered with error {status}. Please try again.",
-  "items.errorNoAnswer":
-    "The server did not answer. Check that the API is running, then try again.",
+  "items.errorText":
+    "The server did not send the tools. Check that the API is running, then try again.",
   "error.boundaryTitle": "We couldn't display this part of BorrowBox",
   "error.boundaryText":
     "Something went wrong while showing this content. Try again.",
@@ -254,3 +268,5 @@ export default {
   "footer.categories": "Categories",
   "footer.bottom": "© 2026 BorrowBox. Deposits are simulated.",
 };
+
+export default en;

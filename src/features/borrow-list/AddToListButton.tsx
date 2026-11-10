@@ -1,11 +1,14 @@
+"use client";
 import type { ReactElement } from "react";
-import { t } from "../../shared/i18n/i18n.ts";
+import { createI18n } from "../../shared/i18n/i18n.ts";
+import type { Lang } from "../../shared/types.ts";
+import { showToast } from "../../shared/ui/toastStore.ts";
 import type { Item } from "../cards/types.ts";
-import { showToast } from "../../shared/ui/toast.ts";
 import { borrowListStore } from "./borrowListStore.ts";
 
 interface AddToListButtonProps {
   item: Item;
+  lang: Lang;
 }
 
 /**
@@ -13,7 +16,11 @@ interface AddToListButtonProps {
  * more day when it is already in the list; a toast says which.
  * A paused item ("Unavailable") cannot be added.
  */
-export function AddToListButton({ item }: AddToListButtonProps): ReactElement {
+export function AddToListButton({
+  item,
+  lang,
+}: AddToListButtonProps): ReactElement {
+  const { t } = createI18n(lang);
   if (item.status === "Unavailable") {
     return (
       <button type="button" className="btn add-to-list-btn" disabled>
