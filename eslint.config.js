@@ -15,6 +15,17 @@ export default defineConfig([
   {
     files: ["**/*.{ts,tsx}"],
     extends: [tseslint.configs.recommended],
+    // No any, no `as` casts, no `!`: check the value instead (CLAUDE.md,
+    // "Fix type errors instead of hiding them"). `as const` is still allowed.
+    // Idea from the ShopBoard reference (yaman3bd/shopboard-reference).
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/consistent-type-assertions": [
+        "error",
+        { assertionStyle: "never" },
+      ],
+    },
   },
   // Next.js rules (links, images, fonts) and the React hooks rules
   ...nextVitals,
